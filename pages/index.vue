@@ -1,3 +1,7 @@
+<script setup lang="ts">
+import { categories } from "../store/data";
+
+</script>
 <template>
   <div class="py-5 grid grid-cols-12 gap-8">
     <div class="categories col-span-3">
@@ -49,16 +53,3 @@
     </div>
   </div>
 </template>
-<script setup>
-definePageMeta({
-  title: "Nutri'akl - authentic pure food sources",
-  meta: [
-    {
-      name: "description",
-      content:
-        "Nutriakl is a trusted source for authentic and pure food resources, dedicated to providing high-quality, natural products. We prioritize purity and sustainability in every product, ensuring that you have access to healthy and unadulterated foods.",
-    },
-  ],
-});
-import { categories } from "../store/data";
-</script>
