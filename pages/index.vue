@@ -35,7 +35,11 @@
         </svg>
       </section>
       <div class="categories-list grid rounded-b-lg border">
-        <div class="single-category py-4 cursor-pointer hover:bg-orange-500 px-10" v-for="category in categories" :key="category.id">
+        <div
+          class="single-category py-4 cursor-pointer hover:bg-orange-500 px-10"
+          v-for="category in categories"
+          :key="category.id"
+        >
           {{ category.name }}
         </div>
       </div>
@@ -46,5 +50,15 @@
   </div>
 </template>
 <script setup>
+definePageMeta({
+  title: "Nutri'akl - authentic pure food sources",
+  meta: [
+    {
+      name: "description",
+      content:
+        "Nutriakl is a trusted source for authentic and pure food resources, dedicated to providing high-quality, natural products. We prioritize purity and sustainability in every product, ensuring that you have access to healthy and unadulterated foods.",
+    },
+  ],
+});
 import { categories } from "../store/data";
 </script>
