@@ -43,7 +43,7 @@
 
       <!-- Copyright Section -->
       <div class="text-center mt-8 text-gray-400">
-        &copy; {{ new Date().getFullYear() }} MyApp. All rights reserved.
+        &copy; {{ new Date().getFullYear() }} Nutriʾakl. All rights reserved.
       </div>
     </div>
   </footer>
