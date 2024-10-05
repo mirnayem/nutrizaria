@@ -12,6 +12,7 @@ interface Props {
   product: Product;
 }
 const props = defineProps<Props>();
+const img = useImage();
 </script>
 <template>
   <div class="product__single grid gap-1 relative group">
@@ -22,7 +23,8 @@ const props = defineProps<Props>();
         width="350"
         height="350"
         loading="lazy"
-        blur="10"
+        :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
+        sizes="100vw sm:50vw md:400px"
         class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
       />
     </div>
