@@ -29,13 +29,17 @@
 
         <!-- Social Media Icons -->
         <div class="flex space-x-4">
-          <NuxtLink to="/" class="hover:text-blue-400">
+          <NuxtLink
+            to="https://www.facebook.com/profile.php?id=61565027387612"
+            class="hover:text-blue-400"
+          >
             <i class="fab fa-facebook-f"></i>
           </NuxtLink>
-          <NuxtLink to="/" class="hover:text-blue-400">
-            <i class="fab fa-twitter"></i>
-          </NuxtLink>
-          <NuxtLink to="/" class="hover:text-blue-400">
+
+          <NuxtLink
+            to="https://www.instagram.com/mirunayem/"
+            class="hover:text-blue-400"
+          >
             <i class="fab fa-instagram"></i>
           </NuxtLink>
         </div>

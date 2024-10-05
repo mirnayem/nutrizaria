@@ -11,7 +11,10 @@
       </div>
       <div class="navbar__right flex items-center gap-2">
         <div class="navbar__social">
-          <NuxtLink class="navbar__social-link" to="/">
+          <NuxtLink
+            class="navbar__social-link"
+            to="https://www.facebook.com/profile.php?id=61565027387612"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -34,7 +37,7 @@
         </div>
         <div class="border-l border-gray-300 h-3"></div>
         <div class="navbar__signup">
-          <NuxtLink to="/" class="navbar__signup--link">Signup</NuxtLink>
+          <NuxtLink to="/signup" class="navbar__signup--link">Signup</NuxtLink>
         </div>
       </div>
     </div>
