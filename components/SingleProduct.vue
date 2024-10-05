@@ -19,11 +19,10 @@ const props = defineProps<Props>();
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
-        width="400"
-        height="400"
-        sizes="(max-width: 400px) 100vw, 400px"
+        width="350"
+        height="350"
         loading="lazy"
-        class="rounded-md object-cover"
+        class="rounded-md w-72 h-72 object-cover"
       />
     </div>
     <div
