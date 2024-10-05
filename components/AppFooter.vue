@@ -29,15 +29,15 @@
 
         <!-- Social Media Icons -->
         <div class="flex space-x-4">
-          <a href="#" class="hover:text-blue-400">
+          <NuxtLink to="/" class="hover:text-blue-400">
             <i class="fab fa-facebook-f"></i>
-          </a>
-          <a href="#" class="hover:text-blue-400">
+          </NuxtLink>
+          <NuxtLink to="/" class="hover:text-blue-400">
             <i class="fab fa-twitter"></i>
-          </a>
-          <a href="#" class="hover:text-blue-400">
+          </NuxtLink>
+          <NuxtLink to="/" class="hover:text-blue-400">
             <i class="fab fa-instagram"></i>
-          </a>
+          </NuxtLink>
         </div>
       </div>
 
