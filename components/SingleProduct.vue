@@ -19,12 +19,15 @@ const props = defineProps<Props>();
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
-        width="350"
-        height="350"
+        width="300"
+        height="300"
+        sizes="(max-width: 640px) 256px, (max-width: 768px) 288px, 300px"
+        :srcset="`/images/${product.image}?w=256 256w, /images/${product.image}?w=288 288w, /images/${product.image}?w=300 300w`"
         loading="lazy"
-        class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
+        class="rounded-md sm:w-64 sm:h-64 w-72 h-72 object-cover"
       />
     </div>
+
     <div
       class="favorite-info-cart transition-all duration-700 ease-in-out transform -translate-y-10 group-hover:translate-y-[-70px] text-white opacity-0 flex group-hover:opacity-100 gap-5 items-center justify-center"
     >
