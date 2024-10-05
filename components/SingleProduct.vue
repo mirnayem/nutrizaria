@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
+const isModalOpen = ref(false);
+
+const openModal = () => {
+  isModalOpen.value = true;
+};
+
 interface Product {
   id: number;
   name: string;
@@ -6,6 +14,7 @@ interface Product {
   description: string;
   benefits: string[];
   price: number;
+  quantity: string;
 }
 
 interface Props {
@@ -51,6 +60,7 @@ const img = useImage();
       </div>
       <div
         class="info w-10 h-10 cursor-pointer rounded-full bg-orange-500 flex items-center justify-center"
+        @click="openModal"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -90,5 +100,47 @@ const img = useImage();
     <div class="price text-center font-bold -mt-5">
       {{ "$" + product.price }}
     </div>
+    <AppModal
+      :isOpen="isModalOpen"
+      @handleModal="isModalOpen = $event"
+      :title="product.name"
+    >
+      <div class="image-details grid grid-cols-12 gap-6">
+        <div class="image col-span-6">
+          <NuxtImg
+            :src="`/images/${product.image}`"
+            :alt="product.name"
+            width="350"
+            height="350"
+            loading="lazy"
+            :placeholder="
+              img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })
+            "
+            sizes="100vw sm:50vw md:400px"
+            class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
+          />
+        </div>
+        <div class="details col-span-6 flex flex-col gap-4">
+          <div class="price col-span-12">Price: {{ product.price }} bdt</div>
+          <div class="quantity col-span-12">
+            Quantity:{{ product.quantity }}
+          </div>
+          <div class="description col-span-12">
+            Description: {{ product.description }}
+          </div>
+          <QuanityControl />
+        </div>
+      </div>
+      <div class="benefits my-5">
+        <p class="py-2">Benefits of {{ product.name }}</p>
+        <div
+          class="benefit-single pb-2"
+          v-for="(benefit, index) in product.benefits"
+          :key="index"
+        >
+          <p>{{ index+1 +'.'+ benefit }}</p>
+        </div>
+      </div>
+    </AppModal>
   </div>
 </template>
