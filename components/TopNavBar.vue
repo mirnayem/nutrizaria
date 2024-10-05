@@ -14,6 +14,7 @@
           <NuxtLink
             class="navbar__social-link"
             to="https://www.facebook.com/profile.php?id=61565027387612"
+            title="notification"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
