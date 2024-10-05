@@ -21,7 +21,7 @@ const products = [
     {
         id: 2, 
         name: "Regular Nut",
-        image: "regular-nut.jpg",
+        image: "regular-nut.avif",
         price: 240,
         description:'',
         benefits: [
@@ -34,7 +34,7 @@ const products = [
     {
         id: 3,
         name: "Premium Cheese",
-        image: 'cheese.jpg',
+        image: 'cheese.avif',
         price: 890,
         description: '',
         benefits: [
