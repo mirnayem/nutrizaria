@@ -1,9 +1,10 @@
 <template>
+<transition name="modal">
   <div
     v-if="isOpen"
     class="fixed bg-orange-200 inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
   >
-    <div class="bg-white rounded-lg shadow-lg max-w-[600px] w-full p-6">
+    <div class="bg-white rounded-lg shadow-lg max-w-[700px] w-full px-10 py-6">
       <header class="flex justify-between items-center">
         <h2 class="text-xl font-semibold">{{ title }}</h2>
         <button @click="closeModal" class="text-gray-600 hover:text-gray-800">
@@ -28,6 +29,7 @@
       </div>
     </div>
   </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
@@ -50,5 +52,20 @@ const closeModal = () => {
 </script>
 
 <style scoped>
-/* Add any additional styles if needed */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.modal-enter-to,
+.modal-leave-from {
+  opacity: 1;
+  transform: scale(1);
+}
 </style>
