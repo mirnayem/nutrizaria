@@ -2,7 +2,7 @@ const products = [
     {
         id: 1, 
         name: "Premium Dates",
-        image: 'dates.jpg',
+        image: 'dates.avif',
         price: 1400,
         description: '',
         benefits: [
@@ -49,7 +49,7 @@ const products = [
     {
         id: 4,
         name: "Cashew Nut",
-        image: 'cashew.jpeg',
+        image: 'cashew.avif',
         price: 1600,
         description: '',
         benefits: [
@@ -63,7 +63,7 @@ const products = [
     {
         id: 5,
         name: "Olive Oil",
-        image: 'oliveoil.jpg',
+        image: 'olive-oil.avif',
         price: 1000,
         description: '',
         benefits: [
@@ -92,7 +92,7 @@ const products = [
     {
         id: 7,
         name: 'Pure Natural Honey',
-        image: 'honey.jpg',
+        image: 'honey.avif',
         price: 960,
         description:'',
         benefits: [

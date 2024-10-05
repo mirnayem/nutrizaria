@@ -15,16 +15,14 @@ const props = defineProps<Props>();
 </script>
 <template>
   <div class="product__single grid gap-1 relative group">
-    <div
-      class="image transition-all duration-700 ease-in-out w-full w-fit mx-auto"
-    >
+    <div class="image transition-all duration-700 ease-in-out w-fit mx-auto">
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
         width="350"
         height="350"
         loading="lazy"
-        class="rounded-md sm:w-72 sm:h-72 w-80 h-80  object-cover"
+        class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
       />
     </div>
     <div
