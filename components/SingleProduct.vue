@@ -21,12 +21,13 @@ const props = defineProps<Props>();
         :alt="product.name"
         width="400"
         height="400"
+        sizes="(max-width: 400px) 100vw, 400px"
         loading="lazy"
-        class="rounded-md"
+        class="rounded-md object-cover"
       />
     </div>
     <div
-      class="favorite-info-cart transition-all duration-700 ease-in-out transform -translate-y-10 group-hover:translate-y-[-70px] text-white opacity-0 flex group-hover:opacity-100  gap-5 items-center justify-center"
+      class="favorite-info-cart transition-all duration-700 ease-in-out transform -translate-y-10 group-hover:translate-y-[-70px] text-white opacity-0 flex group-hover:opacity-100 gap-5 items-center justify-center"
     >
       <div
         class="favorite w-10 h-10 cursor-pointer rounded-full bg-orange-500 flex items-center justify-center"
@@ -84,6 +85,8 @@ const props = defineProps<Props>();
       </div>
     </div>
     <div class="name text-center font-light -mt-10">{{ product.name }}</div>
-    <div class="price text-center font-bold -mt-5">{{ "$" + product.price }}</div>
+    <div class="price text-center font-bold -mt-5">
+      {{ "$" + product.price }}
+    </div>
   </div>
 </template>
