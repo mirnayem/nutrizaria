@@ -6,7 +6,7 @@ import { categories } from "../store/data";
   <div class="py-5 grid grid-cols-12 gap-8">
     <div class="categories col-span-3">
       <section
-        class="category-heading flex justify-between px-10 py-3 bg-orange-500 text-white items-center"
+        class="category-heading flex justify-between px-10 py-3 bg-orange-700 font-bold text-white items-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -40,7 +40,7 @@ import { categories } from "../store/data";
       </section>
       <div class="categories-list grid rounded-b-lg border">
         <div
-          class="single-category py-4 cursor-pointer hover:bg-orange-500 px-10"
+          class="single-category py-4 cursor-pointer hover:bg-orange-700 hover:text-white hover:font-bold px-10"
           v-for="category in categories"
           :key="category.id"
         >
