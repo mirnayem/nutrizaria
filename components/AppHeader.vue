@@ -3,23 +3,67 @@
     <TopNavBar />
     <nav class="container mx-auto h-24 flex justify-between items-center">
       <div class="text-xl font-bold">
-        <NuxtLink to="/" class="text-orange-600 font-black uppercase">Nutriʾakl</NuxtLink>
+        <NuxtLink to="/" class="text-orange-600 font-black uppercase"
+          >Nutriʾakl</NuxtLink
+        >
       </div>
 
       <ul class="flex space-x-4">
-        <li>
-          <NuxtLink to="/" class="hover:text-orange-500 font-bold uppercase">shop</NuxtLink>
+        <li class="group relative">
+          <NuxtLink
+            to="/shop"
+            class="hover:text-orange-500 font-bold uppercase transition-all duration-300"
+            >shop
+            <span
+              :class="{
+                'scale-x-100': route.path === '/shop',
+                'scale-x-0 group-hover:scale-x-100': route.path !== '/shop',
+              }"
+              class="absolute left-0 -bottom-1 w-full h-[3px] bg-orange-500 scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"
+            ></span>
+          </NuxtLink>
         </li>
-        <li>
-          <NuxtLink to="/about" class="hover:text-orange-500 font-bold uppercase">contact</NuxtLink>
+        <li class="group relative">
+          <NuxtLink
+            to="/contact"
+            class="hover:text-orange-500 font-bold uppercase transition-all duration-300"
+            >contact
+            <span
+              :class="{
+                'scale-x-100': route.path === '/contact',
+                'scale-x-0 group-hover:scale-x-100': route.path !== '/contact',
+              }"
+              class="absolute left-0 -bottom-1 w-full h-[3px] bg-orange-500 scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"
+            ></span
+          ></NuxtLink>
         </li>
-        <li>
-          <NuxtLink to="/services" class="hover:text-orange-500 font-bold uppercase"
-            >blog</NuxtLink
-          >
+        <li class="group relative">
+          <NuxtLink
+            to="/blog"
+            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300`"
+            >blog
+            <span
+              :class="{
+                'scale-x-100': route.path === '/blog',
+                'scale-x-0 group-hover:scale-x-100': route.path !== '/blog',
+              }"
+              class="absolute left-0 -bottom-1 w-full h-[3px] bg-orange-500 scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"
+            ></span
+          ></NuxtLink>
         </li>
-        <li>
-          <NuxtLink to="/contact" class="hover:text-orange-500 font-bold uppercase">faq</NuxtLink>
+        <li class="group relative">
+          <NuxtLink
+            to="/faq"
+            class="hover:text-orange-500 font-bold uppercase transition-all duration-300"
+            >faq
+            <span
+              :class="{
+                'scale-x-100': route.path === '/faq',
+                'scale-x-0 group-hover:scale-x-100': route.path !== '/faq',
+              }"
+              class="absolute left-0 -bottom-1 w-full h-[3px] bg-orange-500 scale-x-0 origin-left transition-transform duration-300 group-hover:scale-x-100"
+            ></span
+          ></NuxtLink>
         </li>
       </ul>
 
@@ -63,7 +107,7 @@
 </template>
 
 <script setup>
-// You can add specific logic if needed here
+const route = useRoute();
 </script>
 
 <style scoped>

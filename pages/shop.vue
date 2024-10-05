@@ -10,9 +10,7 @@ definePageMeta({
 });
 </script>
 <template>
-  <div class="services">
-    <h1>This is service page</h1>
-  </div>
+  <section>
+    <p>This page will be displayed at the /shop route.</p>
+  </section>
 </template>
-
-<style></style>
