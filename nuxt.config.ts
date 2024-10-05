@@ -1,11 +1,11 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   app: {
   head: {
     htmlAttrs: {
-      lang: 'en'
+      lang: 'en' 
     },
     title: 'Nutriakl - Authentic Pure Food Resources',
       meta: [
@@ -44,6 +44,17 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image-edge'
   ],
- 
+  image: {
+    provider: 'ipx', // IPX is the default provider in Nuxt 3
+    presets: {
+      thumbnail: {
+        modifiers: {
+          format: 'webp',
+          width: 300,
+          height: 300,
+        },
+      },
+    },
+  },
   
 })

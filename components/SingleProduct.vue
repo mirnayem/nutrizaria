@@ -22,6 +22,7 @@ const props = defineProps<Props>();
         width="350"
         height="350"
         loading="lazy"
+        blur="10"
         class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
       />
     </div>
