@@ -44,17 +44,4 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image-edge'
   ],
-  image: {
-    provider: 'ipx', // IPX is the default provider in Nuxt 3
-    presets: {
-      thumbnail: {
-        modifiers: {
-          format: 'webp',
-          width: 300,
-          height: 300,
-        },
-      },
-    },
-  },
-  
 })
