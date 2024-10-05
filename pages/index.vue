@@ -3,7 +3,7 @@ import { categories } from "../store/data";
 </script>
 <template>
   <div class="py-5 grid grid-cols-12 gap-8">
-    <div class="categories col-span-3">
+    <div class="categories md:col-span-3 col-span-12">
       <section
         class="category-heading flex justify-between px-10 py-3 bg-orange-500 md:bg-orange-700 font-bold text-white items-center"
       >
@@ -47,7 +47,7 @@ import { categories } from "../store/data";
         </div>
       </div>
     </div>
-    <div class="products-section col-span-9">
+    <div class="products-section md:col-span-9 col-span-12">
       <Products />
     </div>
   </div>
