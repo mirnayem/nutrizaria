@@ -1,5 +1,5 @@
 <template>
-  <section class="navbar flex items-center h-12 bg-slate-700">
+  <section class="navbar flex items-center h-8 bg-orange-500">
     <div class="container flex justify-between items-center text-white">
       <div class="navbar__left text-xs flex gap-4 items-center">
         <p class="navbar__email flex items-center gap-1">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { categories } from "../store/data";
+import { categories } from "../stores/data";
+
 </script>
 <template>
   <div class="grid grid-cols-12 gap-8">

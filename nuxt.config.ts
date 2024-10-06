@@ -44,4 +44,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/image-edge'
   ],
+  plugins: [
+    '~/plugins/pinia.ts'
+  ],
 })

@@ -1,6 +1,15 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+import { useCartStore } from "@/stores/cart";
+import type { CartItem } from "~/types/product";
+
+const cartStore = useCartStore();
+
+const addCart = (item: CartItem) => {
+  cartStore.addToCart(item);
+};
+
 const isModalOpen = ref(false);
 
 const openModal = () => {
@@ -14,14 +23,22 @@ interface Product {
   description: string;
   benefits: string[];
   price: number;
-  quantity: string;
+  unit: string;
 }
-
 interface Props {
   product: Product;
 }
 const props = defineProps<Props>();
+
 const img = useImage();
+
+const selectedItem = {
+  id: props.product.id,
+  name: props.product.name,
+  price: props.product.price,
+  image: props.product.image,
+  quantity: 1,
+};
 </script>
 <template>
   <div class="product__single grid gap-1 relative group">
@@ -78,6 +95,7 @@ const img = useImage();
         </svg>
       </div>
       <div
+        @click="addCart(selectedItem)"
         class="cart w-10 h-10 cursor-pointer rounded-full bg-orange-500 flex items-center justify-center"
       >
         <svg
@@ -122,9 +140,7 @@ const img = useImage();
         </div>
         <div class="details col-span-6 flex flex-col gap-4">
           <div class="price col-span-12">Price: {{ product.price }} bdt</div>
-          <div class="quantity col-span-12">
-            Quantity:{{ product.quantity }}
-          </div>
+          <div class="quantity col-span-12">Quantity:{{ product.unit }}</div>
           <div class="description col-span-12">
             Description: {{ product.description }}
           </div>
@@ -138,7 +154,7 @@ const img = useImage();
           v-for="(benefit, index) in product.benefits"
           :key="index"
         >
-          <p>{{ index+1 +'.'+ benefit }}</p>
+          <p>{{ index + 1 + "." + benefit }}</p>
         </div>
       </div>
     </AppModal>

@@ -1,7 +1,7 @@
 <template>
-  <header class="bg-white shadow-md">
+  <header class="bg-white shadow-md fixed w-full z-50">
     <TopNavBar />
-    <nav class="container mx-auto h-24 flex justify-between items-center">
+    <nav class="container mx-auto h-12 flex justify-between items-center">
       <div class="text-xl font-bold">
         <NuxtLink to="/" class="text-orange-600 font-black uppercase"
           >Nutriʾakl</NuxtLink
@@ -12,7 +12,9 @@
         <li class="group relative">
           <NuxtLink
             to="/shop"
-            class="hover:text-orange-500 font-bold uppercase transition-all duration-300"
+            :class="`hover:text-orange-500 ${
+              route.path === '/shop' ? 'text-orange-500' : ''
+            } font-bold uppercase transition-all duration-300`"
             >shop
             <span
               :class="{
@@ -26,7 +28,9 @@
         <li class="group relative">
           <NuxtLink
             to="/contact"
-            class="hover:text-orange-500 font-bold uppercase transition-all duration-300"
+            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300 ${
+              route.path === '/contact' ? 'text-orange-500' : ''
+            }`"
             >contact
             <span
               :class="{
@@ -40,7 +44,9 @@
         <li class="group relative">
           <NuxtLink
             to="/blog"
-            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300`"
+            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300 ${
+              route.path === '/blog' ? 'text-orange-500' : ''
+            }`"
             >blog
             <span
               :class="{
@@ -54,7 +60,9 @@
         <li class="group relative">
           <NuxtLink
             to="/faq"
-            class="hover:text-orange-500 font-bold uppercase transition-all duration-300"
+            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300 ${
+              route.path === '/faq' ? 'text-orange-500' : ''
+            }`"
             >faq
             <span
               :class="{
@@ -84,7 +92,11 @@
             />
           </svg>
         </div>
-        <div class="cart-bag">
+        <div class="cart-bag relative" @click="cartStore.toggleCart()">
+          <span
+            class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs"
+            >{{ cartStore.totalItems }}</span
+          >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -100,16 +112,17 @@
             />
           </svg>
         </div>
-        <div class="total">item: $150.00</div>
+        <div class="total">Total: ${{ cartStore.totalPrice }}</div>
       </div>
     </nav>
+    <ShoppingCart />
   </header>
 </template>
 
 <script setup>
 const route = useRoute();
+import { useCartStore } from "~/stores/cart";
+const cartStore = useCartStore();
 </script>
 
-<style scoped>
-/* You can add custom styles here if necessary */
-</style>
+<style scoped></style>

@@ -11,6 +11,6 @@
   </div>
 </template>
 <script setup>
-import { products } from "../store/data";
+import { products } from "../stores/data";
 </script>
 <style scoped></style>
