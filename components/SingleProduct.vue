@@ -38,6 +38,7 @@ const selectedItem = {
   price: props.product.price,
   image: props.product.image,
   quantity: 1,
+  unit: props.product.unit,
 };
 </script>
 <template>

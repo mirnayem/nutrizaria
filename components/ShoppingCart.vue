@@ -4,7 +4,7 @@
       :class="cartStore.isCartOpen ? 'translate-x-0' : 'translate-x-full'"
       class="fixed top-20 right-0 w-[320px] h-full bg-slate-100 shadow-lg transition-transform duration-300 ease-in-out z-50"
     >
-      <div class="">
+      <div>
         <div
           class="total-items flex justify-between items-center bg-slate-600 text-white px-4 py-2"
         >
@@ -49,6 +49,12 @@
             :cartItem="cartItem"
           />
         </div>
+      </div>
+      <div
+        class="place-order-total absolute bottom-24 w-full left-0 h-16 flex items-center justify-between text-white"
+      >
+        <div class="place-order w-2/3 pl-3 h-full flex items-center justify-between bg-orange-500">Place Order</div>
+        <div class="total-amount w-1/3 bg-slate-800 h-full pr-3 flex items-center justify-center">${{ cartStore.totalPrice }}</div>
       </div>
     </div>
   </div>

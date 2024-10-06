@@ -7,3 +7,11 @@
     <AppFooter />
   </div>
 </template>
+<script setup>
+import { useCartStore } from "@/stores/cart";
+
+const cartStore = useCartStore();
+if (typeof window !== "undefined") {
+  cartStore.loadCartFromLocalStorage();
+}
+</script>

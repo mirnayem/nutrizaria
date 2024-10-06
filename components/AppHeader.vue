@@ -92,7 +92,7 @@
             />
           </svg>
         </div>
-        <div class="cart-bag relative" @click="cartStore.toggleCart()">
+        <div class="cart-bag relative cursor-pointer" @click="cartStore.toggleCart()">
           <span
             class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs"
             >{{ cartStore.totalItems }}</span
