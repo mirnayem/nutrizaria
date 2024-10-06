@@ -3,19 +3,13 @@ import { defineStore } from 'pinia';
 import type { CartItem } from '~/types/product';
 interface CartState {
   items: CartItem[]  
-  totalItems: number
-  totalPrice: number
   isCartOpen: boolean
-  user: { id: number; name: string } | null
 }
 
 export const useCartStore = defineStore('cart', {
   state: ():CartState => ({
     items: [],
     isCartOpen:false,
-    totalItems: 0,
-    totalPrice: 0,
-    user: null
   }),
   getters: {
     totalItems: (state): number => {

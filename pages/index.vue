@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { categories } from "../stores/data";
 
+definePageMeta({
+  middleware: 'auth'
+})
 </script>
 <template>
   <div class="grid grid-cols-12 gap-8">

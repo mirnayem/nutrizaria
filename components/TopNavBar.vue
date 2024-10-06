@@ -38,7 +38,9 @@
         </div>
         <div class="border-l border-gray-300 h-3"></div>
         <div class="navbar__signup">
-          <NuxtLink to="/signup" class="navbar__signup--link">Signup</NuxtLink>
+          <NuxtLink to="/signup" class="navbar__signup--link">
+            {{ signupText() }}</NuxtLink
+          >
         </div>
       </div>
     </div>
@@ -47,6 +49,14 @@
 
 <script setup>
 import { EnvelopeIcon } from "@heroicons/vue/16/solid";
+import { useUserStore } from "~/stores/user";
+const userStore = useUserStore();
+
+const signupText = () => {
+  if (process.client) {
+    return userStore.authenticatedUser ? userStore.authenticatedUser.name : "Signup";
+  }
+};
 </script>
 
 <style></style>

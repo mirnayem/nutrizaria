@@ -12,14 +12,7 @@
           <li>
             <NuxtLink to="/" class="hover:text-blue-400">Home</NuxtLink>
           </li>
-          <li>
-            <NuxtLink to="/about" class="hover:text-blue-400">About</NuxtLink>
-          </li>
-          <li>
-            <NuxtLink to="/services" class="hover:text-blue-400"
-              >Services</NuxtLink
-            >
-          </li>
+
           <li>
             <NuxtLink to="/contact" class="hover:text-blue-400"
               >Contact</NuxtLink

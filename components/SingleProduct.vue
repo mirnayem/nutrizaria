@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from "vue";
-
 import { useCartStore } from "@/stores/cart";
 import type { CartItem } from "~/types/product";
 
