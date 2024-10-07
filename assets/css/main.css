@@ -8,3 +8,11 @@
 html, body {
     overflow-x: hidden;
 }
+
+.flex-center-between {
+    @apply flex items-center justify-between;
+}
+
+.nutri-btn {
+    @apply rounded flex items-center justify-center text-white font-semibold px-5 py-2 bg-orange-500;
+}

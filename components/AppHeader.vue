@@ -92,6 +92,7 @@
             />
           </svg>
         </div>
+        <ClientOnly>
         <div class="cart-bag relative cursor-pointer" @click="cartStore.toggleCart()">
           <span
             class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-orange-500 text-white text-xs"
@@ -113,6 +114,7 @@
           </svg>
         </div>
         <div class="total">Total: ${{ cartStore.totalPrice }}</div>
+      </ClientOnly>
       </div>
     </nav>
     <ShoppingCart />

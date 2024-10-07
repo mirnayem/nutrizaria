@@ -1,4 +1,5 @@
 <template>
+  <ClientOnly>
   <div
     class="cart-item grid grid-cols-12 text-xs px-3 place-items-center gap-2"
   >
@@ -80,6 +81,7 @@
       </svg>
     </div>
   </div>
+</ClientOnly>
 </template>
 <script setup lang="ts">
 import type { CartItem } from "~/types/product";

@@ -22,9 +22,6 @@ export const useCartStore = defineStore('cart', {
     totalPrice(state): number {
       return state.items.reduce((total, item) => total + item.price * item.quantity, 0)
     },
-    toggleCart(state): boolean {
-      return state.isCartOpen = !this.isCartOpen
-    }
   },
   actions: {
     
@@ -70,6 +67,9 @@ export const useCartStore = defineStore('cart', {
       if(typeof window !== "undefined") {
         localStorage.removeItem('cart');
       }
+    },
+    toggleCart() {
+      return this.isCartOpen = !this.isCartOpen
     }
   },
 });

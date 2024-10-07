@@ -37,11 +37,13 @@
           <p>English</p>
         </div>
         <div class="border-l border-gray-300 h-3"></div>
-        <div class="navbar__signup">
-          <NuxtLink to="/signup" class="navbar__signup--link">
-            {{ signupText() }}</NuxtLink
-          >
-        </div>
+        <ClientOnly>
+          <div class="navbar__signup">
+            <NuxtLink to="/signup" class="navbar__signup--link">
+              {{ signupText() }}</NuxtLink
+            >
+          </div>
+        </ClientOnly>
       </div>
     </div>
   </section>
@@ -54,7 +56,9 @@ const userStore = useUserStore();
 
 const signupText = () => {
   if (process.client) {
-    return userStore.authenticatedUser ? userStore.authenticatedUser.name : "Signup";
+    return !userStore.authenticatedUser
+      ? "Signup"
+      : userStore.authenticatedUser.name;
   }
 };
 </script>

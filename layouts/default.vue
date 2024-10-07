@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <AppHeader />
-    <div class="container min-h-screen pt-24 z-10">
-      <slot />
+    <div>
+      <AppHeader />
+      <div class="container min-h-screen pt-24 z-10">
+        <slot />
+      </div>
+      <AppFooter />
     </div>
-    <AppFooter />
-  </div>
 </template>
 <script setup>
 import { useCartStore } from "@/stores/cart";
