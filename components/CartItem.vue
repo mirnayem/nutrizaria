@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
   <div
-    class="cart-item grid grid-cols-12 text-xs px-3 place-items-center gap-2"
+    class="cart-item grid grid-cols-12 text-xs px-3 place-items-center py-3"
   >
     <div class="quantity col-span-2 grid place-items-center mr-4 text-sm">
       <div

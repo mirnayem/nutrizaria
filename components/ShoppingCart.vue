@@ -42,9 +42,8 @@
               />
             </svg>
           </div>
-          <div class="cart-items divide-y grid gap-4">
+          <div class="cart-items divide-y grid">
             <CartItem
-              class="pt-4"
               v-for="cartItem in cartStore.items"
               :key="cartItem.id"
               :cartItem="cartItem"
@@ -86,6 +85,6 @@ const closeCart = () => {
   cartStore.toggleCart;
 };
 const handleCart = () => {
-  cartStore.toggleCart;
+  cartStore.toggleCart();
 };
 </script>

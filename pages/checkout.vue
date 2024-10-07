@@ -133,6 +133,10 @@ import { ref, onMounted } from "vue";
 import Shipping from "~/components/Shipping.vue";
 import { useCartStore } from "~/stores/cart";
 
+definePageMeta({
+  middleware: "auth",
+});
+
 const cartStore = useCartStore();
 const openModal = ref(false);
 const userAddress = ref(null);
