@@ -12,37 +12,37 @@
                 class="footer-menus flex flex-wrap h-16 py-1 gap-x-6 max-w-[350px]"
               >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >Shop</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >Contact Us</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >Career</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >FAQ</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >Privacy Policy</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >Blog</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-600"
+                  class="font-light text-sm hover:text-orange-800"
                   to="/"
                   >Terms & Conditions</NuxtLink
                 >

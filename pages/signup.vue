@@ -65,7 +65,7 @@
       >
         Already have an account
         <span
-          class="text-orange-600 font-light cursor-pointer"
+          class="text-orange-800 font-light cursor-pointer"
           @click="updateStatus('login')"
           >login</span
         >
@@ -73,7 +73,7 @@
       <div v-if="authStatus === 'login'" class="toggle mt-4 text-sm font-light">
         Register now
         <span
-          class="text-orange-600 font-light cursor-pointer"
+          class="text-orange-800 font-light cursor-pointer"
           @click="updateStatus('signup')"
           >signup</span
         >

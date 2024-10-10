@@ -5,7 +5,7 @@
       class="container mx-auto h-12 flex justify-between items-center lg:px-0 px-4"
     >
       <div class="text-xl font-light">
-        <NuxtLink to="/" class="text-orange-600 font-light uppercase"
+        <NuxtLink to="/" class="text-orange-800 font-light uppercase"
           >Nutriʾakl</NuxtLink
         >
       </div>
