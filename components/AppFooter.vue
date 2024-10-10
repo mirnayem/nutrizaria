@@ -1,7 +1,7 @@
 <template>
   <footer class="bg-gray-800 text-white pt-20 pb-5">
-    <div class="container mx-auto">
-      <div class="flex flex-col md:flex-row justify-between">
+    <div class="container mx-auto xl:px-0 px-4">
+      <div class="flex flex-col md:flex-row justify-between md:gap-0 gap-10">
         <section>
           <div class="text-lg font-light flex gap-x-4">
             <NuxtLink to="/" class="hover:text-blue-400">
@@ -191,7 +191,7 @@
                 class="px-4 w-[280px] text-slate-800 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <button
-                class="px-4 h-[44px] py-2 absolute right-0 bg-orange-500 text-white rounded-r hover:bg-orange-600 transition-colors duration-300"
+                class="px-4 h-[44px] py-2 absolute right-0 bg-orange-700 text-white rounded-r hover:bg-orange-600 transition-colors duration-300"
               >
                 Subscribe
               </button>
@@ -207,22 +207,22 @@
         <div class="payment-options flex items-center justify-start gap-2">
           <p>Payment Options::</p>
           <img
-            class="h-10 w-10 rounded shadow-sm bg-white"
+            class="h-10 w-10 rounded shadow-sm bg-white object-contain"
             src="/images/card-payment.webp"
             alt="card payment"
           />
           <img
-            class="h-10 w-10 rounded shadow-sm bg-white"
+            class="h-10 w-10 rounded shadow-sm bg-white object-contain"
             src="/images/cod.jpg"
             alt="cod"
           />
           <img
-            class="h-10 w-10 rounded shadow-sm bg-white"
+            class="h-10 w-10 rounded shadow-sm bg-white object-contain"
             src="/images/bkash.svg"
             alt="bkash"
           />
           <img
-            class="h-10 w-10 rounded shadow-sm bg-white"
+            class="h-10 w-10 rounded shadow-sm bg-white object-contain"
             src="/images/nagad.png"
             alt="nagad"
           />

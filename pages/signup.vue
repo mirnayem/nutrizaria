@@ -27,7 +27,7 @@
             required
           />
           <button
-            class="max-w-44 mx-auto px-5 py-2 rounded bg-orange-500 text-white font-semibold"
+            class="max-w-44 mx-auto px-5 py-2 rounded bg-orange-700 text-white font-semibold"
             type="submit"
             :class="{ 'cursor-not-allowed': loading }"
           >
@@ -52,7 +52,7 @@
             required
           />
           <button
-            class="max-w-44 mx-auto px-5 py-2 rounded bg-orange-500 text-white font-semibold"
+            class="max-w-44 mx-auto px-5 py-2 rounded bg-orange-700 text-white font-semibold"
             type="submit"
           >
             Login

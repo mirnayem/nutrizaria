@@ -103,7 +103,7 @@ const handleSubmit = () => {
         <button
           @click="closeModal"
           type="submit"
-          class="w-full bg-orange-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          class="w-full bg-orange-700 text-white py-2 px-4 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Add Address
         </button>

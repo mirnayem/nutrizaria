@@ -58,7 +58,7 @@
               navigateToCheckout();
               closeCart();
             "
-            class="place-order w-2/3 pl-3 h-full flex items-center justify-between bg-orange-500"
+            class="place-order w-2/3 pl-3 h-full flex items-center justify-between bg-orange-700"
           >
             Place Order
           </div>

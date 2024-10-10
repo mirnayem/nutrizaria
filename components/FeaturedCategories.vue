@@ -54,9 +54,11 @@
       </SwiperSlide>
     </Swiper>
     <button
-      class="custom-prev absolute xl:left-[-40px] left-[calc(50%-40px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-500 hover:text-white transition-colors duration-1000 ease-in-out"
+      aria-label="Previous Slide"
+      class="custom-prev absolute xl:left-[-40px] left-[calc(50%-40px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
     >
       <svg
+        aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
@@ -73,9 +75,11 @@
     </button>
 
     <button
-      class="custom-next absolute xl:right-[-40px] right-[calc(50%-40px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2  translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-500 hover:text-white transition-colors duration-1000 ease-in-out"
+      aria-label="Next Slide"
+      class="custom-next absolute xl:right-[-40px] right-[calc(50%-40px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
     >
       <svg
+        aria-hidden="true"
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

@@ -17,5 +17,5 @@ html, body {
 }
 
 .nutri-btn {
-    @apply rounded flex items-center justify-center text-white font-semibold px-5 py-2 bg-orange-500;
+    @apply rounded flex items-center justify-center text-white font-semibold px-5 py-2 bg-orange-700;
 }

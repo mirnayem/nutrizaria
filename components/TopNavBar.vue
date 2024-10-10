@@ -1,5 +1,5 @@
 <template>
-  <section class="navbar flex items-center h-8 bg-orange-500">
+  <section class="navbar flex items-center h-8 bg-orange-700">
     <div
       class="container flex justify-between items-center text-white lg:px-0 px-4"
     >

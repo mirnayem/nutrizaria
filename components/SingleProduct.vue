@@ -58,7 +58,7 @@ const selectedItem = {
       class="favorite-info-cart transition-all duration-700 ease-in-out transform -translate-y-10 group-hover:translate-y-[-70px] text-white opacity-0 flex group-hover:opacity-100 gap-5 items-center justify-center"
     >
       <div
-        class="favorite w-10 h-10 cursor-pointer rounded-full bg-orange-500 flex items-center justify-center"
+        class="favorite w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -76,7 +76,7 @@ const selectedItem = {
         </svg>
       </div>
       <div
-        class="info w-10 h-10 cursor-pointer rounded-full bg-orange-500 flex items-center justify-center"
+        class="info w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
         @click="openModal"
       >
         <svg
@@ -96,7 +96,7 @@ const selectedItem = {
       </div>
       <div
         @click="addCart(selectedItem)"
-        class="cart w-10 h-10 cursor-pointer rounded-full bg-orange-500 flex items-center justify-center"
+        class="cart w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

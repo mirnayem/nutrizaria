@@ -3,7 +3,9 @@
   <section
     class="search-product flex items-center gap-2 border-[1px] border-slate-300 rounded pl-2 h-10 relative"
   >
-    <div class="select-category flex items-center justify-between gap-5 sm:w-1/4 w-1/3">
+    <div
+      class="select-category flex items-center justify-between gap-5 sm:w-1/4 w-1/3"
+    >
       <p class="font-light md:text-base text-xs">All Categories</p>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -28,7 +30,9 @@
         placeholder="search your product..."
       />
     </div>
-    <div class="absolute right-0 search-button sm:w-1/4 w-1/6 h-[42px] flex-mid bg-orange-500 text-white">
+    <div
+      class="absolute right-0 search-button sm:w-1/4 w-1/6 h-[42px] flex-mid bg-orange-700 text-white"
+    >
       Search
     </div>
   </section>
