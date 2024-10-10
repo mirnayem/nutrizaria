@@ -39,7 +39,7 @@ const handleSubmit = () => {
   <div class="max-w-[600px]">
     <form @submit.prevent="handleSubmit">
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2"
+        <label class="block text-gray-700 text-sm font-light mb-2"
           >Full Name</label
         >
         <input
@@ -52,7 +52,7 @@ const handleSubmit = () => {
 
       <!-- Address -->
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2"
+        <label class="block text-gray-700 text-sm font-light mb-2"
           >Address</label
         >
         <input
@@ -65,7 +65,7 @@ const handleSubmit = () => {
 
       <!-- City -->
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">City</label>
+        <label class="block text-gray-700 text-sm font-light mb-2">City</label>
         <input
           v-model="shippingAddress.city"
           type="text"
@@ -76,7 +76,7 @@ const handleSubmit = () => {
 
       <!-- Phone -->
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2">Phone</label>
+        <label class="block text-gray-700 text-sm font-light mb-2">Phone</label>
         <input
           v-model="shippingAddress.phone"
           type="text"
@@ -87,7 +87,7 @@ const handleSubmit = () => {
 
       <!-- Country -->
       <div class="mb-4">
-        <label class="block text-gray-700 text-sm font-bold mb-2"
+        <label class="block text-gray-700 text-sm font-light mb-2"
           >Country</label
         >
         <input

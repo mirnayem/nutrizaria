@@ -3,7 +3,7 @@
     <div class="container mx-auto">
       <div class="flex flex-col md:flex-row justify-between">
         <section>
-          <div class="text-lg font-bold flex gap-x-4">
+          <div class="text-lg font-light flex gap-x-4">
             <NuxtLink to="/" class="hover:text-blue-400">
               <img class="h-28 w-28 rounded" src="/nutri.png" alt="Nutri'akl" />
             </NuxtLink>
@@ -180,7 +180,7 @@
             />
           </div>
           <div class="newsletter grid gap-2">
-            <h1 class="text-lg font-bold">Join Our Newsletter Now</h1>
+            <h1 class="text-lg font-light">Join Our Newsletter Now</h1>
             <p class="text-sm text-gray-300 font-light">
               Get E-mail updates about our latest shop and special offers.
             </p>

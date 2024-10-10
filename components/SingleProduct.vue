@@ -115,7 +115,7 @@ const selectedItem = {
       </div>
     </div>
     <div class="name text-center font-light -mt-10">{{ product.name }}</div>
-    <div class="price text-center font-bold -mt-5">
+    <div class="price text-center font-light -mt-5">
       {{ "$" + product.price }}
     </div>
     <AppModal

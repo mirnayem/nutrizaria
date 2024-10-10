@@ -1,6 +1,8 @@
 <template>
   <section class="navbar flex items-center h-8 bg-orange-500">
-    <div class="container flex justify-between items-center text-white">
+    <div
+      class="container flex justify-between items-center text-white lg:px-0 px-4"
+    >
       <div class="navbar__left text-xs flex gap-4 items-center">
         <p class="navbar__email flex items-center gap-1">
           <span><EnvelopeIcon class="size-4 text-orange-300" /></span>

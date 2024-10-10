@@ -7,7 +7,7 @@
           type="text"
           id="first-name"
           name="first-name"
-          class="peer w-full my-5 border-b-2 focus:outline-none pb-2 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
+          class="peer w-full my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
           placeholder=""
         />
         <label
@@ -25,7 +25,7 @@
           type="text"
           id="last-name"
           name="last-name"
-          class="peer w-full my-5 border-b-2 focus:outline-none pb-2 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
+          class="peer w-full  my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
           placeholder=""
         />
         <label
@@ -43,7 +43,7 @@
           type="email"
           id="email"
           name="email"
-          class="peer w-full my-5 border-b-2 focus:outline-none pb-2 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
+          class="peer w-full my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
           placeholder="Email"
         />
         <label
@@ -61,7 +61,7 @@
           type="tel"
           id="phone"
           name="phone"
-          class="peer w-full my-5 border-b-2 focus:outline-none pb-2 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
+          class="peer w-full my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
           placeholder=""
         />
         <label
@@ -79,7 +79,7 @@
           id="message"
           name="message"
           rows="4"
-          class="peer w-full my-5 border-b-2 focus:outline-none pb-2 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
+          class="peer w-full my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
           placeholder=""
         ></textarea>
         <label

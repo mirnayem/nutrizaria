@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <div class="p-6 bg-white shadow-md rounded">
-      <h2 class="text-xl font-bold">Choose Payment Method</h2>
+      <h2 class="text-xl font-light">Choose Payment Method</h2>
 
       <div class="flex items-center gap-3 min-h-32">
         <div
@@ -18,7 +18,11 @@
             class="hidden"
           />
           <label for="card" class="ml-2">
-            <img src="/images/card-payment.webp" alt="card" class="object-cover" />
+            <img
+              src="/images/card-payment.webp"
+              alt="card"
+              class="object-cover"
+            />
           </label>
         </div>
 
@@ -78,7 +82,7 @@
       </div>
 
       <div v-if="paymentMethod === 'card'" class="mt-4">
-        <h3 class="text-lg font-medium">Card Details</h3>
+        <h3 class="text-lg font-light">Card Details</h3>
         <form @submit.prevent="submitCardPayment" class="mt-5">
           <div id="card-element" class=""></div>
           <button
@@ -91,17 +95,17 @@
       </div>
 
       <div v-if="paymentMethod === 'bkash'" class="mt-4">
-        <h3 class="text-lg font-medium">bKash Payment</h3>
+        <h3 class="text-lg font-light">bKash Payment</h3>
         <p>Send payment to the following bKash number: 01XXXXXXXXX</p>
       </div>
 
       <div v-if="paymentMethod === 'nagad'" class="mt-4">
-        <h3 class="text-lg font-medium">Nagad Payment</h3>
+        <h3 class="text-lg font-light">Nagad Payment</h3>
         <p>Send payment to the following Nagad number: 01XXXXXXXXX</p>
       </div>
 
       <div v-if="paymentMethod === 'cod'" class="mt-4">
-        <h3 class="text-lg font-medium">Cash on Delivery</h3>
+        <h3 class="text-lg font-light">Cash on Delivery</h3>
         <p>Our agent will collect the payment at the time of delivery.</p>
       </div>
 

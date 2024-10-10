@@ -95,7 +95,7 @@
         </div>
         <div class="items px-4 grid gap-4 mt-4">
           <div
-            class="single-item flex-center-between"
+            class="single-item flex-between"
             v-for="item in cartStore.items"
             :key="item.id"
           >
@@ -105,7 +105,7 @@
             <div class="price">{{ item.price }}</div>
           </div>
         </div>
-        <div class="total-price flex-center-between px-4 py-2 mt-10 font-bold">
+        <div class="total-price flex-between px-4 py-2 mt-10 font-light">
           <p>Total</p>
           <p>${{ cartStore.totalPrice }}</p>
         </div>

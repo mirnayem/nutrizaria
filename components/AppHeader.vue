@@ -1,9 +1,9 @@
 <template>
   <header class="bg-white shadow-md fixed w-full z-50">
     <TopNavBar />
-    <nav class="container mx-auto h-12 flex justify-between items-center">
-      <div class="text-xl font-bold">
-        <NuxtLink to="/" class="text-orange-600 font-black uppercase"
+    <nav class="container mx-auto h-12 flex justify-between items-center lg:px-0 px-4">
+      <div class="text-xl font-light">
+        <NuxtLink to="/" class="text-orange-600 font-light uppercase"
           >Nutriʾakl</NuxtLink
         >
       </div>
@@ -14,7 +14,7 @@
             to="/shop"
             :class="`hover:text-orange-500 ${
               route.path === '/shop' ? 'text-orange-500' : ''
-            } font-bold uppercase transition-all duration-300`"
+            } font-light uppercase transition-all duration-300`"
             >shop
             <span
               :class="{
@@ -28,7 +28,7 @@
         <li class="group relative">
           <NuxtLink
             to="/contact"
-            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300 ${
+            :class="`hover:text-orange-500 font-light uppercase transition-all duration-300 ${
               route.path === '/contact' ? 'text-orange-500' : ''
             }`"
             >contact
@@ -44,7 +44,7 @@
         <li class="group relative">
           <NuxtLink
             to="/blog"
-            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300 ${
+            :class="`hover:text-orange-500 font-light uppercase transition-all duration-300 ${
               route.path === '/blog' ? 'text-orange-500' : ''
             }`"
             >blog
@@ -60,7 +60,7 @@
         <li class="group relative">
           <NuxtLink
             to="/faq"
-            :class="`hover:text-orange-500 font-bold uppercase transition-all duration-300 ${
+            :class="`hover:text-orange-500 font-light uppercase transition-all duration-300 ${
               route.path === '/faq' ? 'text-orange-500' : ''
             }`"
             >faq

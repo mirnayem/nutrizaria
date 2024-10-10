@@ -14,7 +14,7 @@ useHead({
 </script>
 <template>
   <div class="contact-us">
-    <h1 class="text-center text-3xl font-medium">Contact Us</h1>
+    <h1 class="text-center text-3xl font-light">Contact Us</h1>
     <p class="text-center font-light text-lg mt-2">
       Any question or remarks? Just write us a message or simply call
     </p>
@@ -22,7 +22,7 @@ useHead({
       <div
         class="contact-option md:col-span-5 col-span-12 bg-orange-400 rounded-l-lg min-h-[800px] text-white p-20 relative"
       >
-        <h1 class="text-3xl font-medium">Contact Information</h1>
+        <h1 class="text-3xl font-light">Contact Information</h1>
         <p class="text-lg mt-3 font-light">
           Have you any query about us? Please let us know.
         </p>
@@ -109,6 +109,7 @@ useHead({
       >
         <p class="text-center text-2xl font-r-medium">Get In Touch</p>
         <ContactForm />
+        <OurLocation />
       </div>
     </div>
   </div>

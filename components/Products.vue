@@ -1,6 +1,6 @@
 <template>
   <div
-    class="products grid md:grid-cols-3 sm:grid-cols-2 gap-8"
+    class="products grid md:grid-cols-4 sm:grid-cols-2 gap-8"
     v-if="products && products.length > 0"
   >
     <SingleProduct

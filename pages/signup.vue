@@ -4,7 +4,7 @@
       class="signup-login max-w-md mx-auto text-center bg-orange-200 rounded p-10 min-h-[350px]"
     >
       <div v-if="authStatus == 'signup'">
-        <h1 class="text-2xl font-bold text-white">Signup</h1>
+        <h1 class="text-2xl font-light text-white">Signup</h1>
 
         <form class="grid gap-5 mt-5" @submit.prevent="register">
           <input
@@ -36,7 +36,7 @@
         </form>
       </div>
       <div v-else>
-        <h1 class="text-2xl font-bold text-white">Login</h1>
+        <h1 class="text-2xl font-light text-white">Login</h1>
         <form class="grid gap-5 mt-5" @submit.prevent="login">
           <input
             class="border-2 px-3 py-1 rounded focus:outline-none"
@@ -65,7 +65,7 @@
       >
         Already have an account
         <span
-          class="text-orange-600 font-bold cursor-pointer"
+          class="text-orange-600 font-light cursor-pointer"
           @click="updateStatus('login')"
           >login</span
         >
@@ -73,7 +73,7 @@
       <div v-if="authStatus === 'login'" class="toggle mt-4 text-sm font-light">
         Register now
         <span
-          class="text-orange-600 font-bold cursor-pointer"
+          class="text-orange-600 font-light cursor-pointer"
           @click="updateStatus('signup')"
           >signup</span
         >
