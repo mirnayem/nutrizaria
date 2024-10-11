@@ -5,49 +5,53 @@
         <section>
           <div class="text-lg font-light flex gap-x-4">
             <NuxtLink to="/" class="hover:text-blue-400">
-              <img class="h-28 w-28 rounded" src="/nutri.png" alt="Nutri'akl" />
+              <img
+                class="h-28 w-28 rounded object-cover aspect-w-1 aspect-h-1"
+                src="/nutri.png"
+                alt="Nutri'akl"
+              />
             </NuxtLink>
             <div class="menu-social">
               <div
-                class="footer-menus flex flex-wrap h-16 py-1 gap-x-6 max-w-[350px]"
+                class="footer-menus flex flex-wrap h-fit py-1 gap-x-6 max-w-[400px]"
               >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >Shop</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >Contact Us</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >Career</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >FAQ</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >Privacy Policy</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >Blog</NuxtLink
                 >
                 <NuxtLink
-                  class="font-light text-sm hover:text-orange-800"
+                  class="font-light text-sm hover:text-orange-800 px-3 py-2 block"
                   to="/"
                   >Terms & Conditions</NuxtLink
                 >
               </div>
-              <div class="follow-us flex items-center gap-2">
+              <div class="follow-us flex items-center gap-2 pl-3">
                 <p>Follow Along::</p>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
