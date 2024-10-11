@@ -14,8 +14,8 @@
         <li class="group relative">
           <NuxtLink
             to="/shop"
-            :class="`hover:text-orange-500 ${
-              route.path === '/shop' ? 'text-orange-500' : ''
+            :class="`hover:text-orange-800 ${
+              route.path === '/shop' ? 'text-orange-800' : ''
             } font-light uppercase transition-all duration-300`"
             >shop
             <span
@@ -30,8 +30,8 @@
         <li class="group relative">
           <NuxtLink
             to="/contact"
-            :class="`hover:text-orange-500 font-light uppercase transition-all duration-300 ${
-              route.path === '/contact' ? 'text-orange-500' : ''
+            :class="`hover:text-orange-800 font-light uppercase transition-all duration-300 ${
+              route.path === '/contact' ? 'text-orange-800' : ''
             }`"
             >contact
             <span
@@ -46,8 +46,8 @@
         <li class="group relative">
           <NuxtLink
             to="/blog"
-            :class="`hover:text-orange-500 font-light uppercase transition-all duration-300 ${
-              route.path === '/blog' ? 'text-orange-500' : ''
+            :class="`hover:text-orange-800 font-light uppercase transition-all duration-300 ${
+              route.path === '/blog' ? 'text-orange-800' : ''
             }`"
             >blog
             <span
@@ -62,8 +62,8 @@
         <li class="group relative">
           <NuxtLink
             to="/faq"
-            :class="`hover:text-orange-500 font-light uppercase transition-all duration-300 ${
-              route.path === '/faq' ? 'text-orange-500' : ''
+            :class="`hover:text-orange-800 font-light uppercase transition-all duration-300 ${
+              route.path === '/faq' ? 'text-orange-800' : ''
             }`"
             >faq
             <span

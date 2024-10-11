@@ -36,9 +36,10 @@
       >
         <div class="image relative">
           <img
-            class="w-full h-96 object-cover"
+            class="w-full max-w-[600px] h-[400px] object-cover"
             :src="post.image"
-            alt="post.title"
+            sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+            :alt="post.title"
           />
           <div
             class="writer-time-category absolute w-full bg-white bg-opacity-30 backdrop-blur-sm text-white left-0 bottom-0 h-24 flex items-center px-5 justify-between"

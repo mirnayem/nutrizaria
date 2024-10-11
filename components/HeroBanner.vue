@@ -23,7 +23,9 @@
             :alt="item.name"
           />
           <div class="absolute left-20 bottom-10">
-            <div class="name text-3xl font-light text-orange-500">{{ item.name }}</div>
+            <div class="name text-3xl font-light text-orange-800">
+              {{ item.name }}
+            </div>
             <div class="description">{{ item.description }}</div>
             <button class="nutri-btn my-2">Shop Now</button>
           </div>

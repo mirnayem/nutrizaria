@@ -115,6 +115,6 @@ const form = reactive({
 });
 
 const handleSubmit = () => {
-  console.log("Form Data:", form);
+
 };
 </script>

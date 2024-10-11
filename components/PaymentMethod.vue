@@ -150,7 +150,7 @@ const submitCardPayment = async () => {
   if (error) {
     console.error("Stripe error:", error);
   } else {
-    console.log("Stripe token:", token);
+    return token;
   }
 };
 
@@ -160,16 +160,16 @@ const processPayment = () => {
       submitCardPayment();
       break;
     case "bkash":
-      console.log("Processing bKash payment");
+      return "Processing bKash payment";
       break;
     case "nagad":
-      console.log("Processing Nagad payment");
+      return "Processing Nagad payment";
       break;
     case "cod":
-      console.log("Processing Cash on Delivery");
+      return "Processing Cash on Delivery";
       break;
     default:
-      console.error("Unknown payment method");
+      return "Unknown payment method";
   }
 };
 </script>

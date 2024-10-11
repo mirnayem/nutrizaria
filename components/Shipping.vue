@@ -31,7 +31,7 @@ onMounted(() => {
 });
 
 const handleSubmit = () => {
-  console.log("Shipping address submitted:", shippingAddress.value);
+  return shippingAddress.value;
 };
 </script>
 
