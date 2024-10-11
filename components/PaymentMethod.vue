@@ -148,7 +148,7 @@ watch(paymentMethod, async (newValue, oldValue) => {
 const submitCardPayment = async () => {
   const { token, error } = await stripe.value.createToken(cardElement.value);
   if (error) {
-    console.error("Stripe error:", error);
+    return error;
   } else {
     return token;
   }
