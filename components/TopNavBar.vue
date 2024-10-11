@@ -5,11 +5,13 @@
     >
       <div class="navbar__left text-xs flex gap-4 items-center">
         <p class="navbar__email flex items-center gap-1">
-          <span><EnvelopeIcon class="size-4 text-orange-300" /></span>
+          <span><EnvelopeIcon class="size-4 text-white" /></span>
           hello@nutriakl.com
         </p>
-        <div class="border-l border-gray-300 h-3"></div>
-        <p class="navbar__offer">Free Shipping for all Orders of $99</p>
+        <div class="border-l border-gray-300 h-3 sm:block hidden"></div>
+        <p class="navbar__offer sm:block hidden">
+          Free Shipping for all Orders of $99
+        </p>
       </div>
       <div class="navbar__right flex items-center gap-2">
         <div class="navbar__social">
@@ -35,12 +37,12 @@
           </NuxtLink>
         </div>
         <div class="border-l border-gray-300 h-3"></div>
-        <div class="navbar__language">
+        <div class="navbar__language text-xs">
           <p>English</p>
         </div>
         <div class="border-l border-gray-300 h-3"></div>
         <ClientOnly>
-          <div class="navbar__signup">
+          <div class="navbar__signup text-xs">
             <NuxtLink to="/signup" class="navbar__signup--link">
               {{ signupText() }}</NuxtLink
             >
