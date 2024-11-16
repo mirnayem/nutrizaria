@@ -64,7 +64,8 @@
         <div class="content my-2 text-sm font-thin">
           <p v-html="useTruncate(post.content, 25, true)"></p>
         </div>
-        <button
+        <NuxtLink
+          :to="`/blog/${slugifiedString(post.title)}`"
           class="read-post flex gap-2 items-center text-sm hover:text-orange-800 transition-all"
         >
           Read Post
@@ -82,7 +83,7 @@
               d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
             />
           </svg>
-        </button>
+        </NuxtLink>
       </div>
     </div>
     <div class="show-more my-10" v-if="blogPosts.length > visiblePostsCount">
@@ -99,6 +100,9 @@
 import { useDateFormatter } from "~/composables/dateFormater";
 import { useTruncate } from "~/composables/useTruncate";
 import { ref, nextTick } from "vue";
+const slugifiedString = (str: string): string => {
+  return useNuxtApp().$slugify(str)
+};
 
 interface Post {
   id: number;
