@@ -10,7 +10,7 @@
         >
       </div>
 
-      <ul class="flex space-x-4">
+      <ul class="sm:flex space-x-4 hidden">
         <li class="group relative">
           <NuxtLink
             to="/shop"
@@ -77,7 +77,7 @@
         </li>
       </ul>
 
-      <div class="flex items-center gap-3">
+      <div class="sm:flex items-center gap-3 hidden">
         <div class="favorite mt-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -123,6 +123,7 @@
       </div>
     </nav>
     <ShoppingCart />
+    <SidebarDrawer />
   </header>
 </template>
 

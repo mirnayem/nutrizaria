@@ -10,9 +10,15 @@ export default {
   ],
   theme: {
     extend: {
+      screens: {
+        'xsm': '375px',
+      },
       fontFamily: {
         sans: ['Roboto', 'ui-sans-serif', 'system-ui'], // Set Roboto as the default sans font
       },
+      transitionProperty: {
+        'slide': 'transform'
+      }
     },
   },
   plugins: [
