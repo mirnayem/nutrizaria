@@ -4,7 +4,7 @@
   <main>
     <section class="main-content grid grid-cols-12 gap-8">
       <aside
-        class="categories lg:col-span-3 col-span-12 min-h-[450px] border border-t-2 border-t-white rounded"
+        class="categories lg:col-span-3 col-span-12"
         aria-labelledby="categories-heading"
       >
         <h2 id="categories-heading" class="sr-only">Categories</h2>

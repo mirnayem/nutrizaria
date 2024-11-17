@@ -175,6 +175,26 @@ const categories = [
     {
         id: 6,
         name: 'Nuts'
+    },
+    {
+        id: 7,
+        name: 'Sugar'
+    },
+    {
+        id: 8,
+        name: 'Cheese'
+    },
+    {
+        id: 9,
+        name: 'Dates'
+    },
+    {
+        id: 10,
+        name: 'Dry Food'
+    },
+    {
+        id: 11,
+        name: 'Juice'
     }
 ]
 
