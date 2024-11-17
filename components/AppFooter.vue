@@ -2,18 +2,17 @@
   <footer class="bg-gray-800 text-white pt-20 pb-5">
     <div class="container mx-auto xl:px-0 px-4">
       <div class="grid grid-cols-12 justify-between gap-10">
-        <section class="col-span-4">
+        <section class="md:col-span-4 col-span-12">
           <div class="nutriakl-focus max-w-[600px]">
             <h1 class="font-semibold text-lg">About Nutri'akl</h1>
-            <p class="font-light text-sm text-white mt-3">
+            <p class="font-light text-sm text-white mt-5">
               Nutriakl is a platform dedicated to providing high-quality food at
               reasonable prices. The focus is on ensuring customer satisfaction
               by offering complete benefits and a seamless shopping experience,
               making healthy and affordable food accessible to all.
             </p>
           </div>
-          <div class="follow-us flex items-center gap-2 mt-3">
-            <p>Follow Along::</p>
+          <div class="follow-us flex items-start gap-2 mt-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               x="0px"
@@ -122,52 +121,57 @@
               <path fill="#FFF" d="M20 31L20 17 32 24z"></path>
             </svg>
           </div>
+          <div class="mt-5 text-gray-200 flex items-center gap-x-10">
+            <div class="copyright">
+              &copy; {{ new Date().getFullYear() }} Nutriʾakl.
+            </div>
+          </div>
         </section>
-        <div class="menu-social col-span-4">
+        <div class="menu-social md:col-span-4 col-span-12">
           <h1 class="text-lg font-bold">We Provide</h1>
-          <div class="footer-menus grid h-fit py-1 gap-x-6 max-w-[400px]">
+          <div class="footer-menus mt-3">
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >Shop</NuxtLink
             >
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >Contact Us</NuxtLink
             >
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >Career</NuxtLink
             >
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >FAQ</NuxtLink
             >
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >Privacy Policy</NuxtLink
             >
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >Blog</NuxtLink
             >
             <NuxtLink
-              class="font-light text-sm hover:text-slate-400 py-2"
+              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/"
               >Terms & Conditions</NuxtLink
             >
           </div>
         </div>
-        <div class="app-newsletter grid gap-4 col-span-4">
+        <div class="app-newsletter grid gap-4 md:col-span-4 col-span-12">
           <div class="app">
-            <h1 class="text-lg font-bold">Available On:</h1>
+            <h1 class="text-lg font-bold mb-5">Available On:</h1>
             <img
-              class="aspect-[16/9] rounded mt-2"
+              class="aspect-[16/9] rounded"
               src="/images/google-play-button.webp"
               alt="nutri'akl app"
             />
@@ -189,36 +193,32 @@
                 Subscribe
               </button>
             </div>
-            <div class="payment-options flex items-center justify-start gap-2 mt-5">
-              <p class="text-lg font-bold">Payment Options::</p>
-              <img
-                class="h-10 w-10 rounded shadow-sm bg-white object-contain"
-                src="/images/card-payment.webp"
-                alt="card payment"
-              />
-              <img
-                class="h-10 w-10 rounded shadow-sm bg-white object-contain"
-                src="/images/cod.jpg"
-                alt="cod"
-              />
-              <img
-                class="h-10 w-10 rounded shadow-sm bg-white object-contain"
-                src="/images/bkash.svg"
-                alt="bkash"
-              />
-              <img
-                class="h-10 w-10 rounded shadow-sm bg-white object-contain"
-                src="/images/nagad.png"
-                alt="nagad"
-              />
+            <div class="payment-options grid gap-3 mt-5">
+              <p class="text-lg font-bold leading-0">Payment Options</p>
+              <div class="flex flex-wrap items-center gap-2">
+                <img
+                  class="h-10 w-10 rounded shadow-sm bg-white object-contain"
+                  src="/images/card-payment.webp"
+                  alt="card payment"
+                />
+                <img
+                  class="h-10 w-10 rounded shadow-sm bg-white object-contain"
+                  src="/images/cod.jpg"
+                  alt="cod"
+                />
+                <img
+                  class="h-10 w-10 rounded shadow-sm bg-white object-contain"
+                  src="/images/bkash.svg"
+                  alt="bkash"
+                />
+                <img
+                  class="h-10 w-10 rounded shadow-sm bg-white object-contain"
+                  src="/images/nagad.png"
+                  alt="nagad"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <div class="mt-20 text-gray-200 flex items-center gap-x-10">
-        <div class="copyright">
-          &copy; {{ new Date().getFullYear() }} Nutriʾakl.
         </div>
       </div>
     </div>

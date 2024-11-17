@@ -35,7 +35,7 @@
       class="md:h-64 h-96"
     >
       <SwiperSlide
-        v-for="(item, index) in categories"
+        v-for="(item, index) in categoriesFav"
         :key="index"
         class="!flex items-center justify-center bg-orange-200 text-black"
       >
@@ -105,7 +105,7 @@ import "swiper/css/navigation";
 
 import { Autoplay, Navigation } from "swiper/modules";
 import { ref, onMounted } from "vue";
-
+import { categories } from "~/stores/data";
 const modules = [Autoplay, Navigation];
 const breakpoints = {
   640: {
@@ -131,28 +131,19 @@ const breakpoints = {
 const isLoading = ref(true);
 const skeletonCount = ref(0);
 
-const categories = ref([]);
+const categoriesFav = ref([]);
 
 const simulateDataLoading = () => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const items = [
-        { name: "Premium Dates", image: "dates2.avif" },
-        { name: "Fresh Fruits", image: "fruit2.avif" },
-        { name: "Pure Honey", image: "honey2.avif" },
-        { name: "Fresh Meat", image: "meat.avif" },
-        { name: "Nuts", image: "nuts2.avif" },
-        { name: "Spices", image: "spices2.avif" },
-        { name: "Vegetable", image: "tomato.avif" },
-        { name: "Delicious Cake", image: "cake.avif" },
-      ];
+      const items = categories
       resolve(items);
-    }, 2000);
+    }, 500);
   });
 };
 
 onMounted(async () => {
-  categories.value = await simulateDataLoading();
+  categoriesFav.value = await simulateDataLoading();
   isLoading.value = false;
 });
 

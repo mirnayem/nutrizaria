@@ -37,13 +37,13 @@
     class="categories-list grid max-h-[400px] !overflow-y-auto scrollbar-hide border border-t-2 border-t-white rounded"
     v-if="showCategory"
   >
-    <div
+    <NuxtLink :to="`/categories/${category.slug}`"
       class="single-category py-3 cursor-pointer hover:bg-orange-700 hover:text-white hover:font-light px-10"
       v-for="category in categories"
       :key="category.id"
     >
       {{ category.name }}
-    </div>
+    </NuxtLink>
   </div>
 </template>
 <script setup lang="ts">
