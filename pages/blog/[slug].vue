@@ -37,7 +37,6 @@ import { chunkParagraph } from "~/composables/chunkParagraph";
 import { useHead } from "#imports";
 import { useRoute } from "vue-router";
 const route = useRoute();
-console.log(route.params.slug)
 useHead({
   title: "The Future of Organic Food in E-Commerce",
   meta: [
