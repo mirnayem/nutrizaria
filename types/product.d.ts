@@ -16,3 +16,12 @@ export interface Product {
     unit: string,
   }
   
+  export interface Post {
+    id: number;
+    title: string;
+    category: string;
+    writer: string;
+    date: string;
+    image: string;
+    content: string;
+  }

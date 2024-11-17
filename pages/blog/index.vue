@@ -66,6 +66,7 @@
         </div>
         <NuxtLink
           :to="`/blog/${slugifiedString(post.title)}`"
+          @click="saveSelectedPost(post)"
           class="read-post flex gap-2 items-center text-sm hover:text-orange-800 transition-all"
         >
           Read Post
@@ -100,19 +101,14 @@
 import { useDateFormatter } from "~/composables/dateFormater";
 import { useTruncate } from "~/composables/useTruncate";
 import { ref, nextTick } from "vue";
+import type { Post } from "~/types/product";
 const slugifiedString = (str: string): string => {
-  return useNuxtApp().$slugify(str)
+  return useNuxtApp().$slugify(str);
 };
 
-interface Post {
-  id: number;
-  title: string;
-  category: string;
-  writer: string;
-  date: string;
-  image: string;
-  content: string;
-}
+import { useBlogStore } from "~/stores/blog";
+const store = useBlogStore();
+
 const visiblePostsCount = ref(2);
 const transitioning = ref(false);
 
@@ -123,6 +119,11 @@ const showMorePosts = () => {
     transitioning.value = false;
   });
 };
+
+const saveSelectedPost = (post: Post) => {
+  store.setSelectedBlog(post);
+};
+
 const blogCategories = [
   {
     id: 1,
