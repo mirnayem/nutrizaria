@@ -12,18 +12,24 @@
         {{ currentCategory.name }}
       </h1>
     </div>
+    <Products class="mt-10" :products="categoryProducts" />
   </div>
 </template>
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { categories } from "~/stores/data";
 import { ref, onMounted } from "vue";
-import type { Category } from "~/types/product";
+import type { Category, Product } from "~/types/product";
+import { products } from "~/stores/data";
 
 const currentCategory = ref<Category>();
+const categoryProducts = ref<Product[]>();
 const route = useRoute();
 const category = route.params.category;
 onMounted(() => {
   currentCategory.value = categories.find((cat) => cat.slug === category);
+  categoryProducts.value = products.filter(
+    (product: Product) => product.category === category
+  );
 });
 </script>

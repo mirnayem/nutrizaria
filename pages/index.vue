@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { products } from "../stores/data";
+</script>
 
 <template>
   <main>
@@ -16,7 +18,7 @@
         aria-labelledby="products-query"
       >
         <div class="flex justify-between items-center gap-4">
-          <SearchProduct class="md:w-3/4 w-full " />
+          <SearchProduct class="md:w-3/4 w-full" />
           <div class="md:w-1/4 md:flex hidden justify-end"><Support /></div>
         </div>
         <div class="banner-section mt-6">
@@ -47,7 +49,7 @@
         <h2 id="products-heading" class="text-center text-4xl font-light my-10">
           Featured Products
         </h2>
-        <Products />
+        <Products :products="products"/>
       </div>
     </section>
   </main>

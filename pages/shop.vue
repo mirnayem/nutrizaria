@@ -8,6 +8,8 @@ definePageMeta({
     },
   ],
 });
+
+import { products } from "../stores/data";
 </script>
 <template>
   <div class="grid grid-cols-12 gap-8">
@@ -15,7 +17,7 @@ definePageMeta({
       <Categories />
     </div>
     <div class="products-section md:col-span-9 col-span-12">
-      <Products />
+      <Products :products="products"/>
     </div>
   </div>
 </template>
