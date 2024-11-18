@@ -17,10 +17,14 @@
         class="!flex items-center justify-center bg-orange-200 text-black"
       >
         <div class="inner-content w-full h-96 relative rounded">
-          <img
-            class="w-full h-full object-cover object-center"
+          <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
+            width="950"
+            height="450"
+            loading="lazy"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            class="rounded-md min-h-[450px] object-center object-cover"
           />
           <div class="absolute left-20 bottom-10">
             <div class="name text-3xl font-light text-orange-800">
