@@ -46,12 +46,23 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ["@nuxt/image-edge"],
+  modules: ["@nuxt/image-edge", "@nuxt/image"],
   plugins: ["~/plugins/pinia.ts", "~/plugins/slugify.ts"],
   runtimeConfig: {
     public: {
       stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
     },
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  },
+
+  image: {
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
   },
 });
