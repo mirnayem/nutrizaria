@@ -43,7 +43,7 @@ const loadMoreItems = () => {
 };
 
 let observer: IntersectionObserver | null = null;
-let delayTimeout: ReturnType<typeof setTimeout> | null = null;
+let delayTimeout: NodeJS.Timeout | null = null;
 const loadMoreTrigger = ref(null);
 const setupObserver = () => {
   observer = new IntersectionObserver(
@@ -52,7 +52,7 @@ const setupObserver = () => {
       if (entries[0].isIntersecting) {
         delayTimeout = setTimeout(() => {
           loadMoreItems();
-        }, 1500);
+        }, 500);
       }
     },
     {

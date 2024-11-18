@@ -2,17 +2,17 @@
   <header class="bg-white shadow-md fixed w-full z-50">
     <TopNavBar />
     <nav
-      class="container mx-auto h-12 flex justify-between items-center lg:px-0 px-4"
+      class="container mx-auto h-12 flex justify-between items-center lg:px-0 px-4 shadow-lg"
     >
       <div class="logo-search flex items-center gap-5">
-        <NuxtLink
-          to="/"
-          class="text-orange-800 uppercase text-xl font-medium"
+        <NuxtLink to="/" class="text-orange-800 uppercase text-xl font-medium"
           >Nutriʾakl</NuxtLink
         >
-        <SearchProduct class="w-full md:min-w-[600px] min-w-[400px]" />
+        <SearchProduct
+          class="w-full lg:min-w-[600px] md:min-w-[400px] md:flex hidden"
+        />
       </div>
-      <div class="support-cart-favorite flex items-center gap-3">
+      <div class="support-cart-favorite items-center gap-3 md:flex hidden">
         <Support />
         <div class="sm:flex items-center gap-3 hidden">
           <div class="favorite mt-1">
@@ -62,6 +62,7 @@
     </nav>
     <ShoppingCart />
     <SidebarDrawer />
+    <SearchProduct class="w-full md:hidden flex mt-2" />
   </header>
 </template>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="relative block sm:hidden">
+  <div class="relative block md:hidden">
     <button
       @click="toggleDrawer"
       class="absolute right-4 -top-10 text-gray-700 focus:outline-none rounded-md"
