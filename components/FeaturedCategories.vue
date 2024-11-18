@@ -39,7 +39,7 @@
         :key="index"
         class="!flex items-center justify-center bg-orange-200 text-black"
       >
-        <div class="inner-content w-full md:h-64 h-96 relative rounded">
+        <NuxtLink :to="`/categories/${item.slug}`" class="inner-content w-full md:h-64 h-96 relative rounded">
           <img
             class="w-full h-full object-cover object-center"
             :src="`/images/${item.image}`"
@@ -50,7 +50,7 @@
           >
             {{ item.name }}
           </div>
-        </div>
+        </NuxtLink>
       </SwiperSlide>
     </Swiper>
     <button

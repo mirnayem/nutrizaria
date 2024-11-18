@@ -12,7 +12,9 @@
         {{ currentCategory.name }}
       </h1>
     </div>
-    <Products class="mt-10" :products="categoryProducts" />
+    <section class="category-products mt-10">
+      <Products :products="categoryProducts" />
+    </section>
   </div>
 </template>
 <script setup lang="ts">

@@ -34,7 +34,7 @@
     </svg>
   </section>
   <div
-    class="categories-list grid max-h-[400px] !overflow-y-auto scrollbar-hide border border-t-2 border-t-white rounded"
+    class="categories-list grid h-[335px] !overflow-y-auto scrollbar-hide border border-t-2 border-t-white rounded"
     v-if="showCategory"
   >
     <NuxtLink :to="`/categories/${category.slug}`"

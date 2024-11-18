@@ -3,28 +3,10 @@
   <section
     class="search-product flex items-center gap-2 border-[1px] border-slate-300 rounded pl-2 h-10 relative"
   >
-    <div
-      class="select-category flex items-center justify-between gap-5 sm:w-1/4 w-1/3"
-    >
-      <p class="font-light md:text-base text-xs">All Categories</p>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="1"
-        stroke="currentColor"
-        class="size-4"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="m19.5 8.25-7.5 7.5-7.5-7.5"
-        />
-      </svg>
-    </div>
-    <div class="h-6 border-l border-slate-300"></div>
     <div class="search-input sm:w-1/2 w-2/3">
       <input
+        v-model="searchTerm"
+        @input="onInputChange"
         type="text"
         class="w-full h-full focus:outline-none"
         placeholder="search your product..."
@@ -37,3 +19,35 @@
     </div>
   </section>
 </template>
+<script setup lang="ts">
+import { ref } from "vue";
+import { Product } from "~/types/Product";
+import { useProductStore } from "~/stores/product";
+import { useRouter, useRoute } from "vue-router";
+
+const router = useRouter();
+const route = useRoute();
+const productStore = useProductStore();
+const { products } = productStore;
+const searchTerm = ref<string>("");
+const loading = ref<boolean>(false);
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+const fetchResults = async (query) => {
+  const term = query.toLowerCase();
+  loading.value = true;
+  await productStore.searchProducts(query);
+  loading.value = false;
+  const basePath = "/search/";
+  router.replace(basePath + term);
+};
+
+const onInputChange = () => {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    if (searchTerm.value.trim()) {
+      fetchResults(searchTerm.value);
+    }
+  }, 700);
+};
+</script>

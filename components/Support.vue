@@ -1,14 +1,14 @@
 <script setup></script>
 <template>
-  <section class="support-section flex-mid gap-5">
-    <div class="icon h-12 w-12 rounded-full flex-mid bg-slate-300">
+  <section class="support-section flex-mid gap-2">
+    <div class="icon h-8 w-8 rounded-full flex-mid bg-slate-300">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="size-6"
+        class="size-4"
       >
         <path
           stroke-linecap="round"
@@ -18,10 +18,10 @@
       </svg>
     </div>
     <div class="number-time grid">
-      <div class="number font-light">
+      <div class="number text-xs">
         <a href="tel: +8801820999820">01820999820</a>
       </div>
-      <div class="time text-sm">support 24/7</div>
+      <div class="time text-xs">support 24/7</div>
     </div>
   </section>
 </template>

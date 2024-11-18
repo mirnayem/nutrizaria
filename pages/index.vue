@@ -17,11 +17,7 @@ import { products } from "../stores/data";
         class="products-section lg:col-span-9 col-span-12"
         aria-labelledby="products-query"
       >
-        <div class="flex justify-between items-center gap-4">
-          <SearchProduct class="md:w-3/4 w-full" />
-          <div class="md:w-1/4 md:flex hidden justify-end"><Support /></div>
-        </div>
-        <div class="banner-section mt-6">
+        <div class="banner-section">
           <HeroBanner />
         </div>
       </div>
