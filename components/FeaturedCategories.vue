@@ -39,12 +39,20 @@
         :key="index"
         class="!flex items-center justify-center bg-orange-200 text-black"
       >
-        <NuxtLink :to="`/categories/${item.slug}`" class="inner-content w-full md:h-64 h-96 relative rounded">
-          <img
-            class="w-full h-full object-cover object-center"
+        <NuxtLink
+          :to="`/categories/${item.slug}`"
+          class="inner-content w-full md:h-64 h-96 relative rounded"
+        >
+          <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
+            width="350"
+            height="350"
+            loading="lazy"
+            sizes="md:33vw sm:50vw 100vw"
+            class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-center object-cover"
           />
+
           <div
             class="absolute left-1/2 w-3/4 flex-mid bottom-5 bg-white px-4 py-1 rounded transform -translate-x-1/2"
           >
@@ -136,7 +144,7 @@ const categoriesFav = ref([]);
 const simulateDataLoading = () => {
   return new Promise((resolve) => {
     setTimeout(() => {
-      const items = categories
+      const items = categories;
       resolve(items);
     }, 500);
   });
