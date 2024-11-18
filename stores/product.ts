@@ -7,9 +7,10 @@ export const useProductStore = defineStore("product", {
   }),
   actions: {
     searchProducts(searchTerm: string) {
-      this.products = products.filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      this.products = products.filter((product) => {
+        const searchString = product.name + product.category;
+        return searchString.toLowerCase().includes(searchTerm.toLowerCase());
+      });
     },
   },
 });

@@ -23,10 +23,9 @@
 import { ref } from "vue";
 import { Product } from "~/types/Product";
 import { useProductStore } from "~/stores/product";
-import { useRouter, useRoute } from "vue-router";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
-const route = useRoute();
 const productStore = useProductStore();
 const { products } = productStore;
 const searchTerm = ref<string>("");

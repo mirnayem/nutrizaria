@@ -496,7 +496,7 @@ const products = [
   {
     id: 31,
     name: "Organic Chia Seeds",
-    image: "chia-seeds.avif",
+    image: "chia-seed.avif",
     category: "seeds",
     price: 450,
     description:
@@ -608,7 +608,7 @@ const products = [
   {
     id: 38,
     name: "Fresh Chicken Breast",
-    image: "chicken-breast.avif",
+    image: "chicken.avif",
     category: "meat",
     price: 450,
     description:
@@ -624,7 +624,7 @@ const products = [
   {
     id: 39,
     name: "Organic Mutton",
-    image: "organic-mutton.avif",
+    image: "mutton.avif",
     category: "meat",
     price: 1200,
     description:
@@ -640,7 +640,7 @@ const products = [
   {
     id: 40,
     name: "Fresh Beef Tenderloin",
-    image: "beef-tenderloin.avif",
+    image: "beef-meat.avif",
     category: "meat",
     price: 1100,
     description:
@@ -656,7 +656,7 @@ const products = [
   {
     id: 41,
     name: "Fresh Lamb Chops",
-    image: "lamb-chops.avif",
+    image: "lamb.avif",
     category: "meat",
     price: 1400,
     description:
@@ -752,7 +752,7 @@ const products = [
   {
     id: 47,
     name: "Fresh Fish Fillets",
-    image: "fish-fillets.avif",
+    image: "salmon.avif",
     category: "meat",
     price: 650,
     description:
@@ -768,7 +768,7 @@ const products = [
   {
     id: 48,
     name: "Fresh Hilsa Fish",
-    image: "hilsa-fish.avif",
+    image: "hilsa.avif",
     category: "fish",
     price: 1200,
     description:
@@ -784,7 +784,7 @@ const products = [
   {
     id: 49,
     name: "Fresh Salmon Fillet",
-    image: "salmon-fillet.avif",
+    image: "salmon.avif",
     category: "fish",
     price: 1500,
     description:
@@ -800,7 +800,7 @@ const products = [
   {
     id: 50,
     name: "Fresh Rohu Fish",
-    image: "rohu-fish.avif",
+    image: "rohu.avif",
     category: "fish",
     price: 450,
     description:
@@ -832,7 +832,7 @@ const products = [
   {
     id: 52,
     name: "Fresh Katla Fish",
-    image: "katla-fish.avif",
+    image: "katla.avif",
     category: "fish",
     price: 400,
     description:
@@ -1069,13 +1069,173 @@ const products = [
       "স্বাস্থ্যকর পানীয়: প্রিজারভেটিভ মুক্ত।",
     ],
   },
+  {
+    id: 67,
+    name: "Fresh Spinach",
+    image: "fresh-spinach.avif",
+    category: "vegetables",
+    price: 80,
+    description:
+      "পুষ্টি সমৃদ্ধ তাজা পালং শাক, যা স্বাস্থ্যের জন্য অত্যন্ত উপকারী।",
+    unit: "1kg",
+    benefits: [
+      "ভিটামিন এ এবং সি সমৃদ্ধ: রোগ প্রতিরোধ ক্ষমতা বাড়ায়।",
+      "আয়রন সমৃদ্ধ: রক্তস্বল্পতা প্রতিরোধে সাহায্য করে।",
+      "লো-ক্যালোরি: ওজন নিয়ন্ত্রণে সহায়ক।",
+      "অ্যান্টি-অক্সিডেন্ট: দেহকে ডিটক্সিফাই করে।",
+    ],
+  },
+  {
+    id: 68,
+    name: "Organic Carrots",
+    image: "organic-carrots.avif",
+    category: "vegetables",
+    price: 120,
+    description:
+      "জৈবভাবে চাষ করা গাজর, যা স্বাদে মিষ্টি এবং পুষ্টি সমৃদ্ধ।",
+    unit: "1kg",
+    benefits: [
+      "ভিটামিন এ সমৃদ্ধ: চোখের স্বাস্থ্য রক্ষায় সহায়ক।",
+      "প্রাকৃতিক মিষ্টি: সালাদ ও রান্নায় উপযোগী।",
+      "পুষ্টিকর ফাইবার: হজমে সহায়ক।",
+      "লো-ক্যালোরি: স্বাস্থ্যকর খাদ্য।",
+    ],
+  },
+  {
+    id: 69,
+    name: "Broccoli",
+    image: "broccoli.avif",
+    category: "vegetables",
+    price: 180,
+    description:
+      "ব্রকলি, যা ভিটামিন এবং খনিজে সমৃদ্ধ, স্বাস্থ্যের জন্য বিশেষভাবে উপকারী।",
+    unit: "500g",
+    benefits: [
+      "ভিটামিন কে এবং সি: হাড় ও রোগ প্রতিরোধ ক্ষমতা উন্নত করে।",
+      "ডিটক্সিফাইং বৈশিষ্ট্য: দেহ পরিষ্কার করে।",
+      "অ্যান্টি-ক্যান্সার প্রপার্টিজ: স্বাস্থ্য সুরক্ষায় সহায়ক।",
+      "লো-ক্যালোরি: ডায়েট উপযোগী।",
+    ],
+  },
+  {
+    id: 70,
+    name: "Sweet Potatoes",
+    image: "sweet-potatoes.avif",
+    category: "vegetables",
+    price: 100,
+    description:
+      "মিষ্টি আলু, যা শক্তির চমৎকার উৎস এবং বিভিন্ন রান্নার জন্য উপযোগী।",
+    unit: "1kg",
+    benefits: [
+      "প্রাকৃতিক কার্বোহাইড্রেট: শক্তি প্রদান করে।",
+      "ভিটামিন এ সমৃদ্ধ: ত্বক এবং চোখের জন্য ভালো।",
+      "অ্যান্টি-অক্সিডেন্ট: রোগ প্রতিরোধ ক্ষমতা বাড়ায়।",
+      "পটাশিয়াম সমৃদ্ধ: রক্তচাপ নিয়ন্ত্রণে সহায়ক।",
+    ],
+  },
+  {
+    id: 71,
+    name: "Red Bell Peppers",
+    image: "red-bell-peppers.avif",
+    category: "vegetables",
+    price: 220,
+    description:
+      "রেড বেল পেপার, যা রান্নায় এবং সালাদে অসাধারণ স্বাদ যোগ করে।",
+    unit: "500g",
+    benefits: [
+      "ভিটামিন সি সমৃদ্ধ: রোগ প্রতিরোধ ক্ষমতা বাড়ায়।",
+      "লো-ক্যালোরি: স্বাস্থ্যকর ডায়েটের জন্য আদর্শ।",
+      "ফাইবার সমৃদ্ধ: হজম উন্নত করে।",
+      "অ্যান্টি-অক্সিডেন্ট: ত্বকের জন্য ভালো।",
+    ],
+  },
+  {
+    id: 72,
+    name: "Zucchini",
+    image: "zucchini.avif",
+    category: "vegetables",
+    price: 150,
+    description:
+      "জুকিনি, যা রান্নায় বা সালাদে ব্যবহার করা হয় এবং স্বাস্থ্যকর পুষ্টি সরবরাহ করে।",
+    unit: "1kg",
+    benefits: [
+      "লো-ক্যালোরি: ওজন নিয়ন্ত্রণে সহায়ক।",
+      "ভিটামিন সি এবং এ সমৃদ্ধ: ইমিউন বুস্টার।",
+      "ডায়েটারি ফাইবার: হজম উন্নত করে।",
+      "অ্যান্টি-ইনফ্ল্যামেটরি বৈশিষ্ট্য।",
+    ],
+  },
+  {
+    id: 73,
+    name: "Cauliflower",
+    image: "cauliflower.avif",
+    category: "vegetables",
+    price: 120,
+    description:
+      "ফুলকপি, যা পুষ্টি সমৃদ্ধ এবং রান্নার জন্য একটি প্রধান উপাদান।",
+    unit: "1kg",
+    benefits: [
+      "ভিটামিন সি: রোগ প্রতিরোধ ক্ষমতা উন্নত করে।",
+      "লো-ক্যালোরি: স্বাস্থ্যকর ডায়েটের জন্য।",
+      "ফাইবার সমৃদ্ধ: হজমে সহায়ক।",
+      "অ্যান্টি-অক্সিডেন্ট বৈশিষ্ট্য।",
+    ],
+  },
+  {
+    id: 74,
+    name: "Cabbage",
+    image: "cabbage.avif",
+    category: "vegetables",
+    price: 90,
+    description:
+      "পাতাকপি, যা সালাদ, স্যুপ এবং রান্নায় ব্যবহৃত হয়।",
+    unit: "1kg",
+    benefits: [
+      "ভিটামিন কে এবং সি সমৃদ্ধ।",
+      "ডিটক্সিফাইং বৈশিষ্ট্য।",
+      "ফাইবার সমৃদ্ধ: হজম উন্নত করে।",
+      "অ্যান্টি-ইনফ্ল্যামেটরি বৈশিষ্ট্য।",
+    ],
+  },
+  {
+    id: 75,
+    name: "Green Beans",
+    image: "green-beans.avif",
+    category: "vegetables",
+    price: 140,
+    description:
+      "তাজা সবুজ শিম, যা সালাদ এবং রান্নায় অসাধারণ।",
+    unit: "1kg",
+    benefits: [
+      "ভিটামিন এ এবং ক্যালসিয়াম সমৃদ্ধ।",
+      "লো-ক্যালোরি: স্বাস্থ্যকর ডায়েটের জন্য।",
+      "ফাইবার সমৃদ্ধ: হজমে সহায়ক।",
+      "স্বাদে হালকা এবং পুষ্টিকর।",
+    ],
+  },
+  {
+    id: 76,
+    name: "Eggplant",
+    image: "eggplant.avif",
+    category: "vegetables",
+    price: 100,
+    description:
+      "বেগুন, যা বিভিন্ন রান্নায় ব্যবহৃত হয় এবং পুষ্টি সমৃদ্ধ।",
+    unit: "1kg",
+    benefits: [
+      "অ্যান্টি-অক্সিডেন্ট সমৃদ্ধ।",
+      "পটাশিয়াম এবং ফাইবার সরবরাহ করে।",
+      "লো-ক্যালোরি: ডায়েট উপযোগী।",
+      "স্বাদে সমৃদ্ধ এবং রান্নার জন্য বহুমুখী।",
+    ],
+  },
 ];
 
 const categories = [
   { id: 1, name: "Vegetables", slug: "vegetables", image: "tomato.avif" },
   { id: 2, name: "Spice", slug: "spice", image: "spices2.avif" },
   { id: 3, name: "Meat", slug: "meat", image: "meat.avif" },
-  { id: 4, name: "Fish", slug: "fish", image: "meat.avif" },
+  { id: 4, name: "Fish", slug: "fish", image: "salmon.avif" },
   { id: 5, name: "Oil", slug: "oil", image: "olive-oil.avif" },
   { id: 6, name: "Nuts", slug: "nuts", image: "nuts2.avif" },
   { id: 7, name: "Fruit", slug: "fruit", image: "fruit2.avif" },
