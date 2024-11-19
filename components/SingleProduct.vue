@@ -48,11 +48,12 @@ const selectedItem = {
         :alt="product.name"
         format="webp"
         fit="cover"
-        sizes="lg:500px 400px"
+        sizes="lg:400px sm:50vw 100vw"
         loading="lazy"
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
         width="400"
         height="400"
+        quality="80"
         class="rounded-md aspect-square object-cover"
       />
     </div>
@@ -134,12 +135,13 @@ const selectedItem = {
             :alt="product.name"
             fit="cover"
             format="webp"
-            sizes="lg:500px 400px"
+            sizes="lg:400px sm:50vw 100vw"
             loading="lazy"
             :placeholder="
               img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })
             "
             width="400"
+            quality="80"
             height="400"
             class="rounded-md aspect-square object-cover"
           />
