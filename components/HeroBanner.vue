@@ -8,7 +8,7 @@
       :autoplay="{ delay: 4000, reverseDirection: false }"
       :speed="2000"
       :loop="true"
-      class="h-fit max-h-96"
+      class="h-fit h-96"
     >
       <SwiperSlide
         v-for="(item, index) in items"
@@ -20,11 +20,11 @@
           <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
-            loading="lazy"
+            loading="eager"
             quality="80"
             format="webp"
             sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 1000px"
-            class="rounded-md min-h-64 object-center object-cover"
+            class="rounded-md object-center object-cover"
           />
           <div class="absolute left-20 bottom-10">
             <div class="name text-3xl font-light text-orange-800">
