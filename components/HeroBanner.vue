@@ -7,7 +7,7 @@
       effect="fade"
       :pagination="{ clickable: true }"
       :autoplay="{ delay: 4000, reverseDirection: false }"
-      :speed="2000"
+      :speed="200000"
       :loop="true"
       class="h-fit h-96"
     >
@@ -23,7 +23,7 @@
             :alt="item.name"
             quality="80"
             format="webp"
-            sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 1000px"
+            sizes="lg:900px md:100vw sm:700px (max-width: 450px) 400px "
             class="rounded-md object-center object-cover"
             loading="eager"
           />

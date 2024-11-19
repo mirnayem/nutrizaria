@@ -23,7 +23,7 @@
       :lazy="{ loadPrevNext: true }"
       :modules="modules"
       :pagination="{ clickable: true }"
-      :autoplay="{ delay: 3000, reverseDirection: false }"
+      :autoplay="{ delay: 300000, reverseDirection: false }"
       :speed="1000"
       :observer="true"
       :observe-parents="true"
@@ -42,20 +42,20 @@
       >
         <NuxtLink
           :to="`/categories/${item.slug}`"
-          class="inner-content w-full relative rounded"
+          class="inner-content w-full h-fit md:max-h-96 max-h-60 relative rounded"
         >
           <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
-            loading="lazy"
+            loading="eager"
             format="webp"
-            sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 500px"
+            sizes="lg:460px md:500px sm:380px xs:300px 210px"
             quality="80"
             class="rounded-md aspect-square object-center object-cover"
           />
 
           <div
-            class="absolute left-1/2 w-3/4 flex-mid bottom-5 bg-white px-4 py-1 rounded transform -translate-x-1/2"
+            class="absolute left-1/2 w-3/4 flex-mid bottom-5 w-fit md:min-w-40 bg-white px-4 py-1 rounded transform -translate-x-1/2"
           >
             {{ item.name }}
           </div>

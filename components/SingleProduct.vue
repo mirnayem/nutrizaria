@@ -42,17 +42,15 @@ const selectedItem = {
 </script>
 <template>
   <div class="product__single grid gap-1 relative group">
-    <div class="image transition-all duration-700 ease-in-out w-fit mx-auto">
+    <div
+      class="image transition-all duration-700 ease-in-out h-fit max-h-80 mx-auto"
+    >
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
         format="webp"
-        fit="cover"
-        sizes="(max-width: 768px) 100vw, (max-width: 1080px) 50vw 400px"
-        loading="lazy"
+        sizes="lg:350px md:320px sm:300px 220px"
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
-        width="400"
-        height="400"
         quality="80"
         class="rounded-md aspect-square object-cover"
       />
@@ -135,14 +133,12 @@ const selectedItem = {
             :alt="product.name"
             fit="cover"
             format="webp"
-            sizes="lg:400px sm:50vw 100vw"
+            sizes="lg:300px sm:50vw 100vw"
             loading="lazy"
             :placeholder="
               img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })
             "
-            width="400"
             quality="80"
-            height="400"
             class="rounded-md aspect-square object-cover"
           />
         </div>
