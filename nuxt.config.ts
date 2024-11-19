@@ -1,6 +1,7 @@
 export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
+
   app: {
     head: {
       htmlAttrs: {
@@ -36,6 +37,7 @@ export default defineNuxtConfig({
       ],
     },
   },
+
   css: [
     "~/assets/css/main.css",
     "quill/dist/quill.snow.css",

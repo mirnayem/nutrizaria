@@ -2,6 +2,7 @@
   <div class="relative">
     <Swiper
       :modules="modules"
+      :lazy="{ loadPrevNext: true }"
       :slides-per-view="1"
       effect="fade"
       :pagination="{ clickable: true }"

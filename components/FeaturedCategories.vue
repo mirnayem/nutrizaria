@@ -20,6 +20,7 @@
     </div>
     <Swiper
       v-if="!isLoading"
+      :lazy="{ loadPrevNext: true }"
       :modules="modules"
       :pagination="{ clickable: true }"
       :autoplay="{ delay: 3000, reverseDirection: false }"
