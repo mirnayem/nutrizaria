@@ -48,7 +48,7 @@
             :alt="item.name"
             loading="lazy"
             format="webp"
-            sizes="lg:600px md:500px 400px"
+            sizes="lg: 400px sm:50vw 100vw"
             height="500"
             width="500"
             class="rounded-md aspect-square object-center object-cover"
@@ -64,7 +64,7 @@
     </Swiper>
     <button
       aria-label="Previous Slide"
-      class="custom-prev absolute xl:left-[-40px] left-[calc(50%-40px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
+      class="custom-prev absolute xl:left-[-40px] left-[calc(50%-20px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
     >
       <svg
         aria-hidden="true"
@@ -85,7 +85,7 @@
 
     <button
       aria-label="Next Slide"
-      class="custom-next absolute xl:right-[-40px] right-[calc(50%-40px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
+      class="custom-next absolute xl:right-[-40px] right-[calc(50%-60px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
     >
       <svg
         aria-hidden="true"
