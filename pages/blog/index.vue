@@ -40,7 +40,8 @@
             :src="post.image"
             loading="lazy"
             format="webp"
-            sizes="md:1000px sm:600px 450px"
+            quality="80"
+            sizes="md:1000px sm:600px 100vw"
             :alt="post.title"
           />
           <div

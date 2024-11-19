@@ -199,25 +199,28 @@
                 <NuxtImg
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/card-payment.webp"
-                  alt="card payment"
+                  alt="card payment method"
                   format="webp"
+                  quality="80"
                 />
                 <NuxtImg
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/cod.jpg"
-                  alt="cod"
+                  alt="cash on delivery method"
                   format="webp"
                 />
                 <NuxtImg
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/bkash.svg"
-                  alt="bkash"
+                  alt="bkash payment method"
+                  quality="80"
                 />
                 <NuxtImg
                   format="webp"
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/nagad.png"
-                  alt="nagad"
+                  alt="nagad payment method"
+                  quality="80"
                 />
               </div>
             </div>

@@ -22,8 +22,6 @@
             :src="`/images/${item.image}`"
             :alt="item.name"
             quality="80"
-            width="1000"
-            height="600"
             format="webp"
             sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 1000px"
             class="rounded-md object-center object-cover"

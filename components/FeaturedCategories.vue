@@ -49,9 +49,8 @@
             :alt="item.name"
             loading="lazy"
             format="webp"
-            sizes="lg:500px sm:50vw 100vw"
-            height="500"
-            width="500"
+            sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 500px"
+            quality="80"
             class="rounded-md aspect-square object-center object-cover"
           />
 

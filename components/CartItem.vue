@@ -54,7 +54,8 @@
           width="40"
           height="40"
           loading="lazy"
-          sizes="lg:200px 100px"
+          sizes="lg:100px 60px"
+          quality="80"
           class="rounded-md w-10 h-10 object-cover aspect-square"
         />
       </div>

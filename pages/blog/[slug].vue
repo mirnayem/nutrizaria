@@ -7,6 +7,7 @@
         :src="blog.image"
         sizes="md:1200px sm:700px 450px"
         :alt="blog.title"
+        quality="80"
       />
       <div class="md:px-20 px-0 mt-10">
         <h1 class="text-4xl font-bold">{{ blog.title }}</h1>

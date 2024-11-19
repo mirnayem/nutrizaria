@@ -58,7 +58,7 @@
             class="hidden"
           />
           <label for="nagad" class="ml-2">
-            <img src="/images/nagad.png" alt="nagad" class="object-cover" />
+            <NuxtImg src="/images/nagad.png" quality="80" alt="nagad" class="object-cover" />
           </label>
         </div>
 
@@ -76,7 +76,7 @@
             class="hidden"
           />
           <label for="cod" class="ml-2">
-            <img src="/images/cod.jpg" alt="cod" class="object-cover" />
+            <NuxtImg src="/images/cod.jpg" alt="cash on delivery" quality="80" class="object-cover" />
           </label>
         </div>
       </div>
