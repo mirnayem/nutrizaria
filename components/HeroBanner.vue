@@ -23,7 +23,7 @@
             loading="lazy"
             quality="80"
             format="webp"
-            sizes="md:1000px sm:700px xs:600px 500px"
+            sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 1000px"
             class="rounded-md min-h-64 object-center object-cover"
           />
           <div class="absolute left-20 bottom-10">
