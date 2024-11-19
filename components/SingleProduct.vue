@@ -134,8 +134,8 @@ const selectedItem = {
             :placeholder="
               img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })
             "
-            sizes="md:33vw sm:50vw 100vw"
-            class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            class="rounded-md object-cover"
           />
         </div>
         <div class="details col-span-6 flex flex-col gap-4">

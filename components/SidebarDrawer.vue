@@ -3,6 +3,7 @@
     <button
       @click="toggleDrawer"
       class="absolute right-4 -top-10 text-gray-700 focus:outline-none rounded-md"
+      aria-label="navigate drawer"
     >
       <svg
         class="w-6 h-6"

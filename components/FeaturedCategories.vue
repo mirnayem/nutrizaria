@@ -32,7 +32,7 @@
         nextEl: '.custom-next',
         prevEl: '.custom-prev',
       }"
-      class="md:h-64 h-96"
+      class="max-h-96"
     >
       <SwiperSlide
         v-for="(item, index) in categoriesFav"
@@ -41,16 +41,16 @@
       >
         <NuxtLink
           :to="`/categories/${item.slug}`"
-          class="inner-content w-full md:h-64 h-96 relative rounded"
+          class="inner-content w-full relative rounded"
         >
           <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
-            width="350"
-            height="350"
+            width="700"
+            height="700"
             loading="lazy"
-            sizes="md:33vw sm:50vw 100vw"
-            class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-center object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            class="rounded-md object-center object-cover"
           />
 
           <div
