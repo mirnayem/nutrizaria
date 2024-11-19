@@ -28,8 +28,10 @@ export default defineNuxtConfig({
       ],
       link: [
         {
-          rel: "stylesheet",
+          rel: "preload",
           href: "https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap",
+          as: "style",
+          onload: "this.onload=null;this.rel='stylesheet'",
         },
       ],
     },

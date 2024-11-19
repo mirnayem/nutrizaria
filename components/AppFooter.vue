@@ -196,22 +196,25 @@
             <div class="payment-options grid gap-3 mt-5">
               <p class="text-lg font-bold leading-0">Payment Options</p>
               <div class="flex flex-wrap items-center gap-2">
-                <img
+                <NuxtImg
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/card-payment.webp"
                   alt="card payment"
+                  format="webp"
                 />
-                <img
+                <NuxtImg
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/cod.jpg"
                   alt="cod"
+                  format="webp"
                 />
-                <img
+                <NuxtImg
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/bkash.svg"
                   alt="bkash"
                 />
-                <img
+                <NuxtImg
+                  format="webp"
                   class="h-10 w-10 rounded shadow-sm bg-white object-contain"
                   src="/images/nagad.png"
                   alt="nagad"
