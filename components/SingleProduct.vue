@@ -46,11 +46,11 @@ const selectedItem = {
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
-        sizes="md:33vw sm:50vw 100vw"
+        sizes="md:500px sm:400px 350px"
         loading="lazy"
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
-        width="350"
-        height="350"
+        width="500"
+        height="500"
         class="rounded-md object-cover"
       />
     </div>

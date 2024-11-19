@@ -46,10 +46,11 @@
           <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
-            width="700"
-            height="700"
             loading="lazy"
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="lg:600px md:500px 400px"
+            height="500"
+            width="500"
+            fill
             class="rounded-md object-center object-cover"
           />
 

@@ -20,11 +20,10 @@
           <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
-            width="950"
-            height="650"
             loading="lazy"
             quality="80"
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            sizes="md:1000px sm:700px xs:600px 500px"
+            fill
             class="rounded-md min-h-64 object-center object-cover"
           />
           <div class="absolute left-20 bottom-10">
