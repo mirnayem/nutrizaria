@@ -20,7 +20,6 @@
           <NuxtImg
             :src="`/images/${item.image}`"
             :alt="item.name"
-            loading="eager"
             quality="80"
             format="webp"
             sizes="(max-width: 320px) 100vw, (max-width: 640px) 50vw, 1000px"
