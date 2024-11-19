@@ -51,7 +51,7 @@ const selectedItem = {
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
         width="500"
         height="500"
-        class="rounded-md object-cover"
+        class="rounded-md aspect-square object-cover"
       />
     </div>
     <div
@@ -130,18 +130,19 @@ const selectedItem = {
           <NuxtImg
             :src="`/images/${product.image}`"
             :alt="product.name"
-            width="350"
-            height="350"
+            width="500"
+            height="500"
             loading="lazy"
+            format="webp"
             :placeholder="
               img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })
             "
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            class="rounded-md object-cover"
+            sizes="md:500px sm:400px 350px"
+            class="rounded-md aspect-square object-cover"
           />
         </div>
         <div class="details col-span-6 flex flex-col gap-4">
-          <div class="price col-span-12">Price: {{ product.price }} bdt</div>
+          <div class="price col-span-12">Price: {{ product.price }} BDT</div>
           <div class="quantity col-span-12">Quantity:{{ product.unit }}</div>
           <div class="description col-span-12">
             Description: {{ product.description }}

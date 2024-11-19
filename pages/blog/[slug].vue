@@ -1,10 +1,11 @@
 <template>
   <div class="blog-details grid grid-cols-12">
     <section class="col-span-9">
-      <img
+      <NuxtImg
         class="w-full max-w-[1200px] h-[400px] object-cover"
+        format="webp"
         :src="blog.image"
-        sizes="(max-width: 1200px) 100vw, (max-width: 900px) 80vw, 33vw"
+        sizes="md:1200px sm:700px 450px"
         :alt="blog.title"
       />
       <div class="md:px-20 px-0 mt-10">

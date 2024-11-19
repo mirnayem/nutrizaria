@@ -35,10 +35,12 @@
         v-show="index < visiblePostsCount"
       >
         <div class="image relative">
-          <img
+          <NuxtImg
             class="w-full max-w-[600px] h-[400px] object-cover"
             :src="post.image"
-            sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
+            loading="lazy"
+            format="webp"
+            sizes="md:1000px sm:600px 450px"
             :alt="post.title"
           />
           <div

@@ -47,11 +47,12 @@
             :src="`/images/${item.image}`"
             :alt="item.name"
             loading="lazy"
+            format="webp"
             sizes="lg:600px md:500px 400px"
             height="500"
             width="500"
             fill
-            class="rounded-md object-center object-cover"
+            class="rounded-md aspect-square object-center object-cover"
           />
 
           <div

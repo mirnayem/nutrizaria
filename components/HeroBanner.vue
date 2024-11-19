@@ -22,6 +22,7 @@
             :alt="item.name"
             loading="lazy"
             quality="80"
+            format="webp"
             sizes="md:1000px sm:700px xs:600px 500px"
             fill
             class="rounded-md min-h-64 object-center object-cover"
