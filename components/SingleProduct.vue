@@ -51,7 +51,7 @@ const selectedItem = {
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
         width="350"
         height="350"
-        class="rounded-md sm:w-72 sm:h-72 w-80 h-80 object-cover"
+        class="rounded-md object-cover"
       />
     </div>
     <div
@@ -114,8 +114,10 @@ const selectedItem = {
         </svg>
       </div>
     </div>
-    <div class="name text-center font-light -mt-10">{{ product.name }}</div>
-    <div class="price text-center font-light -mt-5">
+    <div class="name text-center font-light -mt-10 sm:text-normal text-sm">
+      {{ product.name }}
+    </div>
+    <div class="price text-center font-light -mt-5 sm:text-normal text-sm">
       {{ "$" + product.price }}
     </div>
     <AppModal

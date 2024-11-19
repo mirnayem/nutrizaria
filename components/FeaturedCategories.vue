@@ -32,7 +32,7 @@
         nextEl: '.custom-next',
         prevEl: '.custom-prev',
       }"
-      class="max-h-96"
+      class="h-fit"
     >
       <SwiperSlide
         v-for="(item, index) in categoriesFav"
@@ -116,14 +116,9 @@ import { ref, onMounted } from "vue";
 import { categories } from "~/stores/data";
 const modules = [Autoplay, Navigation];
 const breakpoints = {
-  640: {
-    slidesPerView: 1,
-    spaceBetween: 10,
-  },
-
-  768: {
+  0: {
     slidesPerView: 2,
-    spaceBetween: 20,
+    spaceBetween: 10,
   },
 
   1024: {

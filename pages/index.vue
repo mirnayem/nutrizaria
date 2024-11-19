@@ -24,7 +24,7 @@ import { products } from "../stores/data";
     </section>
     <header class="favorite-categories w-full mx-auto mb-10">
       <h1
-        class="favorite-categories__title text-4xl font-light text-center mt-20 mb-6"
+        class="favorite-categories__title md:text-4xl text-lg font-light text-center mt-20 mb-6"
       >
         Favorite Categories
       </h1>
@@ -42,7 +42,7 @@ import { products } from "../stores/data";
         class="products-section col-span-12"
         aria-labelledby="products-heading"
       >
-        <h2 id="products-heading" class="text-center text-4xl font-light my-10">
+        <h2 id="products-heading" class="text-center md:text-4xl text-lg font-light my-10">
           Featured Products
         </h2>
         <Products :products="products"/>

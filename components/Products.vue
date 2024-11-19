@@ -1,8 +1,8 @@
 <template>
   <div
     :class="[
-      'products grid sm:grid-cols-2 gap-8',
-      route.path !== '/shop' ? 'md:grid-cols-4' : 'md:grid-cols-3',
+      'products grid md:gap-8 gap-3 grid-cols-2',
+      route.path !== '/shop' ? 'lg:grid-cols-4 md:grid-cols-3' : 'lg:grid-cols-3 md:grid-cols-2',
     ]"
     v-if="visibleProducts && visibleProducts.length > 0"
   >

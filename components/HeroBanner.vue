@@ -8,7 +8,7 @@
       :autoplay="{ delay: 4000, reverseDirection: false }"
       :speed="2000"
       :loop="true"
-      class="max-h-96"
+      class="h-fit max-h-96"
     >
       <SwiperSlide
         v-for="(item, index) in items"
