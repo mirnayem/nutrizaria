@@ -68,5 +68,6 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536,
     },
+    formats: ["avif", "webp"],
   },
 });
