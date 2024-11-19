@@ -46,8 +46,9 @@ const selectedItem = {
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
+        format="webp"
         fit="cover"
-        sizes="100vw sm:50vw md:400px"
+        sizes="lg:500px 400px"
         loading="lazy"
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
         width="400"
@@ -132,7 +133,8 @@ const selectedItem = {
             :src="`/images/${product.image}`"
             :alt="product.name"
             fit="cover"
-            sizes="100vw sm:50vw md:400px"
+            format="webp"
+            sizes="lg:500px 400px"
             loading="lazy"
             :placeholder="
               img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })
