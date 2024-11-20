@@ -55,7 +55,7 @@
           />
 
           <div
-            class="absolute left-1/2 w-3/4 flex-mid bottom-5 w-fit md:min-w-40 bg-white px-4 py-1 rounded transform -translate-x-1/2"
+            class="absolute left-1/2 w-3/4 flex-mid bottom-5 w-fit md:min-w-40 min-w-24 bg-white px-4 py-1 rounded transform -translate-x-1/2"
           >
             {{ item.name }}
           </div>

@@ -42,16 +42,16 @@ const selectedItem = {
 </script>
 <template>
   <div class="product__single grid gap-1 relative group">
-    <div
-      class="image transition-all duration-700 ease-in-out h-fit max-h-80 mx-auto"
-    >
+    <div class="image transition-all duration-700 ease-in-out mx-auto">
       <NuxtImg
         :src="`/images/${product.image}`"
         :alt="product.name"
         format="webp"
-        sizes="lg:350px md:320px sm:300px 220px"
+        sizes="200px, sm:240px, md:300px"
+        loading="lazy"
         :placeholder="img(`/nutri.png`, { h: 300, f: 'png', blur: 1, q: 50 })"
         quality="80"
+        aspect-ratio="1"
         class="rounded-md aspect-square object-cover"
       />
     </div>
