@@ -148,11 +148,12 @@ const selectedItem = {
           <div class="description col-span-12">
             Description: {{ product.description }}
           </div>
-          <QuanityControl />
+          <QuantityControl :product="product" />
+
         </div>
       </div>
       <div class="benefits my-5">
-        <p class="py-2">Benefits of {{ product.name }}</p>
+        <p class="py-2 text-lg font-medium">Benefits of {{ product.name }}</p>
         <div
           class="benefit-single pb-2"
           v-for="(benefit, index) in product.benefits"

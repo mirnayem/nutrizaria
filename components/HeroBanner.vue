@@ -27,13 +27,16 @@
             class="object-center object-cover aspect-[3/2]"
             loading="eager"
           />
-          <div class="absolute left-20 bottom-10">
+          <NuxtLink
+            :to="`/categories/${item.slug}`"
+            class="absolute left-20 bottom-10"
+          >
             <div class="name text-3xl font-light text-orange-800">
               {{ item.name }}
             </div>
             <div class="description">{{ item.description }}</div>
             <button class="nutri-btn my-2">Shop Now</button>
-          </div>
+          </NuxtLink>
         </div>
       </SwiperSlide>
     </Swiper>
@@ -56,16 +59,19 @@ const items = ref([
   {
     name: "Premium Dates",
     image: "dates2.avif",
+    slug: "dates",
     description: "Fresh and premium collection",
   },
   {
     name: "Fresh Fruits",
     image: "fruit2.avif",
+    slug: "fruit",
     description: "Ensures fully safe",
   },
   {
     name: "Pure Honey",
     image: "honey2.avif",
+    slug: "honey",
     description: "100% organic and natural",
   },
 ]);

@@ -1,5 +1,13 @@
 <template>
   <div
+    v-if="checkProductExist() === 0"
+    class="add-to-cart bg-orange-600 text-white rounded-lg max-w-40 h-12 flex-mid cursor-pointer"
+    @click="addToCart"
+  >
+    Add to Cart
+  </div>
+  <div
+    v-else
     class="quantity-control flex items-center justify-center max-w-fit rounded-lg gap-6 border px-4 h-12"
   >
     <div
@@ -41,14 +49,35 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
-const quantity = ref(1);
+import { ref, onMounted } from "vue";
+const quantity = ref(0);
+const props = defineProps(["product"]);
+import { useCartStore } from "~/stores/cart";
+
+const cartStore = useCartStore();
+const { product } = props;
+const { items } = cartStore;
+const addToCart = () => {
+  cartStore.addToCart(product);
+  quantity.value = 1;
+};
 const increment = () => {
-  quantity.value++;
+  cartStore.updateCartItem(product.id, "INC");
+  quantity.value += 1;
 };
 const decrement = () => {
   if (quantity.value > 1) {
-    quantity.value--;
+    cartStore.updateCartItem(product.id, "DEC");
+    quantity.value -= 1;
   }
 };
+
+const checkProductExist = () => {
+  let exist = items.find((item) => item.id === product.id);
+  return exist ? exist.quantity : 0;
+};
+
+onMounted(() => {
+  quantity.value = checkProductExist();
+});
 </script>
