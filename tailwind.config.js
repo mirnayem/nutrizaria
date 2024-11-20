@@ -11,29 +11,29 @@ export default {
   theme: {
     extend: {
       screens: {
-        'xsm': '375px',
+        xsm: "375px",
+        landscape: "450px",
       },
       fontFamily: {
-        sans: ['Roboto', 'ui-sans-serif', 'system-ui'], // Set Roboto as the default sans font
+        sans: ["Roboto", "ui-sans-serif", "system-ui"],
       },
       transitionProperty: {
-        'slide': 'transform'
-      }
+        slide: "transform",
+      },
     },
   },
   plugins: [
     function ({ addUtilities }) {
       addUtilities({
-        '.scrollbar-hide': {
-          '-webkit-overflow-scrolling': 'touch',
-          'scrollbar-width': 'none',
-          '-ms-overflow-style': 'none',
-          '&::-webkit-scrollbar': {
-            display: 'none',
+        ".scrollbar-hide": {
+          "-webkit-overflow-scrolling": "touch",
+          "scrollbar-width": "none",
+          "-ms-overflow-style": "none",
+          "&::-webkit-scrollbar": {
+            display: "none",
           },
         },
       });
-    }
+    },
   ],
-}
-
+};

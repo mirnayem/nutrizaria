@@ -23,7 +23,7 @@
       :lazy="{ loadPrevNext: true }"
       :modules="modules"
       :pagination="{ clickable: true }"
-      :autoplay="{ delay: 300000, reverseDirection: false }"
+      :autoplay="{ delay: 3000, reverseDirection: false }"
       :speed="1000"
       :observer="true"
       :observe-parents="true"
@@ -46,7 +46,7 @@
         >
           <NuxtImg
             :src="`/images/${item.image}`"
-            :alt="item.name"
+            :alt="item.name + ' ' + item.slug"
             loading="eager"
             format="webp"
             sizes="lg:460px md:500px sm:380px xs:300px 210px"

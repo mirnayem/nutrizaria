@@ -7,7 +7,7 @@
       effect="fade"
       :pagination="{ clickable: true }"
       :autoplay="{ delay: 4000, reverseDirection: false }"
-      :speed="200000"
+      :speed="2000"
       :loop="true"
       class="h-fit h-96"
     >
@@ -15,7 +15,7 @@
         v-for="(item, index) in items"
         v-show="item"
         :key="index"
-        class="!flex items-center justify-center bg-orange-200 text-black"
+        class="!flex items-center justify-center text-black"
       >
         <div class="inner-content w-full h-fit max-h-96 relative rounded">
           <NuxtImg
@@ -23,8 +23,8 @@
             :alt="item.name"
             quality="80"
             format="webp"
-            sizes="lg:900px md:100vw sm:700px (max-width: 450px) 400px "
-            class="rounded-md object-center object-cover"
+            sizes="(min-width: 0px and max-width:450px) 420px (min-width:451px and max-width: 640px) 600px sm:850px md:950px xl:1000px"
+            class="object-center object-cover aspect-[3/2]"
             loading="eager"
           />
           <div class="absolute left-20 bottom-10">
