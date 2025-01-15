@@ -2,7 +2,9 @@
   <div
     :class="[
       'products grid md:gap-8 gap-3 grid-cols-2',
-      route.path !== '/shop' ? 'lg:grid-cols-4 md:grid-cols-3' : 'lg:grid-cols-3 md:grid-cols-2',
+      route.path !== '/shop'
+        ? 'lg:grid-cols-4 md:grid-cols-3'
+        : 'lg:grid-cols-3 md:grid-cols-2',
     ]"
     v-if="visibleProducts && visibleProducts.length > 0"
   >
@@ -43,16 +45,13 @@ const loadMoreItems = () => {
 };
 
 let observer: IntersectionObserver | null = null;
-let delayTimeout: NodeJS.Timeout | null = null;
 const loadMoreTrigger = ref(null);
 const setupObserver = () => {
   observer = new IntersectionObserver(
     (entries) => {
       loading.value = true;
       if (entries[0].isIntersecting) {
-        delayTimeout = setTimeout(() => {
-          loadMoreItems();
-        }, 500);
+        loadMoreItems();
       }
     },
     {
@@ -72,7 +71,6 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   if (observer) observer.disconnect();
-  if (delayTimeout) clearTimeout(delayTimeout);
 });
 </script>
 <style scoped>

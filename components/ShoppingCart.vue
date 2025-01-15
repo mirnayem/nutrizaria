@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <div class="shopping-cart">
+    <div class="shopping-cart" ref="cartRef">
       <div
         :class="cartStore.isCartOpen ? 'translate-x-0' : 'translate-x-full'"
         class="fixed top-20 right-0 w-[320px] h-full bg-slate-100 shadow-lg transition-transform duration-300 ease-in-out z-50"
@@ -74,9 +74,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useCartStore } from "@/stores/cart";
+import { useClickOutside } from "~/composables/useClickOutside";
 
 const cartStore = useCartStore();
+const cartRef = ref<HTMLElement | null>(null);
 
 const navigateToCheckout = () => {
   navigateTo("/checkout");
@@ -87,4 +90,6 @@ const closeCart = () => {
 const handleCart = () => {
   cartStore.toggleCart();
 };
+
+useClickOutside(cartRef, () => cartStore.isCartOpen = false)
 </script>

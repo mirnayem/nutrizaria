@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useCartStore } from "@/stores/cart";
-import type { CartItem } from "~/types/product";
+import { useFavoriteStore } from "~/stores/favorite";
+import type { CartItem, Product } from "~/types/product";
 
 const cartStore = useCartStore();
-
+const favoriteStore = useFavoriteStore()
 const addCart = (item: CartItem) => {
   cartStore.addToCart(item);
 };
@@ -15,15 +16,10 @@ const openModal = () => {
   isModalOpen.value = true;
 };
 
-interface Product {
-  id: number;
-  name: string;
-  image: string;
-  description: string;
-  benefits: string[];
-  price: number;
-  unit: string;
+const addToFavorite = (product: Product): void => {
+  favoriteStore.addToFavorite(product)
 }
+
 interface Props {
   product: Product;
 }
@@ -59,6 +55,7 @@ const selectedItem = {
       class="favorite-info-cart transition-all duration-700 ease-in-out transform -translate-y-10 group-hover:translate-y-[-70px] text-white opacity-0 flex group-hover:opacity-100 gap-5 items-center justify-center"
     >
       <div
+        @click="addToFavorite(product)"
         class="favorite w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
       >
         <svg

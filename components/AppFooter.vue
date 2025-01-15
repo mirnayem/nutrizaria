@@ -132,39 +132,27 @@
           <div class="footer-menus mt-3">
             <NuxtLink
               class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
+              to="/shop"
               >Shop</NuxtLink
             >
             <NuxtLink
               class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
+              to="/contact"
               >Contact Us</NuxtLink
             >
+            
             <NuxtLink
               class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
-              >Career</NuxtLink
-            >
-            <NuxtLink
-              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
+              to="/faq"
               >FAQ</NuxtLink
             >
+            
             <NuxtLink
               class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
-              >Privacy Policy</NuxtLink
-            >
-            <NuxtLink
-              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
+              to="/blog"
               >Blog</NuxtLink
             >
-            <NuxtLink
-              class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
-              to="/"
-              >Terms & Conditions</NuxtLink
-            >
+            
           </div>
         </div>
         <div class="app-newsletter grid gap-4 md:col-span-4 col-span-12">
