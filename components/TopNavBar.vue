@@ -1,5 +1,5 @@
 <template>
-  <section class="navbar flex items-center h-8 bg-orange-700">
+  <section class="navbar flex items-center h-8 bg-violet-700">
     <div
       class="container flex justify-between items-center text-white lg:px-0 px-4"
     >
@@ -37,9 +37,10 @@
           </svg>
         </NuxtLink>
         <div class="border-l border-gray-300 h-[14px]"></div>
-        <p class="navbar__language text-xs min-w-10">English</p>
-        <div class="border-l border-gray-300 h-[14px]"></div>
-        <NuxtLink to="/signup" class="navbar__signup--link text-xs capitalize w-20 h-4 overflow-hidden">
+        <NuxtLink
+          to="/signup"
+          class="navbar__signup--link text-xs text-right capitalize w-fit h-4 overflow-hidden"
+        >
           {{ signupText() }}
         </NuxtLink>
       </div>

@@ -5,7 +5,7 @@
       class="container mx-auto h-12 flex justify-between items-center lg:px-0 px-4 shadow-lg"
     >
       <div class="logo-search flex items-center gap-5">
-        <NuxtLink to="/" class="text-orange-800 uppercase text-xl font-medium"
+        <NuxtLink to="/" class="text-violet-800 uppercase text-xl font-medium"
           >Nutriʾakl</NuxtLink
         >
         <SearchProduct
@@ -31,10 +31,10 @@
               />
             </svg>
             <span
-                v-if="items.length > 0"
-                class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-orange-700 text-white text-xs"
-                >{{ items.length }}</span
-              >
+              v-if="items.length > 0"
+              class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-violet-700 text-white text-xs"
+              >{{ items.length }}</span
+            >
           </NuxtLink>
           <ClientOnly>
             <div
@@ -42,7 +42,7 @@
               @click="cartStore.toggleCart()"
             >
               <span
-                class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-orange-700 text-white text-xs"
+                class="absolute -right-3 -top-2 w-5 h-5 flex items-center justify-center rounded-full bg-violet-700 text-white text-xs"
                 >{{ cartStore.totalItems }}</span
               >
               <svg

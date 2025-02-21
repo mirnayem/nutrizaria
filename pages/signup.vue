@@ -1,7 +1,7 @@
 <template>
   <ClientOnly>
     <div
-      class="signup-login max-w-md mx-auto text-center bg-orange-200 rounded p-10 min-h-[350px]"
+      class="signup-login max-w-md mx-auto text-center bg-violet-200 rounded p-10 min-h-[350px]"
     >
       <div v-if="authStatus == 'signup'">
         <h1 class="text-2xl font-light text-white">Signup</h1>
@@ -27,7 +27,7 @@
             required
           />
           <button
-            class="max-w-44 mx-auto px-5 py-2 rounded bg-orange-700 text-white font-semibold"
+            class="max-w-44 mx-auto px-5 py-2 rounded bg-violet-700 text-white font-semibold"
             type="submit"
             :class="{ 'cursor-not-allowed': loading }"
           >
@@ -52,7 +52,7 @@
             required
           />
           <button
-            class="max-w-44 mx-auto px-5 py-2 rounded bg-orange-700 text-white font-semibold"
+            class="max-w-44 mx-auto px-5 py-2 rounded bg-violet-700 text-white font-semibold"
             type="submit"
           >
             Login
@@ -65,7 +65,7 @@
       >
         Already have an account
         <span
-          class="text-orange-800 font-light cursor-pointer"
+          class="text-violet-800 font-light cursor-pointer"
           @click="updateStatus('login')"
           >login</span
         >
@@ -73,7 +73,7 @@
       <div v-if="authStatus === 'login'" class="toggle mt-4 text-sm font-light">
         Register now
         <span
-          class="text-orange-800 font-light cursor-pointer"
+          class="text-violet-800 font-light cursor-pointer"
           @click="updateStatus('signup')"
           >signup</span
         >

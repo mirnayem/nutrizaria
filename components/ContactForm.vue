@@ -25,7 +25,7 @@
           type="text"
           id="last-name"
           name="last-name"
-          class="peer w-full  my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
+          class="peer w-full my-5 border-b-2 focus:outline-none py-1 px-1 focus:border-indigo-400 transition-colors duration-500 ease-in-out placeholder-transparent"
           placeholder=""
         />
         <label
@@ -94,7 +94,7 @@
       <div class="col-span-12 mx-auto">
         <button
           type="submit"
-          class="w-full my-5 max-w-72 mx-auto bg-orange-600 text-white px-10 py-2 rounded"
+          class="w-full my-5 max-w-72 mx-auto bg-violet-600 text-white px-10 py-2 rounded"
         >
           Send Message
         </button>
@@ -114,7 +114,5 @@ const form = reactive({
   message: "",
 });
 
-const handleSubmit = () => {
-
-};
+const handleSubmit = () => {};
 </script>

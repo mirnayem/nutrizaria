@@ -13,13 +13,13 @@
       class="blog-menus flex overflow-x-auto scrollbar-hide whitespace-nowrap gap-x-3 items-center border-b-2 mt-10"
     >
       <div
-        class="menu-single font-thin cursor-pointer flex-shrink-0 relative group pb-1 hover:text-orange-800"
+        class="menu-single font-thin cursor-pointer flex-shrink-0 relative group pb-1 hover:text-violet-800"
         v-for="item in blogCategories"
         :key="item.id"
       >
         {{ item.category }}
         <div
-          class="absolute left-0 -bottom-0.5 h-1 bg-orange-800 w-0 group-hover:w-full transition-all duration-300"
+          class="absolute left-0 -bottom-0.5 h-1 bg-violet-800 w-0 group-hover:w-full transition-all duration-300"
         ></div>
       </div>
     </div>
@@ -61,7 +61,7 @@
         <div class="title mt-2 relative inline-block text-lg font-light">
           {{ post.title }}
           <div
-            class="absolute left-0 bottom-[-4px] h-[2px] w-0 bg-orange-800 transition-all duration-300 group-hover:w-full"
+            class="absolute left-0 bottom-[-4px] h-[2px] w-0 bg-violet-800 transition-all duration-300 group-hover:w-full"
           ></div>
         </div>
         <div class="content my-2 text-sm font-thin">
@@ -70,7 +70,7 @@
         <NuxtLink
           :to="`/blog/${slugifiedString(post.title)}`"
           @click="saveSelectedPost(post)"
-          class="read-post flex gap-2 items-center text-sm hover:text-orange-800 transition-all"
+          class="read-post flex gap-2 items-center text-sm hover:text-violet-800 transition-all"
         >
           Read Post
           <svg
@@ -92,7 +92,7 @@
     </div>
     <div class="show-more my-10" v-if="blogPosts.length > visiblePostsCount">
       <button
-        class="nutri-btn mx-auto hover:bg-orange-600"
+        class="nutri-btn mx-auto hover:bg-violet-600"
         @click="showMorePosts"
       >
         Show More Posts

@@ -20,7 +20,7 @@ useHead({
     </p>
     <div class="contact-body grid grid-cols-12 mt-10 min-h-screen">
       <div
-        class="contact-option md:col-span-5 col-span-12 bg-orange-400 rounded-l-lg min-h-[800px] text-white p-20 relative"
+        class="contact-option md:col-span-5 col-span-12 bg-violet-400 rounded-l-lg min-h-[800px] text-white p-20 relative"
       >
         <h1 class="text-3xl font-light">Contact Information</h1>
         <p class="text-lg mt-3 font-light">
@@ -99,7 +99,7 @@ useHead({
           class="contact-circle h-40 w-40 rounded-full bg-purple-200 z-10 absolute right-28 bottom-28"
         ></div>
         <div
-          class="contact-circle h-72 w-72 rounded-tl-full bg-orange-300 z-5 absolute right-0 bottom-0"
+          class="contact-circle h-72 w-72 rounded-tl-full bg-violet-300 z-5 absolute right-0 bottom-0"
         ></div>
 
         <SocialIcons class="absolute bottom-10" direction="flex" />

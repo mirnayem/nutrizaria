@@ -31,7 +31,7 @@
             :to="`/categories/${item.slug}`"
             class="absolute left-20 bottom-10"
           >
-            <div class="name text-3xl font-light text-orange-800">
+            <div class="name text-3xl font-light text-violet-800">
               {{ item.name }}
             </div>
             <div class="description">{{ item.description }}</div>

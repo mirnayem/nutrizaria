@@ -1,6 +1,6 @@
 <template>
   <section
-    class="category-heading flex justify-between px-10 py-3 bg-orange-700 font-light text-white items-center border-b border-white"
+    class="category-heading flex justify-between px-10 py-3 bg-violet-700 font-light text-white items-center border-b border-white"
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -37,8 +37,9 @@
     class="categories-list grid h-[335px] !overflow-y-auto scrollbar-hide border border-t-2 border-t-white rounded"
     v-if="showCategory"
   >
-    <NuxtLink :to="`/categories/${category.slug}`"
-      class="single-category py-3 cursor-pointer hover:bg-orange-700 hover:text-white hover:font-light px-10"
+    <NuxtLink
+      :to="`/categories/${category.slug}`"
+      class="single-category py-3 cursor-pointer hover:bg-violet-700 hover:text-white hover:font-light px-10"
       v-for="category in categories"
       :key="category.id"
     >
@@ -53,6 +54,8 @@ import { useWindowResize } from "~/composables/useWindowResize";
 const showCategory = ref<boolean>(true);
 const { width } = useWindowResize();
 watch(width, () => {
-  width.value <= 1020 ? showCategory.value = false : showCategory.value = true
-})
+  width.value <= 1020
+    ? (showCategory.value = false)
+    : (showCategory.value = true);
+});
 </script>

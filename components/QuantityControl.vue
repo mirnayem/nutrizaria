@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="checkProductExist() === 0"
-    class="add-to-cart bg-orange-600 text-white rounded-lg max-w-40 h-12 flex-mid cursor-pointer"
+    class="add-to-cart bg-violet-600 text-white rounded-lg max-w-40 h-12 flex-mid cursor-pointer"
     @click="addToCart"
   >
     Add to Cart

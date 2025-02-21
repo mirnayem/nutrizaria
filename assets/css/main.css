@@ -3,19 +3,20 @@
 @tailwind utilities;
 
 .container {
-    @apply max-w-[1200px] mx-auto;
+  @apply max-w-[1200px] mx-auto;
 }
-html, body {
-    overflow-x: hidden;
+html,
+body {
+  overflow-x: hidden;
 }
 
 .flex-mid {
-    @apply flex items-center justify-center;
+  @apply flex items-center justify-center;
 }
 .flex-between {
-    @apply flex items-center justify-between;
+  @apply flex items-center justify-between;
 }
 
 .nutri-btn {
-    @apply rounded flex items-center justify-center text-white font-semibold px-5 py-2 bg-orange-600;
+  @apply rounded flex items-center justify-center text-white font-semibold px-5 py-2 bg-violet-600;
 }

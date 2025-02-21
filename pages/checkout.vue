@@ -14,7 +14,7 @@
         </h1>
         <div
           class="user-address flex items-center p-5 border-2 rounded cursor-pointer"
-          :class="{ 'bg-orange-100': selectedAddress }"
+          :class="{ 'bg-violet-100': selectedAddress }"
           v-if="userAddress"
           @click="selectAddress"
         >

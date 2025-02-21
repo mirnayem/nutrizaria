@@ -20,7 +20,7 @@
     />
     <div
       @click="fetchResults(searchTerm)"
-      class="absolute right-0 search-button sm:w-24 w-10 gap-2 h-[42px] flex-mid bg-orange-700 text-white cursor-pointer"
+      class="absolute right-0 search-button sm:w-24 w-10 gap-2 h-[42px] flex-mid bg-violet-700 text-white cursor-pointer"
     >
       <MagnifyingGlassIcon class="w-5 h-5 text-white" />
       <p class="sm:block hidden">Search</p>

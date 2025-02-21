@@ -58,7 +58,7 @@
               navigateToCheckout();
               closeCart();
             "
-            class="place-order w-2/3 pl-3 h-full flex items-center justify-between bg-orange-700"
+            class="place-order w-2/3 pl-3 h-full flex items-center justify-between bg-violet-700"
           >
             Place Order
           </div>
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref } from "vue";
 import { useCartStore } from "@/stores/cart";
 import { useClickOutside } from "~/composables/useClickOutside";
 
@@ -91,5 +91,5 @@ const handleCart = () => {
   cartStore.toggleCart();
 };
 
-useClickOutside(cartRef, () => cartStore.isCartOpen = false)
+useClickOutside(cartRef, () => (cartStore.isCartOpen = false));
 </script>

@@ -5,7 +5,7 @@ import { useFavoriteStore } from "~/stores/favorite";
 import type { CartItem, Product } from "~/types/product";
 
 const cartStore = useCartStore();
-const favoriteStore = useFavoriteStore()
+const favoriteStore = useFavoriteStore();
 const addCart = (item: CartItem) => {
   cartStore.addToCart(item);
 };
@@ -17,8 +17,8 @@ const openModal = () => {
 };
 
 const addToFavorite = (product: Product): void => {
-  favoriteStore.addToFavorite(product)
-}
+  favoriteStore.addToFavorite(product);
+};
 
 interface Props {
   product: Product;
@@ -56,7 +56,7 @@ const selectedItem = {
     >
       <div
         @click="addToFavorite(product)"
-        class="favorite w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
+        class="favorite w-10 h-10 cursor-pointer rounded-full bg-violet-700 flex items-center justify-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -74,7 +74,7 @@ const selectedItem = {
         </svg>
       </div>
       <div
-        class="info w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
+        class="info w-10 h-10 cursor-pointer rounded-full bg-violet-700 flex items-center justify-center"
         @click="openModal"
       >
         <svg
@@ -94,7 +94,7 @@ const selectedItem = {
       </div>
       <div
         @click="addCart(selectedItem)"
-        class="cart w-10 h-10 cursor-pointer rounded-full bg-orange-700 flex items-center justify-center"
+        class="cart w-10 h-10 cursor-pointer rounded-full bg-violet-700 flex items-center justify-center"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +146,6 @@ const selectedItem = {
             Description: {{ product.description }}
           </div>
           <QuantityControl :product="product" />
-
         </div>
       </div>
       <div class="benefits my-5">

@@ -140,19 +140,18 @@
               to="/contact"
               >Contact Us</NuxtLink
             >
-            
+
             <NuxtLink
               class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/faq"
               >FAQ</NuxtLink
             >
-            
+
             <NuxtLink
               class="font-light text-sm hover:text-slate-400 h-fit py-2 font-medium flex items-center"
               to="/blog"
               >Blog</NuxtLink
             >
-            
           </div>
         </div>
         <div class="app-newsletter grid gap-4 md:col-span-4 col-span-12">
@@ -176,7 +175,7 @@
                 class="px-4 w-[280px] text-slate-800 py-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-orange-500"
               />
               <button
-                class="px-4 h-[44px] py-2 absolute right-0 bg-orange-700 text-white rounded-r hover:bg-orange-600 transition-colors duration-300"
+                class="px-4 h-[44px] py-2 absolute right-0 bg-violet-700 text-white rounded-r hover:bg-violet-600 transition-colors duration-300"
               >
                 Subscribe
               </button>

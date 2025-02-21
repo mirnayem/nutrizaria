@@ -38,7 +38,7 @@
       <SwiperSlide
         v-for="(item, index) in categoriesFav"
         :key="index"
-        class="!flex items-center justify-center bg-orange-200 text-black"
+        class="!flex items-center justify-center bg-violet-200 text-black"
       >
         <NuxtLink
           :to="`/categories/${item.slug}`"
@@ -64,7 +64,7 @@
     </Swiper>
     <button
       aria-label="Previous Slide"
-      class="custom-prev absolute xl:left-[-40px] left-[calc(50%-20px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
+      class="custom-prev absolute xl:left-[-40px] left-[calc(50%-20px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-violet-700 hover:text-white transition-colors duration-1000 ease-in-out"
     >
       <svg
         aria-hidden="true"
@@ -85,7 +85,7 @@
 
     <button
       aria-label="Next Slide"
-      class="custom-next absolute xl:right-[-40px] right-[calc(50%-50px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-orange-700 hover:text-white transition-colors duration-1000 ease-in-out"
+      class="custom-next absolute xl:right-[-40px] right-[calc(50%-50px)] xl:top-1/2 xl:bottom-0 -bottom-12 transform xl:-translate-y-1/2 translate-y-0 xl:translate-x-0 -translate-x-1/2 rounded-full bg-slate-100 h-8 w-8 flex-mid hover:bg-violet-700 hover:text-white transition-colors duration-1000 ease-in-out"
     >
       <svg
         aria-hidden="true"

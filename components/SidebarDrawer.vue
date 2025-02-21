@@ -43,31 +43,31 @@
           <div class="divider w-full h-0.5 bg-slate-800"></div>
           <div class="menu-lists grid gap-4 mt-2">
             <NuxtLink
-              class="menu-single h-10 px-2 flex items-center hover:bg-orange-100 cursor-pointer rounded"
+              class="menu-single h-10 px-2 flex items-center hover:bg-violet-100 cursor-pointer rounded"
               to="/shop"
               >Shop</NuxtLink
             >
 
             <NuxtLink
-              class="menu-single h-10 px-2 flex items-center hover:bg-orange-100 cursor-pointer rounded"
+              class="menu-single h-10 px-2 flex items-center hover:bg-violet-100 cursor-pointer rounded"
               to="/blog"
               >Blog</NuxtLink
             >
 
             <NuxtLink
-              class="menu-single h-10 px-2 flex items-center hover:bg-orange-100 cursor-pointer rounded"
+              class="menu-single h-10 px-2 flex items-center hover:bg-violet-100 cursor-pointer rounded"
               to="/contact"
               >Contact</NuxtLink
             >
 
             <NuxtLink
-              class="menu-single h-10 px-2 flex items-center hover:bg-orange-100 cursor-pointer rounded"
+              class="menu-single h-10 px-2 flex items-center hover:bg-violet-100 cursor-pointer rounded"
               to="/faq"
               >FAQ</NuxtLink
             >
 
             <NuxtLink
-              class="menu-single h-10 px-2 flex items-center hover:bg-orange-100 cursor-pointer rounded"
+              class="menu-single h-10 px-2 flex items-center hover:bg-violet-100 cursor-pointer rounded"
               to="/checkout"
               >Checkout</NuxtLink
             >
