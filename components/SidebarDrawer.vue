@@ -31,10 +31,10 @@
             <img
               class="w-12 h-12 rounded-full object-cover"
               src="/nutri.png"
-              alt="nutriakl"
+              alt="NutriZaria"
             />
             <div>
-              <p class="xsm:text-2xl text-xl">Nutriakl</p>
+              <p class="xsm:text-2xl text-xl">NutriZaria</p>
               <p class="xsm:text-sm text-xs font-thin">
                 Authenticity with affordability
               </p>

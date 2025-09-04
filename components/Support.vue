@@ -19,7 +19,7 @@
     </div>
     <div class="number-time grid">
       <div class="number text-xs">
-        <a href="tel: +8801820999820">01820999820</a>
+        <a href="tel: +8801730901063">01730901063</a>
       </div>
       <div class="time text-xs">support 24/7</div>
     </div>

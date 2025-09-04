@@ -7,20 +7,20 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
-      title: "Nutriakl - Authentic Pure Food Resources",
+      title: "NutriZaria - Authentic Pure Food Resources",
       meta: [
         {
           name: "description",
           content:
-            "Nutriakl offers the highest quality natural food resources, ensuring purity and sustainability for healthy living.",
+            "NutriZaria offers the highest quality natural food resources, ensuring purity and sustainability for healthy living.",
         },
         {
           property: "og:title",
-          content: "Nutriakl - Authentic Pure Food Resources",
+          content: "NutriZaria - Authentic Pure Food Resources",
         },
         {
           property: "og:description",
-          content: "Discover the best natural food resources at Nutriakl.",
+          content: "Discover the best natural food resources at NutriZaria.",
         },
         {
           property: "og:image",

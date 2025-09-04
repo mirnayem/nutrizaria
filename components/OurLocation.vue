@@ -22,13 +22,13 @@ onMounted(async () => {
     // Add tile layer
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 17,
-      attribution: "&copy; Nutriakl",
+      attribution: "&copy; NutriZaria",
     }).addTo(map);
 
     // Add a marker
     L.marker([23.813735, 90.4223979])
       .addTo(map)
-      .bindPopup("Nutri'akl")
+      .bindPopup("NutriZaria")
       .openPopup();
 
     mapInitialized.value = true;

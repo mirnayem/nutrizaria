@@ -116,7 +116,7 @@
             class="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1"
           />
           <label for="terms">
-            I agree to Nutri'akl
+            I agree to NutriZaria
             <span class="text-blue-600">terms & conditions</span> and
             <span class="text-blue-600">privacy policy</span>
           </label>

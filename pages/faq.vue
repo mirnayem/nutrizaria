@@ -4,7 +4,7 @@
       Frequently Asked Questions (FAQ)
     </h1>
     <p class="text-center font-thin">
-      These are the most commonly asked questions about Nutriakl
+      These are the most commonly asked questions about NutriZaria
     </p>
     <p class="text-center font-thin">
       Can't find what you are looking for? Chat to our friendly support team.

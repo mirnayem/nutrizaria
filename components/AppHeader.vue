@@ -1,12 +1,11 @@
 <template>
   <header class="bg-white shadow-md fixed w-full z-50">
-    <TopNavBar />
     <nav
       class="container mx-auto h-12 flex justify-between items-center lg:px-0 px-4 shadow-lg"
     >
       <div class="logo-search flex items-center gap-5">
         <NuxtLink to="/" class="text-violet-800 uppercase text-xl font-medium"
-          >Nutriʾakl</NuxtLink
+          >NutriZaria</NuxtLink
         >
         <SearchProduct
           class="w-full lg:min-w-[600px] md:min-w-[400px] md:flex hidden"

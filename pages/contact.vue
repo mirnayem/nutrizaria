@@ -2,7 +2,7 @@
 import { useHead } from "@unhead/vue";
 
 useHead({
-  title: "Nutriakl- Contact Us",
+  title: "NutriZaria- Contact Us",
   meta: [
     {
       name: "description",
@@ -43,7 +43,7 @@ useHead({
               />
             </svg>
 
-            <a href="tel:+8801820999820"
+            <a href="tel:+8801730901063"
               ><span class="mr-2">+880</span>1820999820</a
             >
           </div>
@@ -64,8 +64,8 @@ useHead({
             </svg>
 
             <a
-              href="mailto:nutriakl@example.com?subject=Inquiry&body=I%20would%20like%20to%20inquire%20about..."
-              >nutriakl@example.com
+              href="mailto:nutrizaria@gmail.com?subject=Inquiry&body=I%20would%20like%20to%20inquire%20about..."
+              >nutrizaria@gmail.com
             </a>
           </div>
           <div class="location flex text-lg items-center gap-4">
