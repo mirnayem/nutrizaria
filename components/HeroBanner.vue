@@ -17,16 +17,16 @@
         :key="index"
         class="!flex items-center justify-center text-black"
       >
-        <div class="inner-content w-full h-fit max-h-96 relative rounded">
-          <NuxtImg
-            :src="`/images/${item.image}`"
-            :alt="item.name"
-            quality="80"
-            format="webp"
-            sizes="(min-width: 0px and max-width:450px) 420px (min-width:451px and max-width: 640px) 600px sm:850px md:950px xl:1000px"
-            class="object-center object-cover aspect-[3/2]"
-            loading="eager"
-          />
+        <div class="inner-content w-full h-fit max-h-[480px] relative rounded">
+          <div class="relative w-full h-full max-h-[480px] bg-gray-200">
+            <img
+              :src="`/images/${item.image}`"
+              :alt="item.name"
+              class="object-cover w-full h-full"
+              loading="eager"
+            />
+          </div>
+
           <NuxtLink
             :to="`/categories/${item.slug}`"
             class="absolute left-20 bottom-10"

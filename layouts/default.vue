@@ -1,7 +1,7 @@
 <template>
   <div>
     <AppHeader />
-    <div class="container min-h-screen md:pt-24 pt-36 pb-10 z-10 lg:px-0 px-4">
+    <div class="container min-h-screen pt-16 pb-0 z-10 lg:px-0 px-4">
       <slot />
     </div>
     <AppFooter />

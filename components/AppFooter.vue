@@ -15,7 +15,7 @@
           <div class="flex items-center gap-4 mt-4">
             <!-- Facebook -->
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/nutrizaria/"
               target="_blank"
               rel="noopener noreferrer"
               class="hover:text-violet-400 transition"
@@ -87,7 +87,7 @@
 
             <!-- YouTube -->
             <a
-              href="https://youtube.com"
+              href="https://www.youtube.com/@nutrizaria"
               target="_blank"
               rel="noopener noreferrer"
               class="hover:text-violet-400 transition"
@@ -114,7 +114,7 @@
 
             <!-- WhatsApp -->
             <a
-              href="https://wa.me/1234567890"
+              href="https://wa.me/8801730901063"
               target="_blank"
               rel="noopener noreferrer"
               class="hover:text-violet-400 transition"
