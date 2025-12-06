@@ -1,176 +1,232 @@
 <template>
-  <div class="blog">
-    <header class="max-w-2xl mx-auto">
-      <h1 class="text-center text-3xl font-light">Blog</h1>
-      <p class="my-2 text-center font-thin">
-        valuable insights, tips, and updates related to food trends, healthy
-        eating, and cooking tips. It serves as a resource for customers to
-        explore new recipes, learn about product benefits, and stay informed
-        about seasonal offerings and promotion
-      </p>
-    </header>
-    <div
-      class="blog-menus flex overflow-x-auto scrollbar-hide whitespace-nowrap gap-x-3 items-center border-b-2 mt-10"
+  <div class="space-y-16">
+    <section
+      v-if="featuredPost"
+      class="rounded-3xl bg-gradient-to-br from-violet-600 via-fuchsia-500 to-orange-400 p-8 text-white shadow-xl"
     >
-      <div
-        class="menu-single font-thin cursor-pointer flex-shrink-0 relative group pb-1 hover:text-violet-800"
-        v-for="item in blogCategories"
-        :key="item.id"
-      >
-        {{ item.category }}
-        <div
-          class="absolute left-0 -bottom-0.5 h-1 bg-violet-800 w-0 group-hover:w-full transition-all duration-300"
-        ></div>
-      </div>
-    </div>
-    <div class="blog-posts flex flex-wrap gap-x-6 gap-y-20 mt-10">
-      <div
-        class="post-single relative w-full sm:w-[calc(50%-12px)] group transition-opacity duration-500 ease-in-out opacity-0"
-        :class="{
-          'opacity-100': index < visiblePostsCount,
-          'delay-200': transitioning,
-        }"
-        v-for="(post, index) in blogPosts.slice(0, visiblePostsCount)"
-        :key="post.id"
-        v-show="index < visiblePostsCount"
-      >
-        <div class="image relative">
-          <NuxtImg
-            class="w-full max-w-[600px] h-[400px] object-cover"
-            :src="post.image"
+      <div class="grid gap-8 lg:grid-cols-[1.15fr,0.85fr]">
+        <div class="space-y-6">
+          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
+            Latest insights
+          </p>
+          <h1 class="text-3xl font-semibold leading-tight sm:text-4xl">
+            {{ featuredPost.title }}
+          </h1>
+          <p class="text-white/80">
+            {{ useTruncate(featuredPost.content, 45, false) }}
+          </p>
+          <div class="flex flex-wrap gap-4 text-sm text-white/80">
+            <span class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1">
+              {{ featuredPost.category }}
+            </span>
+            <span>{{ featuredPost.writer }}</span>
+            <span>{{ useDateFormatter(featuredPost.date) }}</span>
+          </div>
+          <NuxtLink
+            :to="`/blog/${featuredPost.slug}`"
+            class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2 text-sm font-semibold text-violet-700 shadow-lg transition hover:-translate-y-0.5"
+          >
+            Read full story
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
+              <path
+                fill-rule="evenodd"
+                d="M15.78 10.53a.75.75 0 0 0 0-1.06L9.824 3.515a.75.75 0 0 0-1.06 1.06l4.686 4.688H4a.75.75 0 0 0 0 1.5h9.45l-4.685 4.688a.75.75 0 1 0 1.06 1.06l5.955-5.955Z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </NuxtLink>
+        </div>
+        <div class="grid gap-4">
+          <img
+            :src="featuredPost.image"
+            :alt="featuredPost.title"
+            class="h-56 w-full rounded-2xl object-cover object-center md:h-full"
             loading="lazy"
-            format="webp"
-            quality="80"
-            sizes="md:1000px sm:600px 100vw"
-            :alt="post.title"
           />
           <div
-            class="writer-time-category absolute w-full bg-white bg-opacity-30 backdrop-blur-sm text-white left-0 bottom-0 h-24 flex items-center px-5 justify-between"
+            v-if="secondaryPosts.length"
+            class="rounded-2xl bg-white/10 p-4 backdrop-blur"
           >
-            <div class="writer-time">
-              <div class="writer">{{ post.writer }}</div>
-              <div class="date">{{ useDateFormatter(post.date) }}</div>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
+              Editor's picks
+            </p>
+            <div class="mt-3 space-y-3">
+              <NuxtLink
+                v-for="post in secondaryPosts"
+                :key="post.id"
+                :to="`/blog/${post.slug}`"
+                class="block rounded-xl bg-white/10 p-3 text-white transition hover:bg-white/20"
+              >
+                <p class="text-xs uppercase tracking-wide text-white/70">
+                  {{ post.category }} • {{ useDateFormatter(post.date) }}
+                </p>
+                <p class="text-sm font-medium">{{ post.title }}</p>
+              </NuxtLink>
             </div>
-            <div class="category">{{ post.category }}</div>
           </div>
         </div>
-        <div
-          class="absolute top-0 right-0 w-0 h-0 border-t-[30px] border-t-transparent group-hover:border-t-slate-600 group-hover:border-l-[30px] group-hover:border-l-white transform rotate-180 transition-colors duration-300 ease-in-out"
-        ></div>
-
-        <div class="title mt-2 relative inline-block text-lg font-light">
-          {{ post.title }}
-          <div
-            class="absolute left-0 bottom-[-4px] h-[2px] w-0 bg-violet-800 transition-all duration-300 group-hover:w-full"
-          ></div>
-        </div>
-        <div class="content my-2 text-sm font-thin">
-          <p v-html="useTruncate(post.content, 25, true)"></p>
-        </div>
-        <NuxtLink
-          :to="`/blog/${slugifiedString(post.title)}`"
-          @click="saveSelectedPost(post)"
-          class="read-post flex gap-2 items-center text-sm hover:text-violet-800 transition-all"
-        >
-          Read Post
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m4.5 19.5 15-15m0 0H8.25m11.25 0v11.25"
-            />
-          </svg>
-        </NuxtLink>
       </div>
-    </div>
-    <div class="show-more my-10" v-if="blogPosts.length > visiblePostsCount">
-      <button
-        class="nutri-btn mx-auto hover:bg-violet-600"
-        @click="showMorePosts"
+    </section>
+
+    <section class="space-y-6">
+      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex flex-wrap gap-3">
+          <button
+            v-for="category in filterCategories"
+            :key="category"
+            type="button"
+            class="rounded-full border px-4 py-1.5 text-sm transition"
+            :class="selectedCategory === category ? 'border-violet-600 bg-violet-50 text-violet-700' : 'border-slate-200 text-slate-600 hover:border-violet-200 hover:text-violet-700'"
+            @click="selectedCategory = category"
+          >
+            {{ category }}
+          </button>
+        </div>
+        <label class="flex w-full items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-slate-500 lg:w-80">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z" />
+          </svg>
+          <input
+            v-model="searchQuery"
+            type="search"
+            placeholder="Search articles..."
+            class="w-full bg-transparent text-sm text-slate-700 focus:outline-none"
+          />
+        </label>
+      </div>
+
+      <div
+        v-if="remainingPosts.length"
+        class="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
       >
-        Show More Posts
-      </button>
-    </div>
+        <article
+          v-for="post in remainingPosts"
+          :key="post.id"
+          class="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
+        >
+          <img
+            :src="post.image"
+            :alt="post.title"
+            class="h-48 w-full object-cover"
+            loading="lazy"
+          />
+          <div class="flex flex-1 flex-col gap-4 p-5">
+            <p class="text-xs uppercase tracking-wide text-slate-400">
+              {{ post.category }} • {{ useDateFormatter(post.date) }}
+            </p>
+            <NuxtLink
+              :to="`/blog/${post.slug}`"
+              class="text-lg font-semibold text-slate-900 transition hover:text-violet-700"
+            >
+              {{ post.title }}
+            </NuxtLink>
+            <p class="text-sm text-slate-600">
+              {{ useTruncate(post.content, 28, false) }}
+            </p>
+            <div class="mt-auto flex items-center justify-between text-sm text-slate-500">
+              <span>By {{ post.writer }}</span>
+              <NuxtLink
+                :to="`/blog/${post.slug}`"
+                class="inline-flex items-center gap-2 text-violet-700"
+              >
+                Read
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
+                  <path
+                    fill-rule="evenodd"
+                    d="M15.78 10.53a.75.75 0 0 0 0-1.06L9.824 3.515a.75.75 0 0 0-1.06 1.06l4.686 4.688H4a.75.75 0 0 0 0 1.5h9.45l-4.685 4.688a.75.75 0 1 0 1.06 1.06l5.955-5.955Z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </NuxtLink>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div
+        v-else-if="!filteredPosts.length"
+        class="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-10 text-center text-slate-500"
+      >
+        No articles found for this filter. Please adjust your category or search query.
+      </div>
+    </section>
+
+    <section class="rounded-3xl bg-slate-50 p-8">
+      <div class="grid gap-6 text-sm text-slate-600 md:grid-cols-3">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Published</p>
+          <p class="text-3xl font-semibold text-slate-900">{{ blogStats.totalPosts }}</p>
+          <p class="mt-1 text-sm">Stories curated for mindful foodies</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Categories</p>
+          <p class="text-3xl font-semibold text-slate-900">{{ blogStats.uniqueCategories }}</p>
+          <p class="mt-1 text-sm">Topics across wellness, sourcing, and lifestyle</p>
+        </div>
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-400">Last updated</p>
+          <p class="text-3xl font-semibold text-slate-900">{{ blogStats.lastUpdated }}</p>
+          <p class="mt-1 text-sm">Fresh reads added weekly</p>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
+
 <script setup lang="ts">
+import { computed, ref, watchEffect } from "vue";
+import { storeToRefs } from "pinia";
+import { useBlogStore } from "~/stores/blog";
 import { useDateFormatter } from "~/composables/dateFormater";
 import { useTruncate } from "~/composables/useTruncate";
-import { ref, nextTick } from "vue";
 import type { Post } from "~/types/product";
-const slugifiedString = (str: string): string => {
-  return useNuxtApp().$slugify(str);
-};
 
-import { useBlogStore } from "~/stores/blog";
-import { storeToRefs } from "pinia";
 const store = useBlogStore();
 store.hydrate();
 const { posts: blogPosts } = storeToRefs(store);
 
-const visiblePostsCount = ref(2);
-const transitioning = ref(false);
+const selectedCategory = ref("All");
+const searchQuery = ref("");
 
-const showMorePosts = () => {
-  transitioning.value = true;
-  nextTick(() => {
-    visiblePostsCount.value += 2;
-    transitioning.value = false;
-  });
-};
+const normalizedPosts = computed(() =>
+  [...blogPosts.value].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  )
+);
 
-const saveSelectedPost = (post: Post) => {
-  store.setSelectedBlog(post);
-};
+const filterCategories = computed(() => {
+  const unique = Array.from(new Set(blogPosts.value.map((post) => post.category)));
+  return ["All", ...unique];
+});
 
-const blogCategories = [
-  {
-    id: 1,
-    category: "Healthy Eating",
-  },
-  {
-    id: 2,
-    category: "Meal Ideas",
-  },
-  {
-    id: 3,
-    category: "Food Trends",
-  },
-  {
-    id: 4,
-    category: "Organic Foods",
-  },
-  {
-    id: 5,
-    category: "Special Diets",
-  },
-  {
-    id: 6,
-    category: "Cooking Tips",
-  },
-  {
-    id: 7,
-    category: "Seasonal Products",
-  },
-  {
-    id: 8,
-    category: "Product Reviews",
-  },
-  {
-    id: 9,
-    category: "Customer Stories",
-  },
-  {
-    id: 10,
-    category: "Special Offers",
-  },
-];
+const filteredPosts = computed(() =>
+  normalizedPosts.value.filter((post) => {
+    const matchesCategory =
+      selectedCategory.value === "All" ||
+      post.category.toLowerCase() === selectedCategory.value.toLowerCase();
+    const matchesSearch = post.title.toLowerCase().includes(searchQuery.value.toLowerCase());
+    return matchesCategory && matchesSearch;
+  })
+);
 
+const featuredPost = computed<Post | null>(() => filteredPosts.value[0] ?? normalizedPosts.value[0] ?? null);
+const secondaryPosts = computed(() => filteredPosts.value.slice(1, 3));
+const remainingPosts = computed(() => filteredPosts.value.slice(3));
+
+const blogStats = computed(() => {
+  const uniqueCategories = new Set(blogPosts.value.map((post) => post.category)).size;
+  const lastUpdated = normalizedPosts.value[0]
+    ? useDateFormatter(normalizedPosts.value[0].date)
+    : "N/A";
+  return {
+    totalPosts: blogPosts.value.length,
+    uniqueCategories,
+    lastUpdated,
+  };
+});
+
+watchEffect(() => {
+  if (!featuredPost.value && normalizedPosts.value.length) {
+    store.setSelectedBlog(normalizedPosts.value[0]);
+  }
+});
 </script>

@@ -1,7 +1,9 @@
 <template>
   <footer class="bg-slate-950 text-slate-300">
-    <div class="container grid gap-10 py-16 text-sm lg:grid-cols-[2fr,1fr,1fr]">
-      <section class="space-y-4">
+    <div
+      class="container grid gap-12 py-16 text-sm lg:grid-cols-[1.6fr,1fr,1fr,1fr]"
+    >
+      <section class="order-1 space-y-5 lg:order-1">
         <div class="flex items-center gap-3 text-white">
           <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-xl font-semibold">
             NZ
@@ -34,35 +36,47 @@
         </p>
       </section>
 
-      <section>
+      <section class="order-3 space-y-3 lg:order-2">
         <h2 class="text-base font-semibold text-white">Navigate</h2>
-        <div class="mt-4 grid gap-2">
-          <NuxtLink v-for="link in navLinks" :key="link.to" :to="link.to" class="transition hover:text-white">
+        <div class="grid gap-2">
+          <NuxtLink
+            v-for="link in navLinks"
+            :key="link.to"
+            :to="link.to"
+            class="transition hover:text-white"
+          >
             {{ link.label }}
           </NuxtLink>
         </div>
       </section>
 
-      <section>
-        <h2 class="text-base font-semibold text-white">Get updates</h2>
-        <p class="mt-4 text-slate-400">
-          Join our weekly digest for new arrivals, community stories, and exclusive offers.
-        </p>
-        <form class="mt-4 flex rounded-full border border-white/10 bg-white/5 p-1" @submit.prevent>
-          <input
-            type="email"
-            placeholder="Email address"
-            class="w-full bg-transparent px-3 text-sm text-white placeholder:text-slate-400 focus:outline-none"
-            required
-          />
-          <button
-            type="submit"
-            class="rounded-full bg-violet-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-violet-500"
-          >
-            Subscribe
-          </button>
-        </form>
-        <div class="mt-6">
+      <section class="order-4 space-y-3 lg:order-3">
+        <h2 class="text-base font-semibold text-white">Customer care</h2>
+        <div class="space-y-2 text-slate-400">
+          <p v-for="item in careHighlights" :key="item.title">
+            <span class="text-white">{{ item.title }}:</span> {{ item.description }}
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            Service windows
+          </h3>
+          <ul class="space-y-1 text-slate-400">
+            <li v-for="slot in serviceSlots" :key="slot">{{ slot }}</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="order-2 space-y-4 lg:order-4">
+        <h2 class="text-base font-semibold text-white">Contact</h2>
+        <div class="space-y-2 text-slate-400">
+          <p><span class="text-white">Phone:</span> +880 1730-901063</p>
+          <p><span class="text-white">Email:</span> hello@nutrizaria.com</p>
+          <p>
+            <span class="text-white">Studio:</span> House 45, Road 17, Dhanmondi, Dhaka
+          </p>
+        </div>
+        <div>
           <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Payments</p>
           <div class="mt-3 flex flex-wrap gap-3">
             <img
@@ -83,9 +97,10 @@
 const navLinks = [
   { label: "Shop", to: "/shop" },
   { label: "Categories", to: "/categories/vegetables" },
+  { label: "Favorite", to: "/favorite" },
+  { label: "Checkout", to: "/checkout" },
   { label: "FAQ", to: "/faq" },
   { label: "Blog", to: "/blog" },
-  { label: "Contact", to: "/contact" },
 ];
 
 const socials = [
@@ -96,4 +111,12 @@ const socials = [
 ];
 
 const paymentLogos = ["/images/bkash.svg", "/images/nagad.png", "/images/card-payment.webp", "/images/cod.jpg"];
+
+const careHighlights = [
+  { title: "Bulk sourcing", description: "Talk to us for office pantries & gifting" },
+  { title: "Delivery support", description: "Same-day delivery inside Dhaka city" },
+  { title: "Returns", description: "Instant replacements on quality concerns" },
+];
+
+const serviceSlots = ["Sat - Thu: 9:00 AM – 10:00 PM", "Friday: 10:00 AM – 8:00 PM"];
 </script>

@@ -120,41 +120,30 @@
         <button
           type="button"
           class="inline-flex rounded-full border border-slate-200 p-2 lg:hidden"
-          @click="isMobileMenuOpen = !isMobileMenuOpen"
+          @click="uiStore.toggleSidebar(true)"
         >
           <Bars3Icon class="size-6 text-slate-700" />
         </button>
       </div>
     </div>
 
-    <div class="border-t border-slate-100 bg-white px-4 py-2 lg:hidden">
+    <div class="border-t border-slate-100 bg-white px-4 py-3 lg:hidden">
       <SearchProduct class="w-full" />
     </div>
-
-    <transition name="slide-fade">
-      <nav
-        v-if="isMobileMenuOpen"
-        class="border-t border-slate-100 bg-white px-6 py-4 text-sm font-medium text-slate-700 shadow-inner lg:hidden"
+    <nav
+      class="flex items-center gap-4 overflow-x-auto border-t border-slate-100 bg-white px-4 py-3 text-sm text-slate-600 lg:hidden"
+      aria-label="Quick links"
+    >
+      <NuxtLink
+        v-for="link in mobileLinks"
+        :key="link.to"
+        :to="link.to"
+        class="flex flex-shrink-0 items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 transition hover:border-violet-200 hover:text-violet-700"
       >
-        <NuxtLink to="/shop" class="block py-2" @click="closeMobileMenu">
-          Shop
-        </NuxtLink>
-        <details class="py-2">
-          <summary class="cursor-pointer text-slate-600">Categories</summary>
-          <div class="mt-2 space-y-2 pl-4 text-sm">
-            <NuxtLink
-              v-for="category in categories"
-              :key="category.id"
-              :to="`/categories/${category.slug}`"
-              class="block"
-              @click="closeMobileMenu"
-            >
-              {{ category.name }}
-            </NuxtLink>
-          </div>
-        </details>
-      </nav>
-    </transition>
+        <component :is="link.icon" class="size-4" />
+        {{ link.label }}
+      </NuxtLink>
+    </nav>
 
     <ShoppingCart />
     <SidebarDrawer />
@@ -162,14 +151,26 @@
 </template>
 
 <script setup lang="ts">
-import { Bars3Icon, HeartIcon, ShoppingBagIcon } from "@heroicons/vue/24/outline";
+import {
+  Bars3Icon,
+  HeartIcon,
+  QuestionMarkCircleIcon,
+  ShoppingBagIcon,
+} from "@heroicons/vue/24/outline";
 import { storeToRefs } from "pinia";
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useCartStore } from "~/stores/cart";
 import { useFavoriteStore } from "~/stores/favorite";
 import { useCatalogStore } from "~/stores/catalog";
+import { useUIStore } from "~/stores/ui";
 
+const mobileLinks = [
+  { label: "Shop", to: "/shop", icon: ShoppingBagIcon },
+  { label: "Favorite", to: "/favorite", icon: HeartIcon },
+  { label: "Checkout", to: "/checkout", icon: ShoppingBagIcon },
+  { label: "FAQ", to: "/faq", icon: QuestionMarkCircleIcon },
+];
 const cartStore = useCartStore();
 const favoriteStore = useFavoriteStore();
 const catalogStore = useCatalogStore();
@@ -181,35 +182,18 @@ const { categories } = storeToRefs(catalogStore);
 
 const featuredCategories = computed(() => categories.value.slice(0, 6));
 
-const isMobileMenuOpen = ref(false);
 const isCategoriesOpen = ref(false);
 const route = useRoute();
+const uiStore = useUIStore();
 
 const toggleCategories = (value: boolean) => {
   isCategoriesOpen.value = value;
 };
 
-const closeMobileMenu = () => {
-  isMobileMenuOpen.value = false;
-};
-
 watch(
   () => route.fullPath,
   () => {
-    isMobileMenuOpen.value = false;
     isCategoriesOpen.value = false;
   }
 );
 </script>
-
-<style scoped>
-.slide-fade-enter-active,
-.slide-fade-leave-active {
-  transition: all 0.25s ease;
-}
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-  transform: translateY(-10px);
-  opacity: 0;
-}
-</style>

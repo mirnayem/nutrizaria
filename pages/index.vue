@@ -8,44 +8,39 @@ const { products } = storeToRefs(catalog);
 </script>
 
 <template>
-  <main>
-    <section class="main-content grid grid-cols-12 gap-8">
-      <div
-        class="products-section col-span-12"
-        aria-labelledby="products-query"
-      >
-        <!-- <div class="banner-section">
-          <HeroBanner />
-        </div> -->
-      </div>
-    </section>
-    <header class="favorite-categories w-full mx-auto mb-10">
-      <h1
-        class="favorite-categories__title md:text-4xl text-lg font-light text-center mt-10 mb-6"
-      >
-        Favorite Categories
-      </h1>
-      <section aria-labelledby="favorite-categories-heading">
-        <h2 id="favorite-categories-heading" class="sr-only">
-          Featured Categories
-        </h2>
-        <FeaturedCategories />
-      </section>
-    </header>
-
-    <section class="main-content grid grid-cols-12 gap-8">
-      <div
-        class="products-section col-span-12"
-        aria-labelledby="products-heading"
-      >
-        <h2
-          id="products-heading"
-          class="text-center md:text-4xl text-lg font-light my-10"
+  <main class="space-y-16 mt-10">
+    <section aria-labelledby="favorite-categories-heading" class="space-y-6">
+      <div class="text-center space-y-2">
+        <p
+          class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-600"
         >
+          Curated by nutritionists
+        </p>
+        <h2
+          id="favorite-categories-heading"
+          class="text-3xl font-light text-slate-900"
+        >
+          Favorite Categories
+        </h2>
+        <p class="text-sm text-slate-500">
+          Daily essentials, seasonal harvests, and artisanal pantry picks for
+          every household.
+        </p>
+      </div>
+      <FeaturedCategories />
+    </section>
+
+    <section aria-labelledby="products-heading" class="space-y-6">
+      <div class="text-center space-y-2">
+        <h2 id="products-heading" class="text-3xl font-light text-slate-900">
           Featured Products
         </h2>
-        <Products :products="products" />
+        <p class="text-sm text-slate-500">
+          Shop the most-loved products carefully sourced from organic partner
+          farms.
+        </p>
       </div>
+      <Products :products="products" />
     </section>
   </main>
 </template>
