@@ -1,13 +1,11 @@
 <template>
-  <div class="blog-details grid grid-cols-12">
-    <section class="col-span-9">
-      <NuxtImg
-        class="w-full max-w-[1200px] h-[400px] object-cover"
-        format="webp"
+  <div v-if="blog" class="blog-details grid grid-cols-12 gap-8">
+    <section class="col-span-12 lg:col-span-9">
+      <img
+        class="h-[400px] w-full max-w-[1200px] rounded-2xl object-cover"
         :src="blog.image"
-        sizes="md:1200px sm:700px 450px"
         :alt="blog.title"
-        quality="80"
+        loading="lazy"
       />
       <div class="md:px-20 px-0 mt-10">
         <h1 class="text-4xl font-bold">{{ blog.title }}</h1>
@@ -27,42 +25,87 @@
         </p>
       </div>
     </section>
-    <aside class="col-span-3"></aside>
+    <aside class="col-span-12 lg:col-span-3">
+      <div class="rounded-2xl bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-semibold text-slate-900">More stories</h3>
+        <ul class="mt-4 space-y-3">
+          <li
+            v-for="related in relatedPosts"
+            :key="related.id"
+            class="text-sm text-slate-600"
+          >
+            <NuxtLink
+              :to="`/blog/${related.slug}`"
+              class="hover:text-violet-700"
+            >
+              {{ related.title }}
+            </NuxtLink>
+          </li>
+        </ul>
+      </div>
+    </aside>
+  </div>
+  <div v-else class="rounded-xl bg-white p-10 text-center shadow-sm">
+    <p class="text-slate-600">
+      Blog post not found. Please return to the
+      <NuxtLink to="/blog" class="text-violet-700 underline">blog page</NuxtLink
+      >.
+    </p>
   </div>
 </template>
 <script setup lang="ts">
 import { ClockIcon, PencilSquareIcon } from "@heroicons/vue/16/solid";
-import { ref, onMounted } from "vue";
+import { computed } from "vue";
 import { useBlogStore } from "~/stores/blog";
 import type { Post } from "~/types/product";
 import { chunkParagraph } from "~/composables/chunkParagraph";
 import { useHead } from "#imports";
 import { useRoute } from "vue-router";
 const route = useRoute();
-useHead({
-  title: "The Future of Organic Food in E-Commerce",
+
+const store = useBlogStore();
+store.hydrate();
+
+const slug = computed(() => String(route.params.slug));
+const blog = computed<Post | undefined>(() => {
+  const fromSlug = store.postBySlug(slug.value);
+  if (fromSlug) {
+    store.setSelectedBlog(fromSlug);
+    return fromSlug;
+  }
+  return store.selectedBlog ?? undefined;
+});
+
+const relatedPosts = computed(() =>
+  store.posts.filter((post) => post.slug !== slug.value).slice(0, 4)
+);
+
+useHead(() => ({
+  title: blog.value ? blog.value.title : "Blog | NutriZaria",
   meta: [
-    { name: "og:title", content: "The Future of Organic Food in E-Commerce" },
+    {
+      name: "og:title",
+      content: blog.value?.title ?? "NutriZaria Blog",
+    },
     {
       name: "og:description",
-      content: "Exploring the future of organic food...",
+      content:
+        blog.value?.content ??
+        "Dive into NutriZaria insights, healthy eating, and product guides.",
     },
     {
       name: "og:url",
-      content: `https://nutri-akl.vercel.app/blog/${route.params.slug}`,
+      content: `https://nutri-akl.vercel.app/blog/${slug.value}`,
     },
     {
       name: "og:image",
-      content: "https://nutri-akl.vercel.app/images/blogs/organic-food.avif",
+      content: blog.value?.image
+        ? `https://nutri-akl.vercel.app${blog.value.image}`
+        : "https://nutri-akl.vercel.app/nutri.png",
     },
     { name: "twitter:card", content: "summary_large_image" },
   ],
-});
-
-const store = useBlogStore();
-const selectedBlog = store.selectedBlog;
-
-const blog = ref<Post>(selectedBlog);
+}));
 
 const paragraph = `'Food is an essential part of human life, not just as a source of
           sustenance but as a powerful cultural and emotional cornerstone.
@@ -118,10 +161,4 @@ const paragraph = `'Food is an essential part of human life, not just as a sourc
           planet.'`;
 
 const paragraphs = chunkParagraph(paragraph, 3);
-onMounted(() => {
-  const dataLocal = localStorage.getItem("selectedBlog");
-  if (dataLocal) {
-    blog.value = JSON.parse(dataLocal);
-  }
-});
 </script>

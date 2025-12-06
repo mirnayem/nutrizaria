@@ -55,6 +55,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+      checkoutCurrency: process.env.CHECKOUT_CURRENCY || "bdt",
+      currencySymbol: process.env.CHECKOUT_CURRENCY_SYMBOL || "Tk",
+      adminPassphrase: process.env.ADMIN_PASSPHRASE || "",
     },
     stripeSecretKey: process.env.STRIPE_SECRET_KEY,
   },

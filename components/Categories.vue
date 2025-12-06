@@ -48,14 +48,20 @@
   </div>
 </template>
 <script setup lang="ts">
-import { categories } from "../stores/data";
 import { ref, watch } from "vue";
+import { storeToRefs } from "pinia";
 import { useWindowResize } from "~/composables/useWindowResize";
+import { useCatalogStore } from "~/stores/catalog";
+
 const showCategory = ref<boolean>(true);
 const { width } = useWindowResize();
-watch(width, () => {
-  width.value <= 1020
-    ? (showCategory.value = false)
-    : (showCategory.value = true);
-});
+const catalog = useCatalogStore();
+catalog.hydrate();
+const { categories } = storeToRefs(catalog);
+
+const updateVisibility = () => {
+  showCategory.value = width.value === 0 ? true : width.value > 1020;
+};
+
+watch(width, updateVisibility, { immediate: true });
 </script>

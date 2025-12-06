@@ -1,164 +1,293 @@
 <template>
   <ClientOnly>
-    <div class="shipping-checkout grid grid-cols-12 gap-10">
-      <div class="add-address col-span-8">
-        <AppModal
-          title="Shipping Address"
-          :isOpen="openModal"
-          @handleModal="closeModal"
-        >
-          <Shipping @handleModal="closeModal" />
-        </AppModal>
-        <h1 v-if="userAddress" class="pb-2 text-lg font-semibold">
-          Select Your Shipping Address
-        </h1>
-        <div
-          class="user-address flex items-center p-5 border-2 rounded cursor-pointer"
-          :class="{ 'bg-violet-100': selectedAddress }"
-          v-if="userAddress"
-          @click="selectAddress"
-        >
-          <div class="select w-[100px] flex justify-center items-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-              class="size-10"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-              />
-            </svg>
+    <div class="py-6">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+        <section class="space-y-6">
+          <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm">
+            <header class="border-b border-slate-100 px-6 py-4">
+              <h1 class="text-xl font-semibold text-slate-800">
+                Delivery & contact
+              </h1>
+              <p class="text-sm text-slate-500">
+                We’ll use this information to keep you posted about your order.
+              </p>
+            </header>
+            <form class="grid gap-4 px-6 py-6 sm:grid-cols-2">
+              <label class="text-sm font-medium text-slate-700 sm:col-span-2">
+                Full name
+                <input
+                  v-model="shipping.fullName"
+                  type="text"
+                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="e.g. Sadia Rahman"
+                />
+              </label>
+              <label class="text-sm font-medium text-slate-700">
+                Email
+                <input
+                  v-model="contactEmail"
+                  type="email"
+                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="you@example.com"
+                />
+              </label>
+              <label class="text-sm font-medium text-slate-700">
+                Phone
+                <input
+                  v-model="shipping.phone"
+                  type="tel"
+                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="01XXXXXXXXX"
+                />
+              </label>
+              <label class="text-sm font-medium text-slate-700 sm:col-span-2">
+                Address
+                <input
+                  v-model="shipping.address"
+                  type="text"
+                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="Street, area, building"
+                />
+              </label>
+              <label class="text-sm font-medium text-slate-700">
+                City
+                <input
+                  v-model="shipping.city"
+                  type="text"
+                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="Dhaka"
+                />
+              </label>
+              <label class="text-sm font-medium text-slate-700">
+                Country
+                <input
+                  v-model="shipping.country"
+                  type="text"
+                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="Bangladesh"
+                />
+              </label>
+            </form>
           </div>
-          <div class="details">
-            <div class="name">{{ userAddress.fullName }}</div>
-            <div class="address">{{ userAddress.address }}</div>
-            <div class="city">
-              {{ userAddress.city + "," + userAddress.country }}
-            </div>
-            <div class="phone">{{ userAddress.phone }}</div>
-          </div>
-        </div>
-        <button
-          @click="toggleModal"
-          class="flex items-center mt-5 border-2 px-5 py-2 w-full justify-center gap-5 rounded"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z"
-            />
-          </svg>
-          <p>Add New Address</p>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 4.5v15m7.5-7.5h-15"
-            />
-          </svg>
-        </button>
 
-        <div class="payment-method w-full mt-10">
-          <PaymentMethod />
-        </div>
-      </div>
-
-      <div class="summary col-span-4 shadow-lg pt-4 mt-5 pb-20">
-        <div class="summary-heading text-2xl font-normal pb-3 px-4">
-          Summary
-        </div>
-        <div
-          class="total-items flex justify-between items-center bg-slate-400 text-white px-4 py-2"
-        >
-          <p>Total Items</p>
-          <p>{{ cartStore.totalItems }}</p>
-        </div>
-        <div class="items px-4 grid gap-4 mt-4">
-          <div
-            class="single-item flex-between"
-            v-for="item in cartStore.items"
-            :key="item.id"
-          >
-            <div class="item-name">
-              {{ item.name + "(" + item.quantity + ")" }}
-            </div>
-            <div class="price">{{ item.price }}</div>
-          </div>
-        </div>
-        <div class="total-price flex-between px-4 py-2 mt-10 font-light">
-          <p>Total</p>
-          <p>${{ cartStore.totalPrice }}</p>
-        </div>
-        <div class="agreement px-4">
-          <input
-            id="terms"
-            type="checkbox"
-            class="h-4 w-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1"
+          <PaymentMethod
+            ref="paymentRef"
+            :amount="totals.grandTotal"
+            :email="contactEmail"
+            :currency-symbol="currencySymbol"
+            @payment:status="onPaymentStatus"
           />
-          <label for="terms">
-            I agree to NutriZaria
-            <span class="text-blue-600">terms & conditions</span> and
-            <span class="text-blue-600">privacy policy</span>
-          </label>
-        </div>
-        <div class="place-order">
-          <button class="nutri-btn mx-auto mt-20 w-64">Place Order</button>
-        </div>
+
+          <p
+            v-if="formError"
+            class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+          >
+            {{ formError }}
+          </p>
+          <p
+            v-if="orderSuccess"
+            class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+          >
+            Order {{ orderId }} saved. You will receive a confirmation shortly.
+          </p>
+        </section>
+
+        <aside class="rounded-2xl border border-slate-200 bg-white/90 shadow-sm">
+          <header class="border-b border-slate-100 px-6 py-4">
+            <h2 class="text-lg font-semibold text-slate-800">Order summary</h2>
+          </header>
+          <div class="px-6 py-6">
+            <ul class="space-y-4">
+              <li
+                v-for="item in cartStore.items"
+                :key="item.id"
+                class="flex items-center gap-4 text-sm text-slate-700"
+              >
+                <NuxtImg
+                  :src="`/images/${item.image}`"
+                  :alt="item.name"
+                  class="h-14 w-14 rounded-lg object-cover"
+                />
+                <div class="flex-1">
+                  <p class="font-medium">{{ item.name }}</p>
+                  <p class="text-xs text-slate-500">
+                    {{ item.quantity }} × {{ currencySymbol }}{{ item.price }}
+                  </p>
+                </div>
+                <div class="font-semibold">
+                  {{ currencySymbol }}{{ (item.price * item.quantity).toFixed(2) }}
+                </div>
+              </li>
+            </ul>
+
+            <div class="mt-6 space-y-3 text-sm text-slate-600">
+              <div class="flex justify-between">
+                <span>Subtotal</span>
+                <span>{{ currencySymbol }}{{ totals.subtotal.toFixed(2) }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>Delivery</span>
+                <span>
+                  {{ totals.delivery === 0 ? "Free" : currencySymbol + totals.delivery.toFixed(2) }}
+                </span>
+              </div>
+              <div class="flex justify-between font-semibold text-slate-800">
+                <span>Total</span>
+                <span>{{ currencySymbol }}{{ totals.grandTotal.toFixed(2) }}</span>
+              </div>
+            </div>
+
+            <button
+              class="mt-8 w-full rounded-xl bg-violet-700 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-violet-600 disabled:cursor-not-allowed disabled:bg-slate-400"
+              :disabled="isBusy || cartStore.items.length === 0"
+              @click="placeOrder"
+            >
+              <span v-if="isBusy">Processing...</span>
+              <span v-else>Place order</span>
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   </ClientOnly>
 </template>
-<script setup>
-import { ref, onMounted } from "vue";
-import Shipping from "~/components/Shipping.vue";
+
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from "vue";
+import PaymentMethod from "~/components/PaymentMethod.vue";
 import { useCartStore } from "~/stores/cart";
+import { useCatalogStore } from "~/stores/catalog";
+import type { PaymentSummary, ShippingAddress } from "~/types/product";
+import { useRuntimeConfig } from "#app";
 
 definePageMeta({
   middleware: "auth",
+  title: "Checkout",
 });
+
+const SHIPPING_STORAGE_KEY = "nutrizaria.shipping";
 
 const cartStore = useCartStore();
-const openModal = ref(false);
-const userAddress = ref(null);
-const selectedAddress = ref(null);
+const catalogStore = useCatalogStore();
+catalogStore.hydrate();
 
-const closeModal = () => {
-  openModal.value = false;
-  const savedValue = localStorage.getItem("shippingAddress");
-  if (savedValue !== null) {
-    userAddress.value = JSON.parse(savedValue);
-  }
+const currencySymbol = useRuntimeConfig().public.currencySymbol || "Tk";
+
+const shipping = ref<ShippingAddress>({
+  fullName: "",
+  address: "",
+  city: "",
+  country: "",
+  phone: "",
+});
+const contactEmail = ref("");
+const paymentRef = ref<InstanceType<typeof PaymentMethod> | null>(null);
+const paymentSummary = ref<PaymentSummary | null>(null);
+const orderSuccess = ref(false);
+const orderId = ref("");
+const formError = ref("");
+const placingOrder = ref(false);
+const isBusy = computed(
+  () =>
+    placingOrder.value ||
+    Boolean(paymentRef.value?.processing && paymentRef.value.processing.value)
+);
+
+const totals = computed(() => {
+  const subtotal = cartStore.totalPrice;
+  const delivery = subtotal >= 2000 ? 0 : 80;
+  return {
+    subtotal,
+    delivery,
+    grandTotal: subtotal + delivery,
+  };
+});
+
+const onPaymentStatus = (summary: PaymentSummary) => {
+  paymentSummary.value = summary;
 };
-const toggleModal = () => {
-  openModal.value = !openModal.value;
+
+const persistShipping = () => {
+  if (typeof window === "undefined") return;
+  const snapshot = {
+    shipping: shipping.value,
+    email: contactEmail.value,
+  };
+  localStorage.setItem(SHIPPING_STORAGE_KEY, JSON.stringify(snapshot));
 };
-const selectAddress = () => {
-  selectedAddress.value = userAddress.value;
-};
+
 onMounted(() => {
-  const savedValue = localStorage.getItem("shippingAddress");
-  if (savedValue !== null) {
-    userAddress.value = JSON.parse(savedValue);
+  if (typeof window === "undefined") return;
+  const raw = localStorage.getItem(SHIPPING_STORAGE_KEY);
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed.shipping) {
+        shipping.value = parsed.shipping;
+      }
+      if (parsed.email) {
+        contactEmail.value = parsed.email;
+      }
+    } catch (error) {
+      console.warn("Unable to hydrate shipping info", error);
+    }
   }
 });
+
+watch([shipping, contactEmail], persistShipping, { deep: true });
+
+const validateForm = () => {
+  if (!shipping.value.fullName || !shipping.value.address) {
+    return "Name and address are required.";
+  }
+  if (!shipping.value.phone) {
+    return "Phone number is required.";
+  }
+  if (!contactEmail.value) {
+    return "Please provide an email so we can send updates.";
+  }
+  if (cartStore.items.length === 0) {
+    return "Add at least one product to your cart before checking out.";
+  }
+  return "";
+};
+
+const placeOrder = async () => {
+  formError.value = "";
+  orderSuccess.value = false;
+  const validationMessage = validateForm();
+  if (validationMessage) {
+    formError.value = validationMessage;
+    return;
+  }
+
+  try {
+    placingOrder.value = true;
+    const summary = await paymentRef.value?.processPayment();
+    if (!summary) {
+      throw new Error("Payment gateway did not return a result.");
+    }
+
+    const order = catalogStore.recordOrder({
+      items: cartStore.items,
+      shipping: shipping.value,
+      payment: summary,
+      customerEmail: contactEmail.value,
+      total: totals.value.grandTotal,
+    });
+
+    orderId.value = order.id;
+    orderSuccess.value = true;
+    paymentSummary.value = summary;
+    cartStore.clearCart();
+  } catch (error) {
+    if (error instanceof Error) {
+      formError.value = error.message;
+    } else {
+      formError.value = "Unable to process your order. Please try again.";
+    }
+  } finally {
+    placingOrder.value = false;
+  }
+};
 </script>

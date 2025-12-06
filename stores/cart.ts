@@ -1,6 +1,6 @@
 
 import { defineStore } from 'pinia';
-import type { CartItem } from '~/types/product';
+import type { CartItem, Product } from '~/types/product';
 interface CartState {
   items: CartItem[]  
   isCartOpen: boolean
@@ -25,12 +25,13 @@ export const useCartStore = defineStore('cart', {
   },
   actions: {
     
-    addToCart(item: CartItem) {      
-      const existingItem = this.items.find((i) => i.id === item.id);
+    addToCart(item: CartItem | Product) {      
+      const cartItem: CartItem = 'quantity' in item ? { ...item } : { ...item, quantity: 1 };
+      const existingItem = this.items.find((i) => i.id === cartItem.id);
       if (existingItem) {
         existingItem.quantity += 1;
       } else {
-        this.items.push({...item, quantity: 1});
+        this.items.push(cartItem);
       }
       this.saveCartToLocalStorage()
     },

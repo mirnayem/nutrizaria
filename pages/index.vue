@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { products } from "../stores/data";
+import { storeToRefs } from "pinia";
+import { useCatalogStore } from "~/stores/catalog";
+
+const catalog = useCatalogStore();
+catalog.hydrate();
+const { products } = storeToRefs(catalog);
 </script>
 
 <template>
@@ -9,9 +14,9 @@ import { products } from "../stores/data";
         class="products-section col-span-12"
         aria-labelledby="products-query"
       >
-        <div class="banner-section">
+        <!-- <div class="banner-section">
           <HeroBanner />
-        </div>
+        </div> -->
       </div>
     </section>
     <header class="favorite-categories w-full mx-auto mb-10">

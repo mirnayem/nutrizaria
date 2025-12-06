@@ -48,15 +48,11 @@
       </div>
 
       <div class="image col-span-2">
-        <NuxtImg
-          :src="`/images/${cartItem.image}`"
+        <img
+          :src="cartItem.image ? `/images/${cartItem.image}` : '/nutri.png'"
           :alt="cartItem.name"
-          width="40"
-          height="40"
           loading="lazy"
-          sizes="lg:100px 60px"
-          quality="80"
-          class="rounded-md w-10 h-10 object-cover aspect-square"
+          class="h-10 w-10 rounded-md object-cover"
         />
       </div>
       <div class="name col-span-5">

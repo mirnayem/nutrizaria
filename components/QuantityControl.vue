@@ -1,19 +1,21 @@
 <template>
   <div
-    v-if="checkProductExist() === 0"
-    class="add-to-cart bg-violet-600 text-white rounded-lg max-w-40 h-12 flex-mid cursor-pointer"
+    v-if="!currentQuantity"
+    class="add-to-cart flex-mid h-12 max-w-40 cursor-pointer rounded-lg bg-violet-600 text-white"
     @click="addToCart"
   >
     Add to Cart
   </div>
   <div
     v-else
-    class="quantity-control flex items-center justify-center max-w-fit rounded-lg gap-6 border px-4 h-12"
+    class="quantity-control flex h-12 max-w-fit items-center gap-6 rounded-lg border px-4"
   >
-    <div
-      :class="`decrement + ${
-        quantity > 1 ? 'cursor-pointer' : 'cursor-not-allowed'
-      }`"
+    <button
+      type="button"
+      :class="[
+        'transition',
+        currentQuantity > 1 ? 'cursor-pointer text-slate-900' : 'cursor-not-allowed text-slate-400',
+      ]"
       @click="decrement"
     >
       <svg
@@ -26,11 +28,13 @@
       >
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
       </svg>
+    </button>
+    <div class="border-l border-gray-300 h-6"></div>
+    <div class="min-w-[32px] text-center font-semibold text-slate-800">
+      {{ currentQuantity }}
     </div>
-    <div class="border-l border-gray-400 h-full"></div>
-    <div class="quantity">{{ quantity }}</div>
-    <div class="border-l h-full border-gray-400"></div>
-    <div class="increment cursor-pointer" @click="increment">
+    <div class="border-l border-gray-300 h-6"></div>
+    <button type="button" class="text-violet-700" @click="increment">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -45,39 +49,36 @@
           d="M12 4.5v15m7.5-7.5h-15"
         />
       </svg>
-    </div>
+    </button>
   </div>
 </template>
-<script lang="ts" setup>
-import { ref, onMounted } from "vue";
-const quantity = ref(0);
-const props = defineProps(["product"]);
-import { useCartStore } from "~/stores/cart";
 
+<script lang="ts" setup>
+import { computed } from "vue";
+import { storeToRefs } from "pinia";
+import { useCartStore } from "~/stores/cart";
+import type { Product } from "~/types/product";
+
+const props = defineProps<{ product: Product }>();
 const cartStore = useCartStore();
-const { product } = props;
-const { items } = cartStore;
+const { items } = storeToRefs(cartStore);
+
+const currentQuantity = computed(() => {
+  const match = items.value.find((item) => item.id === props.product.id);
+  return match?.quantity ?? 0;
+});
+
 const addToCart = () => {
-  cartStore.addToCart(product);
-  quantity.value = 1;
+  cartStore.addToCart(props.product);
 };
+
 const increment = () => {
-  cartStore.updateCartItem(product.id, "INC");
-  quantity.value += 1;
+  cartStore.updateCartItem(props.product.id, "INC");
 };
+
 const decrement = () => {
-  if (quantity.value > 1) {
-    cartStore.updateCartItem(product.id, "DEC");
-    quantity.value -= 1;
+  if (currentQuantity.value > 1) {
+    cartStore.updateCartItem(props.product.id, "DEC");
   }
 };
-
-const checkProductExist = () => {
-  let exist = items.find((item) => item.id === product.id);
-  return exist ? exist.quantity : 0;
-};
-
-onMounted(() => {
-  quantity.value = checkProductExist();
-});
 </script>

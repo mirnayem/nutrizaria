@@ -51,17 +51,15 @@
           </div>
         </div>
         <div
-          class="place-order-total absolute bottom-24 w-full left-0 h-16 flex items-center justify-between text-white cursor-pointer"
+          class="place-order-total absolute bottom-24 left-0 flex h-16 w-full cursor-pointer items-center justify-between text-white"
         >
-          <div
-            @click="
-              navigateToCheckout();
-              closeCart();
-            "
-            class="place-order w-2/3 pl-3 h-full flex items-center justify-between bg-violet-700"
+          <button
+            type="button"
+            @click="handleCheckout"
+            class="place-order flex h-full w-2/3 items-center justify-between bg-violet-700 pl-3"
           >
             Place Order
-          </div>
+          </button>
           <div
             class="total-amount w-1/3 bg-slate-800 h-full pr-3 flex items-center justify-center"
           >
@@ -81,15 +79,22 @@ import { useClickOutside } from "~/composables/useClickOutside";
 const cartStore = useCartStore();
 const cartRef = ref<HTMLElement | null>(null);
 
-const navigateToCheckout = () => {
-  navigateTo("/checkout");
-};
 const closeCart = () => {
-  cartStore.toggleCart;
+  if (cartStore.isCartOpen) {
+    cartStore.toggleCart();
+  }
 };
+
 const handleCart = () => {
   cartStore.toggleCart();
 };
 
-useClickOutside(cartRef, () => (cartStore.isCartOpen = false));
+const handleCheckout = async () => {
+  await navigateTo("/checkout");
+  closeCart();
+};
+
+useClickOutside(cartRef, () => {
+  cartStore.isCartOpen = false;
+});
 </script>

@@ -1,15 +1,20 @@
-<script setup>
+<script setup lang="ts">
+import { storeToRefs } from "pinia";
+import { useCatalogStore } from "~/stores/catalog";
+
 definePageMeta({
-  title: "My Website Title",
+  title: "NutriZaria Shop",
   meta: [
     {
       name: "description",
-      content: "A brief description of the page content.",
+      content: "Browse the full NutriZaria catalog.",
     },
   ],
 });
 
-import { products } from "../stores/data";
+const catalog = useCatalogStore();
+catalog.hydrate();
+const { products } = storeToRefs(catalog);
 </script>
 <template>
   <div class="grid grid-cols-12">

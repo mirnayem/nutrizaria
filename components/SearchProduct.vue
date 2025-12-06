@@ -1,62 +1,77 @@
 <template>
-  <section
-    class="search-product flex items-center gap-2 border-[1px] group border-slate-300 rounded pl-2 h-10 relative"
-  >
-    <div class="search-input sm:w-1/2 w-2/3">
+  <section class="w-full" aria-label="Search products">
+    <div
+      class="group flex w-full items-center gap-2 rounded-full border border-slate-200 bg-white/90 px-4 py-2 shadow-sm focus-within:border-violet-500 focus-within:ring-2 focus-within:ring-violet-200"
+    >
+      <MagnifyingGlassIcon class="size-5 text-slate-400" aria-hidden="true" />
+      <label class="sr-only" for="product-search-input">Search products</label>
       <input
+        id="product-search-input"
         v-model="searchTerm"
         @input="onInputChange"
-        type="text"
-        class="w-full h-full focus:outline-none"
-        placeholder="search your product..."
+        type="search"
+        class="w-full bg-transparent text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none"
+        placeholder="Search for dates, honey, spices..."
+        autocomplete="off"
       />
-    </div>
-    <XMarkIcon
-      @click="searchTerm = ''"
-      :class="[
-        'w-5 h-5 absolute sm:right-28 right-10 cursor-pointer',
-        searchTerm.length > 0 ? 'block' : 'hidden',
-      ]"
-    />
-    <div
-      @click="fetchResults(searchTerm)"
-      class="absolute right-0 search-button sm:w-24 w-10 gap-2 h-[42px] flex-mid bg-violet-700 text-white cursor-pointer"
-    >
-      <MagnifyingGlassIcon class="w-5 h-5 text-white" />
-      <p class="sm:block hidden">Search</p>
+      <button
+        v-if="searchTerm"
+        type="button"
+        aria-label="Clear search"
+        class="rounded-full p-1 text-slate-400 transition hover:text-slate-600"
+        @click="clearSearch"
+      >
+        <XMarkIcon class="size-5" />
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-full bg-violet-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white transition hover:bg-violet-500"
+        @click="triggerSearch"
+      >
+        Search
+      </button>
     </div>
   </section>
 </template>
+
 <script setup lang="ts">
 import { ref } from "vue";
 import { useProductStore } from "~/stores/product";
 import { useRouter } from "vue-router";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/vue/16/solid";
+
 const router = useRouter();
 const productStore = useProductStore();
-const searchTerm = ref<string>("");
-const loading = ref<boolean>(false);
+const searchTerm = ref("");
+const loading = ref(false);
 let debounceTimeout: NodeJS.Timeout;
 
-const fetchResults: (query: string) => Promise<void> = async (
-  query: string
-) => {
-  if (query) {
-    const term = query.toLowerCase();
-    loading.value = true;
-    await productStore.searchProducts(query);
-    loading.value = false;
-    const basePath = "/search/";
-    router.replace(basePath + term);
-  }
+const fetchResults = async (query: string) => {
+  if (!query) return;
+  const term = query.toLowerCase();
+  loading.value = true;
+  await productStore.searchProducts(query);
+  loading.value = false;
+  router.replace(`/search/${term}`);
 };
 
 const onInputChange = () => {
   clearTimeout(debounceTimeout);
   debounceTimeout = setTimeout(() => {
     if (searchTerm.value.trim()) {
-      fetchResults(searchTerm.value);
+      fetchResults(searchTerm.value.trim());
     }
-  }, 700);
+  }, 600);
+};
+
+const triggerSearch = () => {
+  if (loading.value) return;
+  if (searchTerm.value.trim()) {
+    fetchResults(searchTerm.value.trim());
+  }
+};
+
+const clearSearch = () => {
+  searchTerm.value = "";
 };
 </script>

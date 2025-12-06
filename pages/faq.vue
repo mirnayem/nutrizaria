@@ -76,10 +76,16 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { faqs } from "~/stores/data";
 import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useCatalogStore } from "~/stores/catalog";
+
 const faqIndex = ref(0);
 const handleFaqOpen = (index: number): void => {
   faqIndex.value = index;
 };
+
+const catalog = useCatalogStore();
+catalog.hydrate();
+const { faqs } = storeToRefs(catalog);
 </script>

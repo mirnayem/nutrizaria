@@ -1,80 +1,109 @@
 <template>
-  <div
-    :class="[
-      'products grid md:gap-8 gap-3 grid-cols-2',
-      route.path !== '/shop'
-        ? 'lg:grid-cols-4 md:grid-cols-3'
-        : 'lg:grid-cols-3 md:grid-cols-2',
-    ]"
-    v-if="visibleProducts && visibleProducts.length > 0"
-  >
-    <SingleProduct
-      v-for="product in visibleProducts"
-      :key="product.id"
-      :product="product"
-    />
+  <div v-if="visibleProducts.length" class="space-y-6">
+    <div
+      :class="[
+        'grid gap-6',
+        route.path !== '/shop'
+          ? 'sm:grid-cols-2 lg:grid-cols-4'
+          : 'sm:grid-cols-2 lg:grid-cols-3',
+      ]"
+    >
+      <SingleProduct
+        v-for="product in visibleProducts"
+        :key="product.id"
+        :product="product"
+      />
+    </div>
+    <div ref="loadMoreTrigger" class="flex items-center justify-center py-4">
+      <p
+        class="spinner"
+        v-if="loading && visibleProducts.length < safeProducts.length"
+      ></p>
+    </div>
   </div>
   <div
-    ref="loadMoreTrigger"
-    class="loading min-h-32 flex items-center justify-center"
+    v-else
+    class="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-8 text-center text-sm text-slate-500"
   >
-    <p
-      class="spinner"
-      v-if="loading && visibleProducts.length < products.length"
-    ></p>
+    No products match your filters. Try searching for a different keyword.
   </div>
 </template>
+
 <script setup lang="ts">
-const props = defineProps(["products"]);
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { ref, onMounted, onBeforeUnmount } from "vue";
 import type { Product } from "~/types/product";
 
-const loading = ref<boolean>(false);
-const visibleProducts = ref<Product[]>([]);
-const itemsPerPage = 8;
+const props = defineProps<{
+  products: Product[];
+}>();
+
 const route = useRoute();
+const itemsPerPage = 8;
+const loading = ref(false);
+const visibleProducts = ref<Product[]>([]);
+const loadMoreTrigger = ref<HTMLElement | null>(null);
+
+const safeProducts = computed<Product[]>(() => props.products ?? []);
 
 const loadMoreItems = () => {
+  if (!safeProducts.value.length) {
+    visibleProducts.value = [];
+    loading.value = false;
+    return;
+  }
   const offset = visibleProducts.value.length;
-  const limit = itemsPerPage;
-
-  const nextItems: Product[] = props.products.slice(offset, offset + limit);
-  visibleProducts.value.push(...nextItems);
+  const nextItems = safeProducts.value.slice(offset, offset + itemsPerPage);
+  if (nextItems.length) {
+    visibleProducts.value = [...visibleProducts.value, ...nextItems];
+  }
   loading.value = false;
 };
 
 let observer: IntersectionObserver | null = null;
-const loadMoreTrigger = ref(null);
+
 const setupObserver = () => {
+  if (observer) {
+    observer.disconnect();
+  }
   observer = new IntersectionObserver(
     (entries) => {
+      if (!entries[0]?.isIntersecting) return;
       loading.value = true;
-      if (entries[0].isIntersecting) {
-        loadMoreItems();
-      }
+      loadMoreItems();
     },
-    {
-      root: null,
-      threshold: 0.9,
-    }
+    { threshold: 0.25 }
   );
-  if (loadMoreTrigger && loadMoreTrigger.value) {
+  if (loadMoreTrigger.value) {
     observer.observe(loadMoreTrigger.value);
   }
 };
 
-onMounted(async () => {
+const resetProducts = () => {
+  visibleProducts.value = [];
   loadMoreItems();
+};
+
+onMounted(() => {
+  resetProducts();
   setupObserver();
 });
+
+watch(
+  safeProducts,
+  () => {
+    resetProducts();
+  },
+  { deep: true }
+);
 
 onBeforeUnmount(() => {
   if (observer) observer.disconnect();
 });
 </script>
+
 <style scoped>
 .spinner {
-  @apply w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin;
+  @apply h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-violet-500;
 }
 </style>
