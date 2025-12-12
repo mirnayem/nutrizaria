@@ -19,7 +19,7 @@
       :lazy="{ loadPrevNext: true }"
       :modules="modules"
       :pagination="{ clickable: true }"
-      :autoplay="{ delay: 3000 }"
+      :autoplay="{ delay: 3200 }"
       :speed="900"
       :loop="true"
       :breakpoints="breakpoints"
@@ -27,7 +27,7 @@
         nextEl: '.custom-next',
         prevEl: '.custom-prev',
       }"
-      class="h-fit"
+      class="category-swiper"
     >
       <SwiperSlide
         v-for="item in categoriesList"
@@ -109,16 +109,24 @@ import { useCatalogStore } from "~/stores/catalog";
 const modules = [Autoplay, Navigation];
 const breakpoints = {
   0: {
+    slidesPerView: 1.4,
+    spaceBetween: 8,
+  },
+  480: {
     slidesPerView: 2,
     spaceBetween: 10,
   },
+  768: {
+    slidesPerView: 2.5,
+    spaceBetween: 14,
+  },
   1024: {
     slidesPerView: 3,
-    spaceBetween: 30,
+    spaceBetween: 18,
   },
   1280: {
     slidesPerView: 4,
-    spaceBetween: 40,
+    spaceBetween: 24,
   },
 };
 

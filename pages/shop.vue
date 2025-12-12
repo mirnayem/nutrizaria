@@ -17,7 +17,7 @@ catalog.hydrate();
 const { products } = storeToRefs(catalog);
 </script>
 <template>
-  <div class="grid grid-cols-12">
+  <div class="mt-8 grid grid-cols-12 sm:mt-10 lg:mt-12">
     <div class="products-section col-span-12">
       <Products :products="products" />
     </div>

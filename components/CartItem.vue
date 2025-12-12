@@ -1,90 +1,99 @@
 <template>
-  <ClientOnly>
-    <div
-      class="cart-item grid grid-cols-12 text-xs px-3 place-items-center py-3"
-    >
-      <div class="quantity col-span-2 grid place-items-center mr-4 text-sm">
-        <div
-          class="increment cursor-pointer"
-          @click="updateCartItem(cartItem.id, 'INC')"
+  <article class="flex gap-4 py-4">
+    <div class="shrink-0">
+      <img
+        :src="cartItem.image ? `/images/${cartItem.image}` : '/nutri.png'"
+        :alt="cartItem.name"
+        loading="lazy"
+        class="h-16 w-16 rounded-2xl object-cover"
+      />
+    </div>
+    <div class="flex flex-1 flex-col text-sm text-slate-600">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <p class="text-base font-semibold text-slate-900">
+            {{ cartItem.name }}
+          </p>
+          <p class="text-xs text-slate-500">
+            {{ currencySymbol }}{{ cartItem.price.toFixed(2) }} /
+            {{ cartItem.unit }}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="rounded-full p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+          @click="removeFromCart(cartItem.id)"
         >
+          <span class="sr-only">Remove {{ cartItem.name }} from cart</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            fill="none"
             viewBox="0 0 24 24"
-            stroke-width="1.5"
+            fill="none"
             stroke="currentColor"
+            stroke-width="1.5"
             class="size-4"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m4.5 15.75 7.5-7.5 7.5 7.5"
-            />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
           </svg>
-        </div>
-        <p>{{ cartItem.quantity }}</p>
-        <div class="decrement">
-          <svg
-            @click="updateCartItem(cartItem.id, 'DEC')"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            :class="`size-4 ${
-              cartItem.quantity === 1
-                ? 'text-gray-300 cursor-default'
-                : 'cursor-pointer'
-            }`"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m19.5 8.25-7.5 7.5-7.5-7.5"
-            />
-          </svg>
-        </div>
+        </button>
       </div>
-
-      <div class="image col-span-2">
-        <img
-          :src="cartItem.image ? `/images/${cartItem.image}` : '/nutri.png'"
-          :alt="cartItem.name"
-          loading="lazy"
-          class="h-10 w-10 rounded-md object-cover"
-        />
-      </div>
-      <div class="name col-span-5">
-        <p>{{ cartItem.name }}</p>
-        <p>${{ cartItem.price + "/" + cartItem.unit }}</p>
-      </div>
-      <div class="price col-span-2">
-        ${{ cartItem.price * cartItem.quantity }}
-      </div>
-      <div class="close-col-span-1">
-        <svg
-          @click="removeFromCart(cartItem.id)"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-4 cursor-pointer"
+      <div class="mt-3 flex flex-wrap items-center gap-3">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-900"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M6 18 18 6M6 6l12 12"
-          />
-        </svg>
+          <button
+            type="button"
+            class="rounded-full p-1 transition hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent"
+            @click="updateCartItem(cartItem.id, 'DEC')"
+            :disabled="cartItem.quantity === 1"
+            aria-label="Decrease {{ cartItem.name }} quantity"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="size-4"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+            </svg>
+          </button>
+          <span class="min-w-[1.5rem] text-center text-base font-semibold">
+            {{ cartItem.quantity }}
+          </span>
+          <button
+            type="button"
+            class="rounded-full p-1 transition hover:bg-slate-100"
+            @click="updateCartItem(cartItem.id, 'INC')"
+            aria-label="Increase {{ cartItem.name }} quantity"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              class="size-4"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 5v14m-7-7h14" />
+            </svg>
+          </button>
+        </div>
+        <p class="ml-auto text-base font-semibold text-slate-900">
+          {{ currencySymbol }}{{ lineTotal.toFixed(2) }}
+        </p>
       </div>
     </div>
-  </ClientOnly>
+  </article>
 </template>
+
 <script setup lang="ts">
+import { computed } from "vue";
+import { useRuntimeConfig } from "#app";
 import type { CartItem } from "~/types/product";
 import { useCartStore } from "~/stores/cart";
+
 const cartStore = useCartStore();
 
 function removeFromCart(itemId: number) {
@@ -98,5 +107,9 @@ function updateCartItem(itemId: number, type: string) {
 interface Props {
   cartItem: CartItem;
 }
+
 const props = defineProps<Props>();
+const config = useRuntimeConfig();
+const currencySymbol = config.public.currencySymbol || "Tk";
+const lineTotal = computed(() => props.cartItem.price * props.cartItem.quantity);
 </script>

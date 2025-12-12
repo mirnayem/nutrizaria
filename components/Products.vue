@@ -2,10 +2,10 @@
   <div v-if="visibleProducts.length" class="space-y-6">
     <div
       :class="[
-        'grid gap-6',
+        'grid grid-cols-2 gap-4 sm:gap-6',
         route.path !== '/shop'
-          ? 'sm:grid-cols-2 lg:grid-cols-4'
-          : 'sm:grid-cols-2 lg:grid-cols-3',
+          ? 'md:grid-cols-3 lg:grid-cols-4'
+          : 'md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4',
       ]"
     >
       <SingleProduct
