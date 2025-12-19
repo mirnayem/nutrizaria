@@ -50,11 +50,12 @@ const serviceStats = [
             Concierge desk
           </p>
           <h1 class="text-3xl font-semibold leading-tight sm:text-4xl">
-            We're ready to curate your next pantry drop.
+            We're ready to curate your next Bangladesh pantry drop.
           </h1>
           <p class="text-white/80">
-            Call, WhatsApp, or leave a message — a real human will review your
-            order needs, substitutions, or gifting requests within minutes.
+            Call, WhatsApp, or leave a message — our Dhaka concierge reviews
+            order needs, village-sourced substitutions, or gifting requests
+            within minutes for households nationwide.
           </p>
           <div class="flex flex-wrap gap-4">
             <a
@@ -82,7 +83,7 @@ const serviceStats = [
             </div>
           </div>
           <p class="text-sm text-white/80">
-            Mobile wallet, card, and cash on delivery support are available
+            Pay via bKash, Nagad, card, or COD — every method is supported
             across all service hours.
           </p>
         </div>

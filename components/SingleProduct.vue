@@ -35,7 +35,8 @@ const handleQuickAdd = () => {
   cartStore.addToCart(selectedItem.value);
   isModalOpen.value = false;
 };
-const addToFavorite = () => favoriteStore.addToFavorite(props.product);
+const isFavorite = computed(() => favoriteStore.isFavorite(props.product.id));
+const toggleFavorite = () => favoriteStore.toggleFavorite(props.product);
 
 const isModalOpen = ref(false);
 const openModal = () => (isModalOpen.value = true);
@@ -43,7 +44,7 @@ const openModal = () => (isModalOpen.value = true);
 
 <template>
   <article
-    class="group flex flex-col rounded-2xl border border-slate-200 bg-white/80 p-3 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:p-4"
+    class="group flex flex-col rounded-2xl border border-slate-200 bg-white/80 px-2.5 py-3 shadow-sm transition hover:-translate-y-1 hover:shadow-lg sm:px-3.5 sm:py-4"
   >
     <div class="relative overflow-hidden rounded-2xl bg-slate-100">
       <img
@@ -54,16 +55,19 @@ const openModal = () => (isModalOpen.value = true);
       />
       <button
         type="button"
-        class="absolute right-3 top-3 rounded-full bg-white/80 p-2 text-slate-600 shadow"
-        @click="addToFavorite"
+        class="absolute right-2 top-2 rounded-full p-1.5 text-slate-600 shadow transition sm:right-3 sm:top-3 sm:p-2"
+        :class="isFavorite ? 'bg-violet-600 text-white' : 'bg-white/80 text-slate-600'"
+        :aria-pressed="isFavorite"
+        aria-label="Toggle favorite"
+        @click="toggleFavorite"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-5"
+          :fill="isFavorite ? 'currentColor' : 'none'"
+          class="h-4 w-4 transition sm:size-5"
         >
           <path
             stroke-linecap="round"
@@ -86,7 +90,11 @@ const openModal = () => (isModalOpen.value = true);
           stroke-width="1.5"
           class="size-4"
         >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+          />
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -94,31 +102,26 @@ const openModal = () => (isModalOpen.value = true);
           />
         </svg>
       </button>
-      <button
-        type="button"
-        class="absolute left-3 bottom-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm transition hover:text-violet-700 sm:hidden"
-        @click="openModal"
-      >
-        View
-      </button>
     </div>
     <div class="mt-3 flex flex-1 flex-col gap-2 text-sm text-slate-500">
-      <span class="uppercase tracking-wide text-[11px] text-violet-600">
+      <span
+        class="uppercase tracking-wide text-[10px] text-violet-600 sm:text-[11px]"
+      >
         {{ product.category }}
       </span>
-      <h3 class="text-lg font-semibold text-slate-800">
+      <h3 class="text-base font-semibold text-slate-800 sm:text-lg">
         {{ product.name }}
       </h3>
-      <p class="line-clamp-2 text-sm">
+      <p class="line-clamp-2 text-xs sm:text-sm">
         {{ product.description }}
       </p>
       <div class="mt-auto flex items-center justify-between pt-2">
-        <p class="text-lg font-semibold text-violet-700">
+        <p class="text-base font-semibold text-violet-700 sm:text-lg">
           {{ currencySymbol }}{{ product.price.toFixed(2) }}
         </p>
         <button
           type="button"
-          class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-600 transition hover:border-violet-500 hover:text-violet-600"
+          class="inline-flex items-center gap-1 rounded-full border border-slate-200 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-600 transition hover:border-violet-500 hover:text-violet-600 sm:px-3 sm:text-xs"
           @click="handleQuickAdd"
         >
           <svg
@@ -129,14 +132,18 @@ const openModal = () => (isModalOpen.value = true);
             stroke="currentColor"
             class="size-4"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
           </svg>
           Add
         </button>
       </div>
       <NuxtLink
         :to="detailLink"
-        class="mt-2 inline-flex items-center justify-center rounded-xl border border-dashed border-slate-200 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-600 transition hover:border-violet-400 hover:text-violet-700"
+        class="mt-2 inline-flex items-center justify-center rounded-xl border border-dashed border-slate-200 px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 transition hover:border-violet-400 hover:text-violet-700 sm:text-xs"
       >
         View details
       </NuxtLink>
@@ -193,9 +200,7 @@ const openModal = () => (isModalOpen.value = true);
             </NuxtLink>
           </div>
           <div>
-            <p class="pb-3 text-base font-semibold text-slate-900">
-              Benefits
-            </p>
+            <p class="pb-3 text-base font-semibold text-slate-900">Benefits</p>
             <ul class="space-y-3 text-sm text-slate-600">
               <li
                 v-for="(benefit, index) in product.benefits"

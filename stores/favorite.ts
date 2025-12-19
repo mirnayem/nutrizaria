@@ -1,16 +1,30 @@
 import { defineStore } from "pinia";
 import type { Product } from "~/types/product";
 
-
-export const useFavoriteStore = defineStore('favorite', {
-    state: () => ({
-        items: [] as Product[]
-    }),
-    actions: {
-        addToFavorite(product: Product) {
-            const exist = this.items.find((item) => item.id === product.id)
-            if (exist) return;
-            this.items.push(product)
-        }
+export const useFavoriteStore = defineStore("favorite", {
+  state: () => ({
+    items: [] as Product[],
+  }),
+  getters: {
+    isFavorite: (state) => {
+      return (productId: Product["id"]) =>
+        state.items.some((item) => item.id === productId);
     },
-})
+  },
+  actions: {
+    addToFavorite(product: Product) {
+      if (this.isFavorite(product.id)) return;
+      this.items.push(product);
+    },
+    removeFromFavorite(productId: Product["id"]) {
+      this.items = this.items.filter((item) => item.id !== productId);
+    },
+    toggleFavorite(product: Product) {
+      if (this.isFavorite(product.id)) {
+        this.removeFromFavorite(product.id);
+      } else {
+        this.addToFavorite(product);
+      }
+    },
+  },
+});

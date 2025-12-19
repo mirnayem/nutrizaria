@@ -1,20 +1,17 @@
 <template>
   <div v-if="visibleProducts.length" class="space-y-6">
-    <div
-      :class="[
-        'grid grid-cols-2 gap-4 sm:gap-6',
-        route.path !== '/shop'
-          ? 'md:grid-cols-3 lg:grid-cols-4'
-          : 'md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4',
-      ]"
-    >
+    <div :class="gridClass">
       <SingleProduct
         v-for="product in visibleProducts"
         :key="product.id"
         :product="product"
       />
     </div>
-    <div ref="loadMoreTrigger" class="flex items-center justify-center py-4">
+    <div
+      v-if="shouldPaginate"
+      ref="loadMoreTrigger"
+      class="flex items-center justify-center py-4"
+    >
       <p
         class="spinner"
         v-if="loading && visibleProducts.length < safeProducts.length"
@@ -31,29 +28,44 @@
 
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { useRoute } from "vue-router";
 import type { Product } from "~/types/product";
 
-const props = defineProps<{
-  products: Product[];
-}>();
+const props = withDefaults(
+  defineProps<{
+    products: Product[];
+    paginate?: boolean;
+    pageSize?: number;
+    maxTwoPerRow?: boolean;
+  }>(),
+  {
+    paginate: false,
+    pageSize: 12,
+    maxTwoPerRow: false,
+  }
+);
 
-const route = useRoute();
-const itemsPerPage = 8;
 const loading = ref(false);
 const visibleProducts = ref<Product[]>([]);
 const loadMoreTrigger = ref<HTMLElement | null>(null);
 
 const safeProducts = computed<Product[]>(() => props.products ?? []);
+const shouldPaginate = computed(() => props.paginate);
+const pageSize = computed(() => Math.max(1, props.pageSize));
+const gridClass = computed(() =>
+  props.maxTwoPerRow
+    ? "grid grid-cols-2 gap-1 sm:grid-cols-2 sm:gap-6 lg:grid-cols-2 lg:gap-8"
+    : "grid grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-6 lg:grid-cols-3 lg:gap-8"
+);
 
 const loadMoreItems = () => {
+  if (!shouldPaginate.value) return;
   if (!safeProducts.value.length) {
     visibleProducts.value = [];
     loading.value = false;
     return;
   }
   const offset = visibleProducts.value.length;
-  const nextItems = safeProducts.value.slice(offset, offset + itemsPerPage);
+  const nextItems = safeProducts.value.slice(offset, offset + pageSize.value);
   if (nextItems.length) {
     visibleProducts.value = [...visibleProducts.value, ...nextItems];
   }
@@ -62,17 +74,23 @@ const loadMoreItems = () => {
 
 let observer: IntersectionObserver | null = null;
 
-const setupObserver = () => {
+const teardownObserver = () => {
   if (observer) {
     observer.disconnect();
+    observer = null;
   }
+};
+
+const setupObserver = () => {
+  teardownObserver();
+  if (!shouldPaginate.value) return;
   observer = new IntersectionObserver(
     (entries) => {
       if (!entries[0]?.isIntersecting) return;
       loading.value = true;
       loadMoreItems();
     },
-    { threshold: 0.25 }
+    { threshold: 0.1, rootMargin: "200px" }
   );
   if (loadMoreTrigger.value) {
     observer.observe(loadMoreTrigger.value);
@@ -80,8 +98,17 @@ const setupObserver = () => {
 };
 
 const resetProducts = () => {
-  visibleProducts.value = [];
-  loadMoreItems();
+  loading.value = false;
+  if (!safeProducts.value.length) {
+    visibleProducts.value = [];
+    return;
+  }
+  if (shouldPaginate.value) {
+    visibleProducts.value = [];
+    loadMoreItems();
+  } else {
+    visibleProducts.value = [...safeProducts.value];
+  }
 };
 
 onMounted(() => {
@@ -90,15 +117,16 @@ onMounted(() => {
 });
 
 watch(
-  safeProducts,
+  [safeProducts, shouldPaginate, pageSize],
   () => {
     resetProducts();
+    setupObserver();
   },
   { deep: true }
 );
 
 onBeforeUnmount(() => {
-  if (observer) observer.disconnect();
+  teardownObserver();
 });
 </script>
 

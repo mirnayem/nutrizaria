@@ -25,11 +25,11 @@ const groupedProducts = computed(() => {
 </script>
 
 <template>
-  <main class="space-y-10  sm:space-y-12 ">
+  <main class="space-y-10 sm:space-y-12">
     <section
       v-for="group in groupedProducts"
       :key="group.category.id"
-      class="space-y-4 rounded-3xl border border-slate-100 bg-white/80 p-5 shadow-sm sm:p-7"
+      class="space-y-4 rounded-3xl sm:border sm:border-slate-100 sm:bg-white/80 px-0 py-5 shadow-sm sm:px-4 sm:py-7"
     >
       <div class="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -66,7 +66,9 @@ const groupedProducts = computed(() => {
           </svg>
         </NuxtLink>
       </div>
-      <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      <div
+        class="grid grid-cols-2 gap-1 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4"
+      >
         <SingleProduct
           v-for="product in group.items"
           :key="product.id"

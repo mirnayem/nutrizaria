@@ -24,11 +24,11 @@
             class="flex items-center justify-between border-b border-slate-100 px-5 pb-4"
           >
             <div class="flex items-center gap-3">
-              <img
-                src="/nutri.png"
-                alt="NutriZaria"
-                class="h-10 w-10 rounded-full object-cover"
-              />
+              <span
+                class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-base font-semibold text-white"
+              >
+                NZ
+              </span>
               <div>
                 <p class="text-base font-semibold text-slate-900">NutriZaria</p>
                 <p class="text-xs text-slate-500">

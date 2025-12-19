@@ -9,7 +9,9 @@
         to="/"
         class="flex items-center gap-2 text-lg font-semibold text-violet-700"
       >
-        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white">
+        <span
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white"
+        >
           NZ
         </span>
         NutriZaria
@@ -40,7 +42,11 @@
               stroke="currentColor"
               class="size-3"
             >
-              <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="m6 9 6 6 6-6"
+              />
             </svg>
           </button>
           <div
@@ -49,7 +55,9 @@
           >
             <div class="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-600">
+                <p
+                  class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-600"
+                >
                   Browse by category
                 </p>
                 <p class="text-base font-semibold text-slate-900">
@@ -61,8 +69,19 @@
                 class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
               >
                 View all
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  class="size-4"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="m9 5 7 7-7 7"
+                  />
                 </svg>
               </NuxtLink>
             </div>
@@ -74,22 +93,30 @@
                 class="flex items-center gap-3 rounded-2xl border border-slate-100 p-3 text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800"
               >
                 <img
-                  :src="category.image ? `/images/${category.image}` : '/nutri.png'"
+                  :src="
+                    category.image ? `/images/${category.image}` : '/nutri.png'
+                  "
                   :alt="category.name"
                   class="h-12 w-12 rounded-xl object-cover"
                   loading="lazy"
                 />
                 <div>
-                  <p class="font-semibold text-slate-900">{{ category.name }}</p>
+                  <p class="font-semibold text-slate-900">
+                    {{ category.name }}
+                  </p>
                   <p class="text-xs text-slate-500">
                     Shop {{ category.name.toLowerCase() }}
                   </p>
                 </div>
               </NuxtLink>
             </div>
-            <div class="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-500">
+            <div
+              class="mt-4 rounded-2xl bg-slate-50 p-4 text-xs text-slate-500"
+            >
               <p class="font-semibold text-slate-700">Need help choosing?</p>
-              <p>Chat with our concierge for substitution tips before checkout.</p>
+              <p>
+                Chat with our concierge for substitution tips before checkout.
+              </p>
             </div>
           </div>
         </div>
@@ -100,7 +127,10 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <NuxtLink to="/favorite" class="relative rounded-full bg-white/90 p-2 shadow">
+        <NuxtLink
+          to="/favorite"
+          class="relative rounded-full bg-white/90 p-2 shadow"
+        >
           <HeartIcon class="size-5 text-slate-600" />
           <ClientOnly>
             <span
@@ -148,7 +178,7 @@
     <div class="border-t border-slate-100 bg-white px-4 py-3 lg:hidden">
       <SearchProduct class="w-full" />
     </div>
-    <nav
+    <!-- <nav
       class="flex items-center gap-4 overflow-x-auto border-t border-slate-100 bg-white px-4 py-3 text-sm text-slate-600 lg:hidden"
       aria-label="Quick links"
     >
@@ -161,7 +191,7 @@
         <component :is="link.icon" class="size-4" />
         {{ link.label }}
       </NuxtLink>
-    </nav>
+    </nav> -->
 
     <ShoppingCart />
     <SidebarDrawer />

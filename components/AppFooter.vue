@@ -12,13 +12,15 @@
           </span>
           <div>
             <p class="text-base font-semibold">NutriZaria</p>
-            <p class="text-xs text-slate-400">Authentic pure food resources</p>
+            <p class="text-xs text-slate-400">
+              Bangladeshi pantry staples delivered nationwide
+            </p>
           </div>
         </div>
         <p class="text-slate-400">
-          NutriZaria curates premium pantry staples, seasonal harvests, and
-          wellness essentials for conscious households across Bangladesh. We
-          obsess about freshness, transparent sourcing, and delightful delivery.
+          We work with trusted growers, mills, and fisheries across Bangladesh
+          to deliver dependable pantry staples to households in Dhaka,
+          Chattogram, Sylhet, and every major district.
         </p>
         <div class="flex flex-wrap gap-3">
           <a
@@ -141,18 +143,21 @@ const paymentLogos = [
 
 const careHighlights = [
   {
-    title: "Bulk sourcing",
-    description: "Talk to us for office pantries & gifting",
+    title: "Wholesale sourcing",
+    description: "Corporate hampers & café supply all over Dhaka",
   },
   {
     title: "Delivery support",
-    description: "Same-day delivery inside Dhaka city",
+    description: "Same-day Gulshan/Banani, next-day major cities",
   },
-  { title: "Returns", description: "Instant replacements on quality concerns" },
+  {
+    title: "Returns",
+    description: "Instant replacements for any quality concern",
+  },
 ];
 
 const serviceSlots = [
-  "Sat - Thu: 9:00 AM – 10:00 PM",
+  "Sat - Thu: 9:00 AM – 10:00 PM (Dhaka HQ)",
   "Friday: 10:00 AM – 8:00 PM",
 ];
 </script>
