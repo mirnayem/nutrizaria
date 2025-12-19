@@ -5,7 +5,9 @@
     >
       <section class="order-1 space-y-5 lg:order-1">
         <div class="flex items-center gap-3 text-white">
-          <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-xl font-semibold">
+          <span
+            class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-xl font-semibold"
+          >
             NZ
           </span>
           <div>
@@ -14,9 +16,9 @@
           </div>
         </div>
         <p class="text-slate-400">
-          NutriZaria curates premium pantry staples, seasonal harvests, and wellness essentials for
-          conscious households across Bangladesh. We obsess about freshness, transparent sourcing,
-          and delightful delivery.
+          NutriZaria curates premium pantry staples, seasonal harvests, and
+          wellness essentials for conscious households across Bangladesh. We
+          obsess about freshness, transparent sourcing, and delightful delivery.
         </p>
         <div class="flex flex-wrap gap-3">
           <a
@@ -54,11 +56,14 @@
         <h2 class="text-base font-semibold text-white">Customer care</h2>
         <div class="space-y-2 text-slate-400">
           <p v-for="item in careHighlights" :key="item.title">
-            <span class="text-white">{{ item.title }}:</span> {{ item.description }}
+            <span class="text-white">{{ item.title }}:</span>
+            {{ item.description }}
           </p>
         </div>
         <div class="space-y-2">
-          <h3 class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <h3
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
             Service windows
           </h3>
           <ul class="space-y-1 text-slate-400">
@@ -70,14 +75,15 @@
       <section class="order-2 space-y-4 lg:order-4">
         <h2 class="text-base font-semibold text-white">Contact</h2>
         <div class="space-y-2 text-slate-400">
-          <p><span class="text-white">Phone:</span> +880 1730-901063</p>
-          <p><span class="text-white">Email:</span> hello@nutrizaria.com</p>
-          <p>
-            <span class="text-white">Studio:</span> House 45, Road 17, Dhanmondi, Dhaka
-          </p>
+          <p><span class="text-white">Phone:</span> +880 1820999820</p>
+          <p><span class="text-white">Email:</span> nutrizaria@gmail.com</p>
         </div>
         <div>
-          <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Payments</p>
+          <p
+            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+          >
+            Payments
+          </p>
           <div class="mt-3 flex flex-wrap gap-3">
             <img
               v-for="logo in paymentLogos"
@@ -104,19 +110,49 @@ const navLinks = [
 ];
 
 const socials = [
-  { label: "Facebook", href: "https://www.facebook.com/nutrizaria/", icon: "/images/facebook.png" },
-  { label: "Instagram", href: "https://instagram.com", icon: "/images/instagram.png" },
-  { label: "YouTube", href: "https://www.youtube.com/@nutrizaria", icon: "/images/youtube.png" },
-  { label: "WhatsApp", href: "https://wa.me/8801730901063", icon: "/images/play.png" },
+  {
+    label: "Facebook",
+    href: "https://www.facebook.com/nutrizaria/",
+    icon: "/images/facebook.png",
+  },
+  {
+    label: "Instagram",
+    href: "https://instagram.com",
+    icon: "/images/instagram.png",
+  },
+  {
+    label: "YouTube",
+    href: "https://www.youtube.com/@nutrizaria",
+    icon: "/images/youtube.png",
+  },
+  {
+    label: "WhatsApp",
+    href: "https://wa.me/8801820999820",
+    icon: "/images/whatsapp.svg",
+  },
 ];
 
-const paymentLogos = ["/images/bkash.svg", "/images/nagad.png", "/images/card-payment.webp", "/images/cod.jpg"];
+const paymentLogos = [
+  "/images/bkash.svg",
+  "/images/nagad.png",
+  "/images/card-payment.webp",
+  "/images/cod.jpg",
+];
 
 const careHighlights = [
-  { title: "Bulk sourcing", description: "Talk to us for office pantries & gifting" },
-  { title: "Delivery support", description: "Same-day delivery inside Dhaka city" },
+  {
+    title: "Bulk sourcing",
+    description: "Talk to us for office pantries & gifting",
+  },
+  {
+    title: "Delivery support",
+    description: "Same-day delivery inside Dhaka city",
+  },
   { title: "Returns", description: "Instant replacements on quality concerns" },
 ];
 
-const serviceSlots = ["Sat - Thu: 9:00 AM – 10:00 PM", "Friday: 10:00 AM – 8:00 PM"];
+const serviceSlots = [
+  "Sat - Thu: 9:00 AM – 10:00 PM",
+  "Friday: 10:00 AM – 8:00 PM",
+];
 </script>

@@ -25,7 +25,7 @@ const groupedProducts = computed(() => {
 </script>
 
 <template>
-  <main class="mt-8 space-y-10 sm:mt-10 sm:space-y-12 lg:mt-12">
+  <main class="space-y-10  sm:space-y-12 ">
     <section
       v-for="group in groupedProducts"
       :key="group.category.id"

@@ -20,12 +20,20 @@
           class="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-hidden bg-white shadow-2xl focus:outline-none"
           :style="safeAreaStyle"
         >
-          <header class="flex items-center justify-between border-b border-slate-100 px-5 pb-4">
+          <header
+            class="flex items-center justify-between border-b border-slate-100 px-5 pb-4"
+          >
             <div class="flex items-center gap-3">
-              <img src="/nutri.png" alt="NutriZaria" class="h-10 w-10 rounded-full object-cover" />
+              <img
+                src="/nutri.png"
+                alt="NutriZaria"
+                class="h-10 w-10 rounded-full object-cover"
+              />
               <div>
                 <p class="text-base font-semibold text-slate-900">NutriZaria</p>
-                <p class="text-xs text-slate-500">Authentic pure food resources</p>
+                <p class="text-xs text-slate-500">
+                  Authentic pure food resources
+                </p>
               </div>
             </div>
             <button
@@ -34,7 +42,12 @@
               @click="closeDrawer"
               aria-label="Close menu drawer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="size-5"
+              >
                 <path
                   fill-rule="evenodd"
                   d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
@@ -47,7 +60,11 @@
           <div class="flex-1 overflow-y-auto px-5 py-6">
             <SearchProduct class="mb-6 w-full" />
             <section class="space-y-3">
-              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Navigate</p>
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+              >
+                Navigate
+              </p>
               <nav class="space-y-2">
                 <NuxtLink
                   v-for="link in navLinks"
@@ -71,14 +88,20 @@
                     stroke-width="1.5"
                     class="size-4"
                   >
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m9 5 7 7-7 7" />
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="m9 5 7 7-7 7"
+                    />
                   </svg>
                 </NuxtLink>
               </nav>
             </section>
 
             <section class="mt-8">
-              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+              >
                 Quick access
               </p>
               <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
@@ -95,7 +118,9 @@
             </section>
 
             <section class="mt-8">
-              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+              >
                 Popular categories
               </p>
               <div class="mt-3 grid grid-cols-2 gap-3">
@@ -107,7 +132,11 @@
                   @click="closeDrawer"
                 >
                   <img
-                    :src="category.image ? `/images/${category.image}` : '/nutri.png'"
+                    :src="
+                      category.image
+                        ? `/images/${category.image}`
+                        : '/nutri.png'
+                    "
                     :alt="category.name"
                     class="h-10 w-10 rounded-lg object-cover"
                     loading="lazy"
@@ -119,14 +148,22 @@
           </div>
 
           <footer class="border-t border-slate-100 px-5 pt-5">
-            <div class="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-              <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">Need help?</p>
+            <div
+              class="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600"
+            >
+              <p
+                class="text-xs font-semibold uppercase tracking-wide text-slate-500"
+              >
+                Need help?
+              </p>
               <div class="flex items-center justify-between text-slate-700">
                 <div>
                   <p class="font-medium text-slate-900">Live concierge</p>
-                  <p>WhatsApp: +880 1730-901063</p>
+                  <p>WhatsApp: +880 1820999820</p>
                 </div>
-                <span class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-violet-700">
+                <span
+                  class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-violet-700"
+                >
                   24/7
                 </span>
               </div>

@@ -9,7 +9,8 @@ useHead({
   meta: [
     {
       name: "description",
-      content: "Reach the NutriZaria concierge team for orders, partnerships, or support.",
+      content:
+        "Reach the NutriZaria concierge team for orders, partnerships, or support.",
     },
   ],
 });
@@ -17,21 +18,15 @@ useHead({
 const contactChannels = [
   {
     label: "Concierge hotline",
-    value: "+880 1730-901063",
-    href: "tel:+8801730901063",
+    value: "+880 1820999820",
+    href: "tel:+8801820999820",
     note: "Sat - Thu, 9:00 AM – 10:00 PM",
   },
   {
     label: "Email",
-    value: "hello@nutrizaria.com",
-    href: "mailto:hello@nutrizaria.com",
+    value: "nutrizaria@gmail.com",
+    href: "mailto:nutrizaria@gmail.com",
     note: "We reply within 12 hours",
-  },
-  {
-    label: "Studio",
-    value: "House 45, Road 17, Dhanmondi, Dhaka",
-    href: "https://maps.app.goo.gl/ULc4J5K5VSH8pzZu9",
-    note: "Appointment only",
   },
 ];
 
@@ -49,25 +44,27 @@ const serviceStats = [
     >
       <div class="grid gap-8 lg:grid-cols-[1fr,0.8fr]">
         <div class="space-y-4">
-          <p class="text-xs font-semibold uppercase tracking-[0.3em] text-white/70">
+          <p
+            class="text-xs font-semibold uppercase tracking-[0.3em] text-white/70"
+          >
             Concierge desk
           </p>
           <h1 class="text-3xl font-semibold leading-tight sm:text-4xl">
             We're ready to curate your next pantry drop.
           </h1>
           <p class="text-white/80">
-            Call, WhatsApp, or leave a message — a real human will review your order needs,
-            substitutions, or gifting requests within minutes.
+            Call, WhatsApp, or leave a message — a real human will review your
+            order needs, substitutions, or gifting requests within minutes.
           </p>
           <div class="flex flex-wrap gap-4">
             <a
-              href="tel:+8801730901063"
+              href="tel:+8801820999820"
               class="rounded-full bg-white px-6 py-3 text-sm font-semibold text-violet-700 shadow-lg transition hover:-translate-y-0.5"
             >
               Talk to concierge
             </a>
             <a
-              href="mailto:hello@nutrizaria.com"
+              href="mailto:nutrizaria@gmail.com"
               class="rounded-full border border-white/70 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
             >
               Email us
@@ -75,7 +72,9 @@ const serviceStats = [
           </div>
         </div>
         <div class="grid gap-4 rounded-3xl bg-white/10 p-6 backdrop-blur">
-          <p class="text-xs uppercase tracking-[0.3em] text-white/60">Service stats</p>
+          <p class="text-xs uppercase tracking-[0.3em] text-white/60">
+            Service stats
+          </p>
           <div class="grid grid-cols-3 gap-3 text-center text-white">
             <div v-for="stat in serviceStats" :key="stat.label">
               <p class="text-2xl font-semibold">{{ stat.value }}</p>
@@ -83,7 +82,8 @@ const serviceStats = [
             </div>
           </div>
           <p class="text-sm text-white/80">
-            Mobile wallet, card, and cash on delivery support are available across all service hours.
+            Mobile wallet, card, and cash on delivery support are available
+            across all service hours.
           </p>
         </div>
       </div>
@@ -93,7 +93,8 @@ const serviceStats = [
       <div class="space-y-6 rounded-3xl bg-slate-950 p-8 text-white">
         <h2 class="text-2xl font-semibold">Concierge access</h2>
         <p class="text-white/80">
-          Choose the channel that works best for you. We monitor all inboxes in real time.
+          Choose the channel that works best for you. We monitor all inboxes in
+          real time.
         </p>
         <ul class="space-y-4">
           <li
@@ -101,8 +102,13 @@ const serviceStats = [
             :key="channel.label"
             class="rounded-2xl border border-white/10 p-4"
           >
-            <p class="text-xs uppercase tracking-[0.3em] text-white/60">{{ channel.label }}</p>
-            <a :href="channel.href" class="block text-lg font-semibold text-white">
+            <p class="text-xs uppercase tracking-[0.3em] text-white/60">
+              {{ channel.label }}
+            </p>
+            <a
+              :href="channel.href"
+              class="block text-lg font-semibold text-white"
+            >
               {{ channel.value }}
             </a>
             <p class="text-sm text-white/70">{{ channel.note }}</p>
@@ -115,12 +121,17 @@ const serviceStats = [
       </div>
 
       <div class="space-y-6 rounded-3xl bg-white p-6 shadow-sm">
-        <p class="text-sm font-semibold uppercase tracking-[0.3em] text-violet-600">
+        <p
+          class="text-sm font-semibold uppercase tracking-[0.3em] text-violet-600"
+        >
           Send a note
         </p>
-        <h2 class="text-2xl font-semibold text-slate-900">Tell us how we can help</h2>
+        <h2 class="text-2xl font-semibold text-slate-900">
+          Tell us how we can help
+        </h2>
         <p class="text-sm text-slate-500">
-          Drop details about your order, dietary preferences, or partnership idea. We reply within a business day.
+          Drop details about your order, dietary preferences, or partnership
+          idea. We reply within a business day.
         </p>
         <ContactForm />
       </div>
