@@ -55,7 +55,7 @@ export interface Faq {
   isActive?: boolean;
 }
 
-export type PaymentMethod = "card" | "bkash" | "nagad" | "cod";
+export type PaymentMethod = "bkash" | "nagad" | "cod";
 
 export type OrderStatus = "pending" | "paid" | "fulfilled" | "cancelled";
 

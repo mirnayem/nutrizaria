@@ -5,66 +5,34 @@
         <section class="space-y-6">
           <div class="rounded-2xl border border-slate-200 bg-white/80 shadow-sm">
             <header class="border-b border-slate-100 px-6 py-4">
-              <h1 class="text-xl font-semibold text-slate-800">
-                Delivery & contact
-              </h1>
-              <p class="text-sm text-slate-500">
-                We’ll use this information to keep you posted about your order.
-              </p>
+              <h1 class="text-xl font-semibold text-slate-800">Delivery details</h1>
             </header>
-            <form class="grid gap-4 px-6 py-6 sm:grid-cols-2">
-              <label class="text-sm font-medium text-slate-700 sm:col-span-2">
-                Full name
+            <form class="space-y-4 px-6 py-6">
+              <label class="block text-sm font-medium text-slate-700">
+                Full name <span class="text-red-500">*</span>
                 <input
                   v-model="shipping.fullName"
                   type="text"
-                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
                   placeholder="e.g. Sadia Rahman"
                 />
               </label>
-              <label class="text-sm font-medium text-slate-700">
-                Email
-                <input
-                  v-model="contactEmail"
-                  type="email"
-                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-                  placeholder="you@example.com"
-                />
-              </label>
-              <label class="text-sm font-medium text-slate-700">
-                Phone
+              <label class="block text-sm font-medium text-slate-700">
+                Phone <span class="text-red-500">*</span>
                 <input
                   v-model="shipping.phone"
                   type="tel"
-                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
                   placeholder="01XXXXXXXXX"
                 />
               </label>
-              <label class="text-sm font-medium text-slate-700 sm:col-span-2">
-                Address
+              <label class="block text-sm font-medium text-slate-700">
+                Address <span class="text-red-500">*</span>
                 <input
                   v-model="shipping.address"
                   type="text"
-                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-                  placeholder="Street, area, building"
-                />
-              </label>
-              <label class="text-sm font-medium text-slate-700">
-                City
-                <input
-                  v-model="shipping.city"
-                  type="text"
-                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-                  placeholder="Dhaka"
-                />
-              </label>
-              <label class="text-sm font-medium text-slate-700">
-                Country
-                <input
-                  v-model="shipping.country"
-                  type="text"
-                  class="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-                  placeholder="Bangladesh"
+                  class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="Street, area, city"
                 />
               </label>
             </form>
@@ -73,8 +41,6 @@
           <PaymentMethod
             ref="paymentRef"
             :amount="totals.grandTotal"
-            :email="contactEmail"
-            :currency-symbol="currencySymbol"
             @payment:status="onPaymentStatus"
           />
 
@@ -88,7 +54,7 @@
             v-if="orderSuccess"
             class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
           >
-            Order {{ orderId }} saved. You will receive a confirmation shortly.
+            Order {{ orderId }} placed. You will receive a confirmation shortly.
           </p>
         </section>
 
@@ -153,19 +119,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed } from "vue";
 import PaymentMethod from "~/components/PaymentMethod.vue";
 import { useCartStore } from "~/stores/cart";
 import { useCatalogStore } from "~/stores/catalog";
-import type { PaymentSummary, ShippingAddress } from "~/types/product";
+import type { PaymentSummary } from "~/types/product";
 import { useRuntimeConfig } from "#app";
 
-definePageMeta({
-  middleware: "auth",
-  title: "Checkout",
-});
-
-const SHIPPING_STORAGE_KEY = "nutrizaria.shipping";
+definePageMeta({ middleware: "auth", title: "Checkout" });
 
 const cartStore = useCartStore();
 const catalogStore = useCatalogStore();
@@ -182,110 +143,59 @@ function imgSrc(url: string | null | undefined): string {
   return `/images/${s}`;
 }
 
-const shipping = ref<ShippingAddress>({
-  fullName: "",
-  address: "",
-  city: "",
-  country: "",
-  phone: "",
-});
-const contactEmail = ref("");
+const shipping = ref({ fullName: "", phone: "", address: "" });
 const paymentRef = ref<InstanceType<typeof PaymentMethod> | null>(null);
-const paymentSummary = ref<PaymentSummary | null>(null);
 const orderSuccess = ref(false);
 const orderId = ref("");
 const formError = ref("");
 const placingOrder = ref(false);
-const isBusy = computed(
-  () =>
-    placingOrder.value ||
-    Boolean(paymentRef.value?.processing && paymentRef.value.processing.value)
-);
+const isBusy = computed(() => placingOrder.value);
 
 const totals = computed(() => {
   const subtotal = cartStore.totalPrice;
   const delivery = subtotal >= 2000 ? 0 : 80;
-  return {
-    subtotal,
-    delivery,
-    grandTotal: subtotal + delivery,
-  };
+  return { subtotal, delivery, grandTotal: subtotal + delivery };
 });
 
-const onPaymentStatus = (summary: PaymentSummary) => {
-  paymentSummary.value = summary;
-};
-
-const persistShipping = () => {
-  if (typeof window === "undefined") return;
-  const snapshot = {
-    shipping: shipping.value,
-    email: contactEmail.value,
-  };
-  localStorage.setItem(SHIPPING_STORAGE_KEY, JSON.stringify(snapshot));
-};
-
-onMounted(() => {
-  if (typeof window === "undefined") return;
-  const raw = localStorage.getItem(SHIPPING_STORAGE_KEY);
-  if (raw) {
-    try {
-      const parsed = JSON.parse(raw);
-      if (parsed.shipping) {
-        shipping.value = parsed.shipping;
-      }
-      if (parsed.email) {
-        contactEmail.value = parsed.email;
-      }
-    } catch (error) {
-      console.warn("Unable to hydrate shipping info", error);
-    }
-  }
-});
-
-watch([shipping, contactEmail], persistShipping, { deep: true });
+const onPaymentStatus = (_summary: PaymentSummary) => {};
 
 const validateForm = () => {
-  if (!shipping.value.fullName || !shipping.value.address) {
-    return "Name and address are required.";
-  }
-  if (!shipping.value.phone) {
-    return "Phone number is required.";
-  }
-  if (!contactEmail.value) {
-    return "Please provide an email so we can send updates.";
-  }
-  if (cartStore.items.length === 0) {
-    return "Add at least one product to your cart before checking out.";
-  }
+  if (!shipping.value.fullName?.trim()) return "Full name is required.";
+  if (!shipping.value.phone?.trim()) return "Phone number is required.";
+  if (!shipping.value.address?.trim()) return "Address is required.";
+  if (cartStore.items.length === 0) return "Your cart is empty.";
   return "";
 };
 
 const placeOrder = async () => {
   formError.value = "";
   orderSuccess.value = false;
+
   const validationMessage = validateForm();
   if (validationMessage) {
     formError.value = validationMessage;
     return;
   }
 
+  const { track } = useMetaPixel();
+  track("InitiateCheckout", {
+    num_items: cartStore.items.length,
+    value: totals.value.grandTotal,
+    currency: "BDT",
+    content_ids: cartStore.items.map((i) => String(i.id)),
+  });
+
   try {
     placingOrder.value = true;
     const summary = await paymentRef.value?.processPayment();
-    if (!summary) {
-      throw new Error("Payment gateway did not return a result.");
-    }
+    if (!summary) throw new Error("Payment gateway did not return a result.");
 
     if (catalogStore.useApi) {
       const api = useApi();
       await api.createOrder({
         shippingName: shipping.value.fullName,
-        shippingEmail: contactEmail.value,
         shippingPhone: shipping.value.phone,
         shippingAddress: shipping.value.address,
-        shippingCity: shipping.value.city,
-        shippingCountry: shipping.value.country,
         paymentMethod: summary.method.toUpperCase(),
         paymentRef: summary.reference,
         notes: summary.notes,
@@ -298,23 +208,33 @@ const placeOrder = async () => {
     } else {
       const order = catalogStore.recordOrder({
         items: cartStore.items,
-        shipping: shipping.value,
+        shipping: {
+          fullName: shipping.value.fullName,
+          address: shipping.value.address,
+          phone: shipping.value.phone,
+          city: "",
+          country: "",
+        },
         payment: summary,
-        customerEmail: contactEmail.value,
         total: totals.value.grandTotal,
       });
       orderId.value = order.id;
     }
 
     orderSuccess.value = true;
-    paymentSummary.value = summary;
+    const purchasedItems = [...cartStore.items];
+    const purchaseTotal = totals.value.grandTotal;
     cartStore.clearCart();
+    track("Purchase", {
+      value: purchaseTotal,
+      currency: "BDT",
+      transaction_id: orderId.value,
+      content_ids: purchasedItems.map((i) => String(i.id)),
+      num_items: purchasedItems.length,
+    });
   } catch (error) {
-    if (error instanceof Error) {
-      formError.value = error.message;
-    } else {
-      formError.value = "Unable to process your order. Please try again.";
-    }
+    formError.value =
+      error instanceof Error ? error.message : "Unable to process your order. Please try again.";
   } finally {
     placingOrder.value = false;
   }

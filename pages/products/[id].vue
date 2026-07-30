@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { useRuntimeConfig } from "#app";
 import { useCatalogStore } from "~/stores/catalog";
@@ -134,4 +134,18 @@ useHead(() => ({
     ? `${product.value.name} | NutriZaria`
     : "Product not found | NutriZaria",
 }));
+
+watchEffect(() => {
+  const p = product.value;
+  if (p) {
+    const { track } = useMetaPixel();
+    track('ViewContent', {
+      content_ids: [String(p.id)],
+      content_name: p.name,
+      content_type: 'product',
+      value: p.price,
+      currency: 'BDT',
+    });
+  }
+});
 </script>

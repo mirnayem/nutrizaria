@@ -114,31 +114,107 @@ ADMIN_PASSPHRASE=
 
 ## Production Deployment
 
-### Using Docker Compose
+### Deployment Architecture
+
+```
+┌──────────────┐       ┌──────────────────────────────┐
+│   Vercel     │       │          Railway              │
+│  (Frontend)  │ ◄──── │  ┌─────────────────────────┐  │
+│              │  API  │  │   Backend (NestJS)       │  │
+│  Nuxt 3 SSR  │ calls │  │   port $PORT             │  │
+│              │       │  └────────┬────────────────┘  │
+└──────────────┘       │           │                   │
+                       │  ┌────────▼────────────────┐  │
+                       │  │   PostgreSQL (managed)   │  │
+                       │  │   port 5432              │  │
+                       │  └─────────────────────────┘  │
+                       └──────────────────────────────┘
+```
+
+### Option A: Railway (Backend) + Vercel (Frontend) — Recommended
+
+#### 1. Vercel — Frontend
+
+1. Push repo to GitHub
+2. Go to [vercel.com](https://vercel.com) → **Add New Project** → Import your GitHub repo
+3. Settings:
+   - **Framework Preset**: Nuxt.js
+   - **Root Directory**: `./` (project root)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `.output`
+4. Environment Variables (Settings → Environment Variables):
+   ```
+   API_BASE_URL=https://your-backend.up.railway.app/api
+   CHECKOUT_CURRENCY=bdt
+   CHECKOUT_CURRENCY_SYMBOL=Tk
+   ADMIN_PASSPHRASE=
+   META_PIXEL_ID=
+   ```
+5. Deploy → Vercel auto-deploys on every push to `main`
+
+#### 2. Railway — Backend + Database
+
+1. Go to [railway.app](https://railway.app) → **Start New Project**
+2. **Provision PostgreSQL**: Click **+ New** → **Database** → **Add PostgreSQL**
+3. **Add Backend Service**: Click **+ New** → **GitHub Repo** → Select your repo
+   - **Root Directory**: `backend`
+   - Railway auto-detects the `Dockerfile` and builds
+4. Environment Variables (for the backend service):
+   ```
+   DATABASE_URL=    ← Railway fills this from the Postgres plugin
+   JWT_SECRET=      ← generate a strong random secret
+   JWT_EXPIRES_IN=7d
+   NODE_ENV=production
+   FRONTEND_URL=    ← your Vercel URL (e.g. https://nutrizaria.vercel.app)
+   ADMIN_EMAIL=admin@nutrizaria.com
+   ADMIN_PASSWORD=  ← set a strong password
+   ```
+5. Once deployed, run migrations and seed once:
+   ```bash
+   # Open Railway shell for the backend service
+   # Run inside the container:
+   npx prisma migrate deploy
+   npx prisma db seed
+   ```
+
+Railway auto-deploys on every push to the connected branch. No extra CI config needed.
+
+#### 3. Connect Frontend to Backend
+
+After backend deploys, Railway gives you a URL like `https://backend-production-xxxx.up.railway.app`. Update Vercel's `API_BASE_URL` to this value and redeploy.
+
+### Option B: Full Docker Compose (VPS)
 
 ```bash
-# Build and start all services
+# On your VPS with Docker installed:
+git clone https://github.com/your-org/nutrizaria.git
+cd nutrizaria
+
+# Create .env files with production values
+cp backend/.env.example backend/.env
+# Edit backend/.env with production values
+
+# Start everything
 docker compose up -d --build
 
-# Services:
-# - postgres: PostgreSQL database on port 5432
-# - backend: Nest.js API on port 3000
-# - frontend: Nuxt 3 app on port 3000 (via nginx proxy)
+# Initial setup (one-time)
+docker compose exec backend npx prisma migrate deploy
+docker compose exec backend npx prisma db seed
 ```
 
-### Manual Production Build
+### CI/CD Pipeline
 
-```bash
-# Backend
-cd backend
-npm run build
-npm run start:prod
+The repo includes GitHub Actions workflows:
 
-# Frontend
-cd ..
-npm run build
-npm run preview  # or deploy .output to hosting
-```
+| Workflow | Trigger | What it does |
+|----------|---------|-------------|
+| `ci.yml` | Push to `main`/`develop` | Lint + build backend & frontend; deploys backend to Railway via CLI on `main` |
+| `pr-checks.yml` | PR to `main` | Lint + build checks for both apps |
+
+**Secrets to set in GitHub repository:**
+- `RAILWAY_TOKEN` — Generate in Railway Dashboard → Settings → Tokens (only needed if using Railway deploy step in CI)
+
+> Vercel recommends using its **native GitHub integration** (Settings → Git) instead of deploying via Actions. It's simpler and gives you preview deployments for every PR.
 
 ---
 

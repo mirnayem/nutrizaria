@@ -25,7 +25,7 @@ export const useCartStore = defineStore('cart', {
   },
   actions: {
     
-    addToCart(item: CartItem | Product) {      
+    addToCart(item: CartItem | Product) {
       const cartItem: CartItem = 'quantity' in item ? { ...item } : { ...item, quantity: 1 };
       const existingItem = this.items.find((i) => i.id === cartItem.id);
       if (existingItem) {
@@ -33,7 +33,15 @@ export const useCartStore = defineStore('cart', {
       } else {
         this.items.push(cartItem);
       }
-      this.saveCartToLocalStorage()
+      this.saveCartToLocalStorage();
+      const { track } = useMetaPixel();
+      track('AddToCart', {
+        content_ids: [String(cartItem.id)],
+        content_name: cartItem.name,
+        content_type: 'product',
+        value: cartItem.price,
+        currency: 'BDT',
+      });
     },
     removeFromCart(itemId: number) {
       this.items = this.items.filter((item) => item.id !== itemId);

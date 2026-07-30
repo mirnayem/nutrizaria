@@ -437,3 +437,5 @@ ADMIN_PASSPHRASE=
 - **Restrict** CORS origins to your frontend domain in production
 - **Use** HTTPS in production for all services
 - **Backup** PostgreSQL database regularly
+
+
