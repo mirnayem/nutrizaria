@@ -3,8 +3,8 @@
     <header class="rounded-3xl bg-white p-6 shadow-sm">
       <h1 class="text-2xl font-semibold text-slate-900">Blog Management</h1>
       <p class="text-sm text-slate-500">
-        Create, edit, and curate NutriZaria blog posts without needing a backend. Posts are
-        persisted in localStorage so you can experiment safely before syncing with a real CMS.
+        Create, edit, and curate NutriZaria blog posts.
+        {{ useApiMode ? 'Posts are saved to the database.' : 'Posts are persisted in localStorage.' }}
       </p>
     </header>
 
@@ -87,8 +87,9 @@
           <button
             type="submit"
             class="rounded-full bg-violet-600 px-6 py-3 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-violet-500"
+            :disabled="saving"
           >
-            {{ isEditing ? "Update post" : "Add post" }}
+            {{ saving ? 'Saving...' : (isEditing ? "Update post" : "Add post") }}
           </button>
           <button
             type="button"
@@ -134,7 +135,7 @@
                 </button>
                 <button
                   class="text-sm font-semibold text-rose-600 hover:text-rose-400"
-                  @click="removePost(post.id)"
+                  @click="removePost(post)"
                 >
                   Delete
                 </button>
@@ -156,13 +157,22 @@
 import { computed, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useBlogStore } from "~/stores/blog";
+import { useAdminApi } from "~/composables/useAdminApi";
+import { useCatalogStore } from "~/stores/catalog";
 import { useDateFormatter } from "~/composables/dateFormater";
+
+definePageMeta({ layout: 'admin' });
 
 const blogStore = useBlogStore();
 blogStore.hydrate();
 const { posts } = storeToRefs(blogStore);
 
+const catalogStore = useCatalogStore();
+const useApiMode = computed(() => catalogStore.useApi);
+const adminApi = useAdminApi();
+
 const editingId = ref<number | null>(null);
+const saving = ref(false);
 const form = reactive({
   title: "",
   category: "",
@@ -203,18 +213,40 @@ const startEdit = (post: any) => {
   form.content = post.content;
 };
 
-const handleSubmit = () => {
-  if (isEditing.value && editingId.value !== null) {
-    blogStore.updatePost(editingId.value, { ...form });
-  } else {
-    blogStore.addPost({ ...form });
+const handleSubmit = async () => {
+  saving.value = true;
+  try {
+    if (useApiMode.value) {
+      if (isEditing.value && editingId.value !== null) {
+        await adminApi.updateBlog(String(editingId.value), { ...form });
+      } else {
+        await adminApi.createBlog({ ...form, isPublished: true });
+      }
+    } else {
+      if (isEditing.value && editingId.value !== null) {
+        blogStore.updatePost(editingId.value, { ...form });
+      } else {
+        blogStore.addPost({ ...form });
+      }
+    }
+    resetForm();
+  } catch (error) {
+    console.error("Failed to save blog post");
+  } finally {
+    saving.value = false;
   }
-  resetForm();
 };
 
-const removePost = (id: number) => {
-  if (confirm("Delete this post?")) {
-    blogStore.deletePost(id);
+const removePost = async (post: any) => {
+  if (!confirm("Delete this post?")) return;
+  try {
+    if (useApiMode.value) {
+      await adminApi.deleteBlog(String(post.id));
+    } else {
+      blogStore.deletePost(post.id);
+    }
+  } catch (error) {
+    console.error("Failed to delete post");
   }
 };
 </script>

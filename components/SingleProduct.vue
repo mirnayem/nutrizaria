@@ -27,9 +27,15 @@ const selectedItem = computed<CartItem>(() => ({
   unit: props.product.unit,
 }));
 
-const imageSrc = computed(() =>
-  props.product.image ? `/images/${props.product.image}` : "/nutri.png"
-);
+const imageSrc = computed(() => {
+  const img = props.product?.image;
+  if (!img) return "/nutri.png";
+  const s = String(img).trim();
+  if (s.includes("://")) return s;
+  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
+  if (s.startsWith("/")) return s;
+  return `/images/${s}`;
+});
 
 const handleQuickAdd = () => {
   cartStore.addToCart(selectedItem.value);

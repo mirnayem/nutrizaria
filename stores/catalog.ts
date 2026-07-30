@@ -23,6 +23,8 @@ type CatalogSnapshot = {
 
 interface CatalogState extends CatalogSnapshot {
   hydrated: boolean;
+  useApi: boolean;
+  loading: boolean;
 }
 
 const STORAGE_KEY = "nutrizaria.catalog.v1";
@@ -88,12 +90,18 @@ type OrderPayload = {
 
 export const useCatalogStore = defineStore("catalog", {
   state: (): CatalogState => ({
-    ...clone(DEFAULT_SNAPSHOT),
+    products: [],
+    categories: [],
+    faqs: [],
+    orders: [],
+    nextProductId: 1,
     hydrated: false,
+    useApi: false,
+    loading: false,
   }),
   getters: {
-    productById: (state) => (id: number) =>
-      state.products.find((product) => product.id === id),
+    productById: (state) => (id: string | number) =>
+      state.products.find((product) => String(product.id) === String(id)),
     productsByCategory: (state) => (slug: string) =>
       state.products.filter((product) => product.category === slug),
     orderStats: (state) => {
@@ -116,8 +124,78 @@ export const useCatalogStore = defineStore("catalog", {
     featuredProducts: (state) => state.products.slice(0, 4),
   },
   actions: {
-    hydrate() {
+    async hydrate() {
       if (this.hydrated) return;
+
+      try {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        if (apiBase) {
+          const [productsRes, categoriesRes, faqsRes] = await Promise.allSettled([
+            $fetch(`${apiBase}/products?limit=200`),
+            $fetch(`${apiBase}/categories`),
+            $fetch(`${apiBase}/faqs`),
+          ]);
+
+          if (productsRes.status === "fulfilled" && productsRes.value?.data?.items) {
+            const mapUrl = (u: string) => {
+              const s = String(u).trim();
+              return /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
+            };
+            this.products = productsRes.value.data.items.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              image: p.image ? mapUrl(p.image) : p.image,
+              category: p.category?.slug || p.category,
+              description: p.description,
+              benefits: p.benefits || [],
+              price: p.price,
+              unit: p.unit,
+              isActive: p.isActive,
+              isFeatured: p.isFeatured,
+              stock: p.stock,
+              comparePrice: p.comparePrice,
+              images: p.images ? p.images.map((u: string) => mapUrl(u)) : p.images,
+              sku: p.sku,
+            }));
+            this.useApi = true;
+          }
+
+          if (categoriesRes.status === "fulfilled" && categoriesRes.value?.data) {
+            const mapUrl = (u: string) => {
+              const s = String(u).trim();
+              return /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
+            };
+            this.categories = categoriesRes.value.data.map((c: any) => ({
+              id: c.id,
+              name: c.name,
+              slug: c.slug,
+              image: c.image ? mapUrl(c.image) : c.image,
+              description: c.description,
+              isActive: c.isActive,
+              sortOrder: c.sortOrder,
+            }));
+          }
+
+          if (faqsRes.status === "fulfilled" && faqsRes.value?.data) {
+            this.faqs = faqsRes.value.data.map((f: any) => ({
+              id: f.id,
+              question: f.question,
+              answer: f.answer,
+              sortOrder: f.sortOrder,
+              isActive: f.isActive,
+            }));
+          }
+
+          if (this.useApi) {
+            this.hydrated = true;
+            return;
+          }
+        }
+      } catch (error) {
+        console.warn("[catalog] API unavailable, falling back to local data");
+      }
+
       const snapshot = readSnapshotFromStorage() ?? clone(DEFAULT_SNAPSHOT);
       this.applySnapshot(snapshot);
       this.hydrated = true;
@@ -145,8 +223,20 @@ export const useCatalogStore = defineStore("catalog", {
         this.hydrate();
       }
     },
-    addProduct(payload: ProductInput) {
+    async addProduct(payload: ProductInput) {
       this.ensureHydrated();
+      if (this.useApi) {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        const token = useCookie("auth_token");
+        const created = await $fetch(`${apiBase}/admin/products`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token.value}` },
+          body: payload,
+        });
+        this.products = [created, ...this.products];
+        return created;
+      }
       const product: Product = {
         ...payload,
         id: this.nextProductId++,
@@ -155,17 +245,40 @@ export const useCatalogStore = defineStore("catalog", {
       this.persist();
       return product;
     },
-    updateProduct(updatedProduct: Product) {
+    async updateProduct(updatedProduct: Product) {
       this.ensureHydrated();
+      if (this.useApi) {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        const token = useCookie("auth_token");
+        const updated = await $fetch(`${apiBase}/admin/products/${updatedProduct.id}`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token.value}` },
+          body: updatedProduct,
+        });
+        this.products = this.products.map((product) =>
+          String(product.id) === String(updatedProduct.id) ? { ...updated } : product
+        );
+        return updated;
+      }
       this.products = this.products.map((product) =>
-        product.id === updatedProduct.id ? { ...updatedProduct } : product
+        String(product.id) === String(updatedProduct.id) ? { ...updatedProduct } : product
       );
       this.persist();
     },
-    deleteProduct(productId: number) {
+    async deleteProduct(productId: string | number) {
       this.ensureHydrated();
+      if (this.useApi) {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        const token = useCookie("auth_token");
+        await $fetch(`${config.public.apiBase}/admin/products/${productId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token.value}` },
+        });
+      }
       this.products = this.products.filter(
-        (product) => product.id !== productId
+        (product) => String(product.id) !== String(productId)
       );
       this.persist();
     },
@@ -236,7 +349,7 @@ export const useCatalogStore = defineStore("catalog", {
           nextProductId:
             snapshot.nextProductId ??
             snapshot.products.reduce(
-              (max: number, product: Product) => Math.max(max, product.id),
+              (max: number, product: Product) => Math.max(max, Number(product.id) || 0),
               0
             ) +
               1,

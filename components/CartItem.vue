@@ -2,7 +2,7 @@
   <article class="flex gap-4 py-4">
     <div class="shrink-0">
       <img
-        :src="cartItem.image ? `/images/${cartItem.image}` : '/nutri.png'"
+        :src="imgSrc(cartItem.image)"
         :alt="cartItem.name"
         loading="lazy"
         class="h-16 w-16 rounded-2xl object-cover"
@@ -112,4 +112,13 @@ const props = defineProps<Props>();
 const config = useRuntimeConfig();
 const currencySymbol = config.public.currencySymbol || "Tk";
 const lineTotal = computed(() => props.cartItem.price * props.cartItem.quantity);
+
+function imgSrc(url: string | null | undefined): string {
+  if (!url) return "/nutri.png";
+  const s = String(url).trim();
+  if (s.includes("://")) return s;
+  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
+  if (s.startsWith("/")) return s;
+  return `/images/${s}`;
+}
 </script>

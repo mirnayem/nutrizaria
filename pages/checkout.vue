@@ -104,7 +104,7 @@
                 class="flex items-center gap-4 text-sm text-slate-700"
               >
                 <NuxtImg
-                  :src="`/images/${item.image}`"
+                  :src="imgSrc(item.image)"
                   :alt="item.name"
                   class="h-14 w-14 rounded-lg object-cover"
                 />
@@ -172,6 +172,15 @@ const catalogStore = useCatalogStore();
 catalogStore.hydrate();
 
 const currencySymbol = useRuntimeConfig().public.currencySymbol || "Tk";
+
+function imgSrc(url: string | null | undefined): string {
+  if (!url) return "/nutri.png";
+  const s = String(url).trim();
+  if (s.includes("://")) return s;
+  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
+  if (s.startsWith("/")) return s;
+  return `/images/${s}`;
+}
 
 const shipping = ref<ShippingAddress>({
   fullName: "",
@@ -268,15 +277,35 @@ const placeOrder = async () => {
       throw new Error("Payment gateway did not return a result.");
     }
 
-    const order = catalogStore.recordOrder({
-      items: cartStore.items,
-      shipping: shipping.value,
-      payment: summary,
-      customerEmail: contactEmail.value,
-      total: totals.value.grandTotal,
-    });
+    if (catalogStore.useApi) {
+      const api = useApi();
+      await api.createOrder({
+        shippingName: shipping.value.fullName,
+        shippingEmail: contactEmail.value,
+        shippingPhone: shipping.value.phone,
+        shippingAddress: shipping.value.address,
+        shippingCity: shipping.value.city,
+        shippingCountry: shipping.value.country,
+        paymentMethod: summary.method.toUpperCase(),
+        paymentRef: summary.reference,
+        notes: summary.notes,
+        items: cartStore.items.map((item: any) => ({
+          productId: item.id,
+          quantity: item.quantity,
+        })),
+      });
+      orderId.value = "API-ORDER";
+    } else {
+      const order = catalogStore.recordOrder({
+        items: cartStore.items,
+        shipping: shipping.value,
+        payment: summary,
+        customerEmail: contactEmail.value,
+        total: totals.value.grandTotal,
+      });
+      orderId.value = order.id;
+    }
 
-    orderId.value = order.id;
     orderSuccess.value = true;
     paymentSummary.value = summary;
     cartStore.clearCart();

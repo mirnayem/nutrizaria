@@ -95,17 +95,23 @@ const cartStore = useCartStore();
 const favoriteStore = useFavoriteStore();
 const config = useRuntimeConfig();
 
-catalogStore.hydrate();
+await catalogStore.hydrate();
 
-const productId = computed(() => Number(route.params.id));
+const productId = computed(() => route.params.id as string);
 const product = computed(() => catalogStore.productById(productId.value));
-const productImage = computed(() =>
-  product.value?.image ? `/images/${product.value.image}` : "/nutri.png"
-);
+const productImage = computed(() => {
+  const img = product.value?.image;
+  if (!img) return "/nutri.png";
+  const s = String(img).trim();
+  if (s.includes("://")) return s;
+  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
+  if (s.startsWith("/")) return s;
+  return `/images/${s}`;
+});
 
 const relatedProducts = computed(() =>
   catalogStore.products
-    .filter((p) => p.id !== productId.value)
+    .filter((p) => String(p.id) !== productId.value)
     .slice(0, 4)
 );
 

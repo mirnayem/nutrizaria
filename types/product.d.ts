@@ -1,5 +1,5 @@
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   image: string;
   price: number;
@@ -7,20 +7,28 @@ export interface CartItem {
   unit: string;
 }
 export interface Product {
-  id: number;
+  id: string;
   name: string;
+  slug?: string;
   image: string;
+  images?: string[];
   category: string;
   description: string;
   benefits: string[];
   price: number;
+  comparePrice?: number;
   unit: string;
+  isActive?: boolean;
+  isFeatured?: boolean;
+  stock?: number;
+  sku?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
-
 export interface ProductInput extends Omit<Product, "id"> {}
 
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   category: string;
   writer: string;
@@ -30,15 +38,21 @@ export interface Post {
   slug?: string;
 }
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   slug: string;
-  image: string;
+  image?: string;
+  description?: string;
+  isActive?: boolean;
+  sortOrder?: number;
 }
 
 export interface Faq {
+  id: string;
   question: string;
   answer: string;
+  sortOrder?: number;
+  isActive?: boolean;
 }
 
 export type PaymentMethod = "card" | "bkash" | "nagad" | "cod";

@@ -2,6 +2,15 @@ export default defineNuxtConfig({
   compatibilityDate: "2024-04-03",
   devtools: { enabled: true },
 
+  nitro: {
+    devProxy: {
+      '/uploads': {
+        target: 'http://localhost:4000/uploads',
+        changeOrigin: true,
+      },
+    },
+  },
+
   app: {
     head: {
       htmlAttrs: {
@@ -50,10 +59,11 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-  modules: ["@nuxt/image-edge", "@nuxt/image"],
+  modules: ["@nuxt/image"],
   plugins: ["~/plugins/pinia.ts", "~/plugins/slugify.ts"],
   runtimeConfig: {
     public: {
+      apiBase: process.env.API_BASE_URL || "http://localhost:4000/api",
       stripePublishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
       checkoutCurrency: process.env.CHECKOUT_CURRENCY || "bdt",
       currencySymbol: process.env.CHECKOUT_CURRENCY_SYMBOL || "Tk",
@@ -72,5 +82,9 @@ export default defineNuxtConfig({
       xxl: 1536,
     },
     formats: ["avif", "webp"],
+    domains: ['localhost'],
+    ipx: {
+      detectHost: false,
+    },
   },
 });
