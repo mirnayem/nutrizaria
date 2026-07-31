@@ -116,15 +116,8 @@ const runtimeConfig = useRuntimeConfig();
 const uploadApiBase = runtimeConfig.public.apiBase;
 const authToken = useCookie('auth_token');
 
-const resolveUrl = (url: string) => {
-  if (!url) return '';
-  const s = String(url).trim();
-  if (/^https?:\/\/localhost:\d+\//.test(s)) return new URL(s).pathname;
-  if (s.includes('://')) return s;
-  if (s.startsWith('/uploads/') || s.startsWith('/images/')) return s;
-  if (s.startsWith('/')) return s;
-  return `/images/${s}`;
-};
+const { resolve } = useImageUrl();
+const resolveUrl = (url: string) => resolve(url);
 
 const serverUrls = computed(() =>
   items.value.filter(i => i.status === 'remote').map(i => i.remoteUrl)
@@ -184,7 +177,7 @@ const processFiles = async (files: File[]) => {
       if (remoteUrl) {
         items.value[idx] = {
           ...items.value[idx],
-          displayUrl: remoteUrl,
+          displayUrl: resolve(remoteUrl),
           remoteUrl,
           status: 'remote',
         };

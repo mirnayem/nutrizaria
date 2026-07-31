@@ -64,8 +64,7 @@ export class UploadsService {
     const filename = `${randomUUID()}.${ext}`;
     const filepath = join(this.uploadDir, filename);
     await writeFile(filepath, file.buffer);
-    const port = this.config.get('PORT', '4000');
-    const url = `http://localhost:${port}/uploads/${filename}`;
+    const url = `/uploads/${filename}`;
     return { url, publicId: filename };
   }
 

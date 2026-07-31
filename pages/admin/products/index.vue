@@ -60,7 +60,7 @@
               <td class="px-4 py-3"><input type="checkbox" :checked="selectedIds.includes(product.id)" @change="toggleSelect(product.id)" class="rounded border-slate-300" /></td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-3">
-                  <img :src="product.image || '/placeholder.svg'" :alt="product.name" class="h-10 w-10 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
+                  <img :src="resolve(product.image) || '/placeholder.svg'" :alt="product.name" class="h-10 w-10 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
                   <div>
                     <p class="text-sm font-medium text-slate-900">{{ product.name }}</p>
                     <p class="text-xs text-slate-500">{{ product.unit }}</p>
@@ -164,6 +164,7 @@ definePageMeta({ layout: 'admin' });
 
 const config = useRuntimeConfig();
 const currencySymbol = config.public.currencySymbol || 'Tk';
+const { resolve } = useImageUrl();
 
 const apiBase = config.public.apiBase || 'http://localhost:4000/api';
 const token = useCookie('auth_token');

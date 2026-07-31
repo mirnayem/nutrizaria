@@ -99,15 +99,8 @@ await catalogStore.hydrate();
 
 const productId = computed(() => route.params.id as string);
 const product = computed(() => catalogStore.productById(productId.value));
-const productImage = computed(() => {
-  const img = product.value?.image;
-  if (!img) return "/nutri.png";
-  const s = String(img).trim();
-  if (s.includes("://")) return s;
-  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
-  if (s.startsWith("/")) return s;
-  return `/images/${s}`;
-});
+const { resolve } = useImageUrl();
+const productImage = computed(() => resolve(product.value?.image) || "/nutri.png");
 
 const relatedProducts = computed(() =>
   catalogStore.products

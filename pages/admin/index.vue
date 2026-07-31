@@ -88,7 +88,7 @@
           <h2 class="text-base font-semibold text-slate-900">Top Products</h2>
           <div class="mt-4 space-y-3">
             <div v-for="product in topProducts" :key="product.id" class="flex items-center gap-3 rounded-lg border border-slate-100 p-3">
-              <img :src="product.image || '/placeholder.svg'" :alt="product.name" class="h-10 w-10 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
+              <img :src="resolve(product.image) || '/placeholder.svg'" :alt="product.name" class="h-10 w-10 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
               <div class="flex-1 min-w-0">
                 <p class="text-sm font-medium text-slate-900 truncate">{{ product.name }}</p>
                 <p class="text-xs text-slate-500">{{ product.totalSold || product._sum?.quantity || 0 }} sold</p>
@@ -147,6 +147,7 @@ const config = useRuntimeConfig();
 const currencySymbol = config.public.currencySymbol || 'Tk';
 const apiBase = config.public.apiBase;
 const token = useCookie('auth_token');
+const { resolve } = useImageUrl();
 
 const loading = ref(true);
 const dashboardData = ref<any>(null);

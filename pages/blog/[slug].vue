@@ -27,7 +27,7 @@
             </NuxtLink>
           </div>
         </div>
-        <img :src="blog.image" :alt="blog.title" class="h-full w-full object-cover" loading="lazy" />
+        <img :src="resolve(blog.image)" :alt="blog.title" class="h-full w-full object-cover" loading="lazy" />
       </div>
     </section>
 
@@ -116,6 +116,7 @@ import type { Post } from "~/types/product";
 const route = useRoute();
 const store = useBlogStore();
 store.hydrate();
+const { resolve } = useImageUrl();
 
 const slug = computed(() => String(route.params.slug));
 const blog = computed<Post | undefined>(() => {

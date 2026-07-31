@@ -38,7 +38,7 @@
         </div>
         <div class="grid gap-4">
           <img
-            :src="featuredPost.image"
+            :src="resolve(featuredPost.image)"
             :alt="featuredPost.title"
             class="h-56 w-full rounded-2xl object-cover object-center md:h-full"
             loading="lazy"
@@ -105,7 +105,7 @@
           class="flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm"
         >
           <img
-            :src="post.image"
+            :src="resolve(post.image)"
             :alt="post.title"
             class="h-48 w-full object-cover"
             loading="lazy"
@@ -183,6 +183,7 @@ import type { Post } from "~/types/product";
 const store = useBlogStore();
 store.hydrate();
 const { posts: blogPosts } = storeToRefs(store);
+const { resolve } = useImageUrl();
 
 const selectedCategory = ref("All");
 const searchQuery = ref("");

@@ -39,7 +39,7 @@
           class="relative h-fit max-h-60 w-full rounded-2xl bg-gradient-to-br from-white to-violet-50 p-4 md:max-h-96"
         >
           <img
-            :src="item.image ? `/images/${item.image}` : '/nutri.png'"
+            :src="item.image ? resolve(item.image) : '/nutri.png'"
             :alt="item.name + ' ' + item.slug"
             loading="lazy"
             class="aspect-square w-full rounded-2xl object-cover object-center"
@@ -133,6 +133,7 @@ const breakpoints = {
 const catalog = useCatalogStore();
 catalog.hydrate();
 const { categories } = storeToRefs(catalog);
+const { resolve } = useImageUrl();
 
 const isLoading = ref(true);
 const skeletonCount = ref(4);

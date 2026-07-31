@@ -134,13 +134,9 @@ catalogStore.hydrate();
 
 const currencySymbol = useRuntimeConfig().public.currencySymbol || "Tk";
 
+const { resolve } = useImageUrl();
 function imgSrc(url: string | null | undefined): string {
-  if (!url) return "/nutri.png";
-  const s = String(url).trim();
-  if (s.includes("://")) return s;
-  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
-  if (s.startsWith("/")) return s;
-  return `/images/${s}`;
+  return resolve(url) || "/nutri.png";
 }
 
 const shipping = ref({ fullName: "", phone: "", address: "" });

@@ -113,12 +113,8 @@ const config = useRuntimeConfig();
 const currencySymbol = config.public.currencySymbol || "Tk";
 const lineTotal = computed(() => props.cartItem.price * props.cartItem.quantity);
 
+const { resolve } = useImageUrl();
 function imgSrc(url: string | null | undefined): string {
-  if (!url) return "/nutri.png";
-  const s = String(url).trim();
-  if (s.includes("://")) return s;
-  if (s.startsWith("/uploads/") || s.startsWith("/images/")) return s;
-  if (s.startsWith("/")) return s;
-  return `/images/${s}`;
+  return resolve(url) || "/nutri.png";
 }
 </script>
