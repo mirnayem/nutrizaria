@@ -13,8 +13,13 @@ async function bootstrap() {
 
   const config = app.get(ConfigService);
 
+  const frontendOrigins = (config.get('FRONTEND_URL', 'http://localhost:3000') || '')
+    .split(',')
+    .map((origin: string) => origin.trim())
+    .filter(Boolean);
+
   app.enableCors({
-    origin: config.get('FRONTEND_URL', 'http://localhost:3000'),
+    origin: frontendOrigins,
     credentials: true,
   });
 
