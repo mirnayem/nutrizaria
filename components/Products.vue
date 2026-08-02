@@ -8,21 +8,37 @@
       />
     </div>
     <div
-      v-if="shouldPaginate"
+      v-if="shouldPaginate && visibleProducts.length < safeProducts.length"
       ref="loadMoreTrigger"
-      class="flex items-center justify-center py-4"
+      class="flex items-center justify-center py-6"
     >
-      <p
-        class="spinner"
-        v-if="loading && visibleProducts.length < safeProducts.length"
-      ></p>
+      <p v-if="loading" class="spinner"></p>
     </div>
   </div>
   <div
     v-else
-    class="rounded-2xl border border-dashed border-slate-200 bg-white/60 p-8 text-center text-sm text-slate-500"
+    class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/70 px-6 py-16 text-center"
   >
-    No products match your filters. Try searching for a different keyword.
+    <div class="flex size-14 items-center justify-center rounded-full bg-slate-100">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="size-7 text-slate-400"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+        />
+      </svg>
+    </div>
+    <p class="mt-4 text-base font-semibold text-slate-800">No products found</p>
+    <p class="mt-1 max-w-sm text-sm text-slate-500">
+      No products match your search. Try a different keyword or check back soon.
+    </p>
   </div>
 </template>
 
@@ -35,11 +51,13 @@ const props = withDefaults(
     products: Product[];
     paginate?: boolean;
     pageSize?: number;
+    columns?: 2 | 3 | 4;
     maxTwoPerRow?: boolean;
   }>(),
   {
     paginate: false,
     pageSize: 12,
+    columns: 4,
     maxTwoPerRow: false,
   }
 );
@@ -51,11 +69,19 @@ const loadMoreTrigger = ref<HTMLElement | null>(null);
 const safeProducts = computed<Product[]>(() => props.products ?? []);
 const shouldPaginate = computed(() => props.paginate);
 const pageSize = computed(() => Math.max(1, props.pageSize));
-const gridClass = computed(() =>
-  props.maxTwoPerRow
-    ? "grid grid-cols-2 gap-1 sm:grid-cols-2 sm:gap-6 lg:grid-cols-2 lg:gap-8"
-    : "grid grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-6 lg:grid-cols-3 lg:gap-8"
-);
+
+const gridClass = computed(() => {
+  const cols = props.maxTwoPerRow ? 2 : props.columns;
+  switch (cols) {
+    case 2:
+      return "grid grid-cols-2 gap-3 sm:gap-5";
+    case 3:
+      return "grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3";
+    case 4:
+    default:
+      return "grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 xl:grid-cols-4";
+  }
+});
 
 const loadMoreItems = () => {
   if (!shouldPaginate.value) return;
@@ -117,7 +143,7 @@ onMounted(() => {
 });
 
 watch(
-  [safeProducts, shouldPaginate, pageSize],
+  [safeProducts, shouldPaginate, pageSize, gridClass],
   () => {
     resetProducts();
     setupObserver();
@@ -132,6 +158,6 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .spinner {
-  @apply h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-violet-500;
+  @apply h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-violet-500;
 }
 </style>

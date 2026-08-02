@@ -310,10 +310,12 @@ export class AdminService {
     const hasPermission = await this.rbac.hasPermission(adminUserId, Permission.MANAGE_SETTINGS);
     if (!hasPermission) throw new ForbiddenException('Insufficient permissions');
 
+    const stringValue = value === null || value === undefined ? '' : String(value);
+
     const setting = await this.prisma.setting.upsert({
       where: { key },
-      update: { value, type },
-      create: { key, value, type },
+      update: { value: stringValue, type },
+      create: { key, value: stringValue, type },
     });
 
     await this.activityLog.log(
@@ -333,10 +335,11 @@ export class AdminService {
 
     const results: any[] = [];
     for (const s of settings) {
+      const stringValue = s.value === null || s.value === undefined ? '' : String(s.value);
       const setting = await this.prisma.setting.upsert({
         where: { key: s.key },
-        update: { value: s.value, type: s.type || 'string' },
-        create: { key: s.key, value: s.value, type: s.type || 'string' },
+        update: { value: stringValue, type: s.type || 'string' },
+        create: { key: s.key, value: stringValue, type: s.type || 'string' },
       });
       results.push(setting);
     }

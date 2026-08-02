@@ -36,7 +36,7 @@ export const useAdminApi = () => {
   const updatePaymentStatus = (id: string, status: string, paymentRef?: string) =>
     fetchApi(`/admin/orders/${id}/payment`, { method: 'PUT', body: { status, paymentRef } });
 
-  const getBlogs = () => fetchApi('/admin/blogs');
+  const getBlogs = (params?: any) => fetchApi('/admin/blogs', { params });
   const createBlog = (data: any) => fetchApi('/admin/blogs', { method: 'POST', body: data });
   const updateBlog = (id: string, data: any) => fetchApi(`/admin/blogs/${id}`, { method: 'PUT', body: data });
   const deleteBlog = (id: string) => fetchApi(`/admin/blogs/${id}`, { method: 'DELETE' });

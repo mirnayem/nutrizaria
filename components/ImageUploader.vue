@@ -1,62 +1,23 @@
 <template>
-  <div class="space-y-3">
+  <div class="space-y-2">
     <div
-      class="relative flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition"
-      :class="isDragging ? 'border-violet-500 bg-violet-50' : 'border-slate-300 hover:border-violet-400 hover:bg-slate-50'"
+      class="relative flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 p-3 transition hover:border-violet-400 hover:bg-slate-50"
+      :class="isDragging ? 'border-violet-500 bg-violet-50' : ''"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
       @click="inputRef?.click()"
     >
-      <svg class="mb-2 h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-      </svg>
-      <p class="text-sm text-slate-600">
-        <span class="font-medium text-violet-600">Click to upload</span> or drag and drop
-      </p>
-      <p class="mt-1 text-xs text-slate-400">PNG, JPG, WebP, AVIF up to 5MB</p>
-      <input ref="inputRef" type="file" :accept="accept" :multiple="multiple" class="hidden" @change="handleFiles" />
-    </div>
-
-    <div v-if="items.length > 0" class="flex flex-wrap gap-3">
-      <div
-        v-for="(item, idx) in items"
-        :key="item.key"
-        class="group relative h-24 w-24 overflow-hidden rounded-lg border bg-slate-50"
-        :class="item.status === 'error' ? 'border-red-300' : 'border-slate-200'"
-      >
-        <img
-          :src="item.displayUrl"
-          class="h-full w-full cursor-pointer object-cover transition hover:scale-105"
-          @click="previewImg = item.displayUrl"
-        />
-
-        <div v-if="item.status === 'uploading'" class="absolute inset-0 flex items-center justify-center bg-black/30">
-          <svg class="h-6 w-6 animate-spin text-white" viewBox="0 0 24 24" fill="none">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
-        </div>
-
-        <div v-if="item.status === 'error'" class="absolute inset-0 flex items-center justify-center bg-red-500/20">
-          <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
-          </svg>
-        </div>
-
-        <button
-          @click="removeImage(idx)"
-          class="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white opacity-0 shadow transition hover:bg-red-600 group-hover:opacity-100"
-        >
-          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        <div v-if="item.status === 'error'" class="absolute bottom-0 left-0 right-0 bg-red-500 px-1 py-0.5 text-center text-[10px] text-white">
-          Failed
-        </div>
+      <div v-if="items.length === 0" class="flex flex-col items-center gap-1">
+        <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+        </svg>
+        <p class="text-xs text-slate-500">Upload</p>
       </div>
+      <div v-else class="flex items-center justify-center">
+        <img :src="items[0].displayUrl" class="h-12 w-12 rounded-lg object-cover" />
+      </div>
+      <input ref="inputRef" type="file" :accept="accept" :multiple="multiple" class="hidden" @change="handleFiles" />
     </div>
 
     <Teleport to="body">
@@ -74,11 +35,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
-          <img
-            :src="previewImg"
-            class="max-h-[85vh] max-w-[90vw] rounded-xl object-contain shadow-2xl"
-            @click.stop
-          />
+          <img :src="previewImg" class="max-h-[85vh] max-w-[90vw] rounded-xl object-contain shadow-2xl" @click.stop />
         </div>
       </transition>
     </Teleport>

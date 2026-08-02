@@ -1,163 +1,141 @@
 <template>
-  <footer class="bg-slate-950 text-slate-300">
-    <div
-      class="container grid gap-12 py-16 text-sm lg:grid-cols-[1.6fr,1fr,1fr,1fr]"
-    >
-      <section class="order-1 space-y-5 lg:order-1">
-        <div class="flex items-center gap-3 text-white">
-          <span
-            class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-xl font-semibold"
-          >
-            NZ
-          </span>
-          <div>
-            <p class="text-base font-semibold">NutriZaria</p>
-            <p class="text-xs text-slate-400">
-              Bangladeshi pantry staples delivered nationwide
-            </p>
+  <footer class="bg-slate-950 text-slate-400 border-t border-slate-800">
+    <div class="container py-12 lg:py-16">
+      <div class="grid gap-10 lg:grid-cols-[2fr,1fr,1fr,1fr]">
+        <section class="space-y-6" aria-labelledby="brand-heading">
+          <h2 id="brand-heading" class="sr-only">NutriZaria</h2>
+          <div class="flex items-center gap-2">
+            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white">
+              NZ
+            </span>
+            <span class="text-lg font-semibold text-white">NutriZaria</span>
+          </div>
+          <p class="text-sm text-slate-400 max-w-xs">
+            Authentic Bangladeshi pantry staples — sourced from trusted growers and delivered nationwide.
+          </p>
+          <div class="flex flex-wrap gap-4" role="list" aria-label="Social links">
+            <a
+              v-for="social in socials"
+              :key="social.label"
+              :href="social.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm font-medium text-slate-300 transition hover:text-violet-300"
+              :aria-label="social.label"
+            >
+              {{ social.label }}
+            </a>
+          </div>
+        </section>
+
+        <section aria-labelledby="shop-heading">
+          <h3 id="shop-heading" class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Shop</h3>
+          <nav aria-label="Shop links">
+            <ul class="space-y-3">
+              <li v-for="link in shopLinks" :key="link.to">
+                <NuxtLink :to="link.to" class="text-sm transition hover:text-white">
+                  {{ link.label }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
+        </section>
+
+        <section aria-labelledby="help-heading">
+          <h3 id="help-heading" class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Help</h3>
+          <nav aria-label="Help links">
+            <ul class="space-y-3">
+              <li v-for="link in helpLinks" :key="link.to">
+                <NuxtLink :to="link.to" class="text-sm transition hover:text-white">
+                  {{ link.label }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
+        </section>
+
+        <section aria-labelledby="company-heading">
+          <h3 id="company-heading" class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Company</h3>
+          <nav aria-label="Company links">
+            <ul class="space-y-3">
+              <li v-for="link in companyLinks" :key="link.to">
+                <NuxtLink :to="link.to" class="text-sm transition hover:text-white">
+                  {{ link.label }}
+                </NuxtLink>
+              </li>
+            </ul>
+          </nav>
+        </section>
+      </div>
+
+      <div class="mt-10 pt-8 border-t border-slate-800">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p class="text-xs text-slate-500">
+            &copy; {{ new Date().getFullYear() }} NutriZaria. All rights reserved.
+          </p>
+          <nav class="flex flex-wrap items-center gap-4" aria-label="Legal links">
+            <NuxtLink
+              v-for="link in legalLinks"
+              :key="link.to"
+              :to="link.to"
+              class="text-xs text-slate-500 transition hover:text-white"
+            >
+              {{ link.label }}
+            </NuxtLink>
+          </nav>
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span>Payments:</span>
+            <div class="flex items-center gap-2">
+              <img
+                v-for="logo in paymentLogos"
+                :key="logo"
+                :src="logo"
+                alt=""
+                class="h-5 w-auto opacity-60"
+              />
+            </div>
           </div>
         </div>
-        <p class="text-slate-400">
-          We work with trusted growers, mills, and fisheries across Bangladesh
-          to deliver dependable pantry staples to households in Dhaka,
-          Chattogram, Sylhet, and every major district.
-        </p>
-        <div class="flex flex-wrap gap-3">
-          <a
-            v-for="social in socials"
-            :key="social.label"
-            :href="social.href"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-full border border-white/10 p-2 text-white transition hover:border-violet-500 hover:text-violet-300"
-            :aria-label="social.label"
-          >
-            <img :src="social.icon" :alt="social.label" class="h-5 w-5" />
-          </a>
-        </div>
-        <p class="text-xs text-slate-500">
-          &copy; {{ new Date().getFullYear() }} NutriZaria. All rights reserved.
-        </p>
-      </section>
-
-      <section class="order-3 space-y-3 lg:order-2">
-        <h2 class="text-base font-semibold text-white">Navigate</h2>
-        <div class="grid gap-2">
-          <NuxtLink
-            v-for="link in navLinks"
-            :key="link.to"
-            :to="link.to"
-            class="transition hover:text-white"
-          >
-            {{ link.label }}
-          </NuxtLink>
-        </div>
-      </section>
-
-      <section class="order-4 space-y-3 lg:order-3">
-        <h2 class="text-base font-semibold text-white">Customer care</h2>
-        <div class="space-y-2 text-slate-400">
-          <p v-for="item in careHighlights" :key="item.title">
-            <span class="text-white">{{ item.title }}:</span>
-            {{ item.description }}
-          </p>
-        </div>
-        <div class="space-y-2">
-          <h3
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
-          >
-            Service windows
-          </h3>
-          <ul class="space-y-1 text-slate-400">
-            <li v-for="slot in serviceSlots" :key="slot">{{ slot }}</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="order-2 space-y-4 lg:order-4">
-        <h2 class="text-base font-semibold text-white">Contact</h2>
-        <div class="space-y-2 text-slate-400">
-          <p><span class="text-white">Phone:</span> +880 1820999820</p>
-          <p><span class="text-white">Email:</span> nutrizaria@gmail.com</p>
-        </div>
-        <div>
-          <p
-            class="text-xs font-semibold uppercase tracking-wide text-slate-500"
-          >
-            Payments
-          </p>
-          <div class="mt-3 flex flex-wrap gap-3">
-            <img
-              v-for="logo in paymentLogos"
-              :key="logo"
-              :src="logo"
-              alt=""
-              class="h-7 w-auto rounded bg-white/10 p-1"
-            />
-          </div>
-        </div>
-      </section>
+      </div>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
-const navLinks = [
-  { label: "Shop", to: "/shop" },
-  { label: "Categories", to: "/categories/vegetables" },
-  { label: "Favorite", to: "/favorite" },
-  { label: "Checkout", to: "/checkout" },
-  { label: "FAQ", to: "/faq" },
-  { label: "Blog", to: "/blog" },
+const shopLinks = [
+  { label: 'All products', to: '/shop' },
+  { label: 'Categories', to: '/categories/vegetables' },
+  { label: 'Favorites', to: '/favorite' },
+  { label: 'New arrivals', to: '/shop?sort=new' },
+];
+
+const helpLinks = [
+  { label: 'FAQ', to: '/faq' },
+  { label: 'Contact us', to: '/contact' },
+];
+
+const companyLinks = [
+  { label: 'About us', to: '/about' },
+  { label: 'Blog', to: '/blog' },
+];
+
+const legalLinks = [
+  { label: 'Privacy policy', to: '/privacy' },
+  { label: 'Terms of service', to: '/terms' },
+  { label: 'Cookie policy', to: '/cookies' },
 ];
 
 const socials = [
-  {
-    label: "Facebook",
-    href: "https://www.facebook.com/nutrizaria/",
-    icon: "/images/facebook.png",
-  },
-  {
-    label: "Instagram",
-    href: "https://instagram.com",
-    icon: "/images/instagram.png",
-  },
-  {
-    label: "YouTube",
-    href: "https://www.youtube.com/@nutrizaria",
-    icon: "/images/youtube.png",
-  },
-  {
-    label: "WhatsApp",
-    href: "https://wa.me/8801820999820",
-    icon: "/images/whatsapp.svg",
-  },
+  { label: 'Facebook', href: 'https://www.facebook.com/nutrizaria/' },
+  { label: 'Instagram', href: 'https://instagram.com/nutrizaria' },
+  { label: 'YouTube', href: 'https://www.youtube.com/@nutrizaria' },
+  { label: 'WhatsApp', href: 'https://wa.me/8801820999820' },
 ];
 
 const paymentLogos = [
-  "/images/bkash.svg",
-  "/images/nagad.png",
-  "/images/card-payment.webp",
-  "/images/cod.jpg",
-];
-
-const careHighlights = [
-  {
-    title: "Wholesale sourcing",
-    description: "Corporate hampers & café supply all over Dhaka",
-  },
-  {
-    title: "Delivery support",
-    description: "Same-day Gulshan/Banani, next-day major cities",
-  },
-  {
-    title: "Returns",
-    description: "Instant replacements for any quality concern",
-  },
-];
-
-const serviceSlots = [
-  "Sat - Thu: 9:00 AM – 10:00 PM (Dhaka HQ)",
-  "Friday: 10:00 AM – 8:00 PM",
+  '/images/bkash.svg',
+  '/images/sslcommerz.svg',
+  '/images/card-payment.webp',
+  '/images/cod.jpg',
 ];
 </script>

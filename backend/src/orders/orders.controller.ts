@@ -28,8 +28,11 @@ export class OrdersController {
     return this.ordersService.findByUser(userId, page ? parseInt(page) : 1);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+@Get(':id')
+  findOne(@Param('id') id: string, @Query('byNumber') byNumber?: string) {
+    if (byNumber === 'true') {
+      return this.ordersService.findByOrderNumber(id);
+    }
     return this.ordersService.findById(id);
   }
 }

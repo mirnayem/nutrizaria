@@ -1,8 +1,7 @@
-
 import { defineStore } from 'pinia';
 import type { CartItem, Product } from '~/types/product';
 interface CartState {
-  items: CartItem[]  
+  items: CartItem[]
   isCartOpen: boolean
 }
 
@@ -13,41 +12,63 @@ export const useCartStore = defineStore('cart', {
   }),
   getters: {
     totalItems: (state): number => {
-      const uniqueItems = new Set<number>();
-      for (const item of state.items) {
-        uniqueItems.add(item.id);
-      }
-      return uniqueItems.size;
+      return state.items.reduce((sum, item) => sum + item.quantity, 0);
     },
     totalPrice(state): number {
       return state.items.reduce((total, item) => total + item.price * item.quantity, 0)
     },
+    uniqueProductsCount: (state): number => {
+      const uniqueProducts = new Set<string>();
+      for (const item of state.items) {
+        uniqueProducts.add(item.productId);
+      }
+      return uniqueProducts.size;
+    },
   },
   actions: {
     
-    addToCart(item: CartItem | Product) {
-      const cartItem: CartItem = 'quantity' in item ? { ...item } : { ...item, quantity: 1 };
+    addToCart(item: CartItem | Product, quantity = 1) {
+      const qty = Math.max(1, Math.floor(quantity));
+      
+      // Handle both Product and CartItem
+      const productId = 'productId' in item ? item.productId : item.id;
+      const variantId = 'variantId' in item ? item.variantId : (item as any)._variant?.id;
+      const variantLabel = 'variantLabel' in item ? item.variantLabel : (item as any)._variant?.label;
+      const variantPrice = 'variantId' in item ? item.price : (item as any)._variant?.price;
+      
+      const cartItem: CartItem = {
+        id: variantId ? `${productId}-${variantId}` : productId,
+        productId,
+        variantId,
+        name: item.name,
+        image: variantId ? (item as any)._variant?.image || item.image : item.image,
+        price: variantPrice ?? item.price,
+        quantity: qty,
+        unit: variantId ? (item as any)._variant?.unit || item.unit : item.unit,
+        variantLabel,
+      };
+      
       const existingItem = this.items.find((i) => i.id === cartItem.id);
       if (existingItem) {
-        existingItem.quantity += 1;
+        existingItem.quantity += qty;
       } else {
         this.items.push(cartItem);
       }
       this.saveCartToLocalStorage();
       const { track } = useMetaPixel();
       track('AddToCart', {
-        content_ids: [String(cartItem.id)],
-        content_name: cartItem.name,
+        content_ids: [cartItem.id],
+        content_name: cartItem.name + (cartItem.variantLabel ? ` - ${cartItem.variantLabel}` : ''),
         content_type: 'product',
-        value: cartItem.price,
+        value: cartItem.price * qty,
         currency: 'BDT',
       });
     },
-    removeFromCart(itemId: number) {
+    removeFromCart(itemId: string) {
       this.items = this.items.filter((item) => item.id !== itemId);
       this.saveCartToLocalStorage()
     },
-    updateCartItem(itemId: number, type: string) {
+    updateCartItem(itemId: string, type: string) {
       const item = this.items.find((item) => item.id === itemId);
       if (item) {
         if (type === 'DEC' && item.quantity === 1) return;

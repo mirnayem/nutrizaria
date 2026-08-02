@@ -62,6 +62,14 @@ export const useApi = () => {
   const createOrder = (data: any) => fetchApi('/orders', { method: 'POST', body: data });
   const getOrders = (page?: number) => fetchApi(`/orders?page=${page || 1}`);
   const getOrder = (id: string) => fetchApi(`/orders/${id}`);
+  const getOrderByNumber = (orderNumber: string) =>
+    fetchApi(`/orders/${orderNumber}?byNumber=true`);
+
+  const initiateSslcommerz = (data: any) =>
+    fetchApi('/payments/sslcommerz/init', { method: 'POST', body: data });
+
+  const initiateBkash = (data: any) =>
+    fetchApi('/payments/bkash/init', { method: 'POST', body: data });
 
   const createPaymentIntent = (amount: number, email?: string) =>
     fetchApi('/payments/create-intent', { method: 'POST', body: { amount, email } });
@@ -90,6 +98,9 @@ export const useApi = () => {
     createOrder,
     getOrders,
     getOrder,
+    getOrderByNumber,
+    initiateSslcommerz,
+    initiateBkash,
     createPaymentIntent,
     fetchApi,
   };

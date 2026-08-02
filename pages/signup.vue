@@ -126,16 +126,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { computed, ref, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "~/stores/user";
 import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({ layout: false });
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const { loginWithGoogle } = useAuth();
+
+const redirectTo = computed(() => {
+  const target = route.query.redirect;
+  return typeof target === "string" && target.startsWith("/")
+    ? target
+    : "/";
+});
 
 const name = ref("");
 const email = ref("");
@@ -144,6 +152,12 @@ const showPassword = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const errors = reactive({ name: "", email: "", password: "" });
+
+useSeo({
+  title: "Sign up",
+  description: "Create a NutriZaria account to track orders and save addresses.",
+  noindex: true,
+});
 
 const validate = () => {
   errors.name = "";
@@ -181,11 +195,19 @@ const handleRegister = async () => {
 
   loading.value = true;
   try {
-    userStore.registerUser({
+    const apiResult = await userStore.registerApi({
       name: name.value,
       email: email.value,
       password: password.value,
     });
+
+    if (!apiResult) {
+      userStore.registerUser({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+      });
+    }
 
     const success = await userStore.loginUser({
       email: email.value,
@@ -193,7 +215,7 @@ const handleRegister = async () => {
     });
 
     if (success) {
-      router.push("/");
+      router.push(redirectTo.value);
     } else {
       errorMessage.value = "Account created but login failed. Please sign in manually.";
       router.push("/login");
@@ -209,7 +231,7 @@ const handleGoogleSignup = async () => {
   errorMessage.value = "";
   try {
     await loginWithGoogle();
-    router.push("/");
+    router.push(redirectTo.value);
   } catch (err) {
     errorMessage.value = "Google sign-up failed. Please try again.";
   }

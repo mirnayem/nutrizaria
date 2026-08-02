@@ -26,7 +26,11 @@
         </div>
       </section>
 
-      <section v-if="items.length" class="space-y-4 rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-sm">
+      <section v-if="!isReady" aria-label="Loading favorites">
+        <SkeletonProductGrid :count="8" :columns="4" />
+      </section>
+
+      <section v-else-if="items.length" class="space-y-4 rounded-3xl border border-slate-100 bg-white/90 p-6 shadow-sm">
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-slate-900">Favorite products</h2>
           <p class="text-sm text-slate-500">{{ items.length }} item(s)</p>
@@ -59,9 +63,23 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
+import { onMounted } from "vue";
 import { storeToRefs } from "pinia";
 import { useFavoriteStore } from "~/stores/favorite";
 
 const favorite = useFavoriteStore();
 const { items } = storeToRefs(favorite);
+
+useSeo({
+  title: "Favorites",
+  description: "Your saved NutriZaria products.",
+  noindex: true,
+});
+
+const isReady = ref(false);
+onMounted(() => {
+  favorite.loadFavorites();
+  isReady.value = true;
+});
 </script>

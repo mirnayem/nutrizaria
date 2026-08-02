@@ -7,7 +7,27 @@ import { OrderStatus, PaymentStatus } from '@prisma/client';
 export class OrdersService {
   constructor(private prisma: PrismaService) {}
 
+  private async getSetting(key: string, fallback: number): Promise<number> {
+    const row = await this.prisma.setting.findUnique({ where: { key } });
+    const val = Number(row?.value);
+    return Number.isFinite(val) ? val : fallback;
+  }
+
+  async computeShippingCost(deliveryArea?: string, subtotal = 0): Promise<number> {
+    const freeThreshold = await this.getSetting('free_delivery_threshold', 2000);
+    if (subtotal >= freeThreshold) return 0;
+
+    const area = deliveryArea === 'outside' ? 'outside_dhaka' : 'inside_dhaka';
+    const fee = await this.getSetting(`delivery_fee_${area}`, 80);
+    return fee;
+  }
+
   async create(userId: string, dto: CreateOrderDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true },
+    });
+
     const products = await this.prisma.product.findMany({
       where: { id: { in: dto.items.map((i) => i.productId) } },
     });
@@ -30,7 +50,7 @@ export class OrdersService {
       };
     });
 
-    const shippingCost = subtotal >= 2000 ? 0 : 80;
+    const shippingCost = await this.computeShippingCost(dto.deliveryArea, subtotal);
     const total = subtotal + shippingCost;
 
     const orderNumber = `NZR-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1e6).toString(36).toUpperCase()}`;
@@ -40,12 +60,13 @@ export class OrdersService {
         orderNumber,
         userId,
         shippingName: dto.shippingName,
-        shippingEmail: dto.shippingEmail,
+        shippingEmail: dto.shippingEmail || user?.email || '',
         shippingPhone: dto.shippingPhone,
         shippingAddress: dto.shippingAddress,
-        shippingCity: dto.shippingCity,
+        shippingCity: dto.shippingCity || 'Dhaka',
         shippingCountry: dto.shippingCountry || 'Bangladesh',
         shippingPostal: dto.shippingPostal,
+        deliveryArea: dto.deliveryArea === 'outside' ? 'outside' : 'inside',
         paymentMethod: dto.paymentMethod,
         paymentRef: dto.paymentRef,
         subtotal,
@@ -82,6 +103,32 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Order not found');
     return order;
+  }
+
+  async findByOrderNumber(orderNumber: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { orderNumber },
+      include: { items: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  async findByGatewayPaymentId(gatewayPaymentId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { gatewayPaymentId },
+      include: { items: true },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  async storeGatewayPaymentId(id: string, gatewayPaymentId: string) {
+    return this.prisma.order.update({
+      where: { id },
+      data: { gatewayPaymentId },
+      include: { items: true },
+    });
   }
 
   async findAllAdmin(query: QueryOrderDto) {

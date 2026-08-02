@@ -2,6 +2,22 @@
   <div class="space-y-6">
     <h2 class="text-xl font-semibold text-slate-900">Settings</h2>
 
+    <div v-if="loading" class="space-y-6" aria-label="Loading settings">
+      <div class="animate-pulse rounded-xl border border-slate-200 bg-white p-6">
+        <div class="mb-4 h-5 w-40 rounded bg-slate-200"></div>
+        <div v-for="i in 4" :key="i" class="mb-4 grid grid-cols-3 items-center gap-4">
+          <div class="h-4 w-28 rounded bg-slate-200"></div>
+          <div class="col-span-2 h-9 w-full rounded-lg bg-slate-200"></div>
+        </div>
+        <div class="h-9 w-32 rounded-lg bg-slate-200"></div>
+      </div>
+      <div class="animate-pulse rounded-xl border border-slate-200 bg-white p-6">
+        <div class="mb-4 h-5 w-44 rounded bg-slate-200"></div>
+        <div class="h-24 w-full rounded-lg bg-slate-200"></div>
+      </div>
+    </div>
+
+    <template v-else>
     <div class="rounded-xl border border-slate-200 bg-white p-6">
       <h3 class="text-base font-semibold text-slate-900 mb-4">General Settings</h3>
       <form @submit.prevent="saveSettings" class="space-y-4">
@@ -59,6 +75,7 @@
         </table>
       </div>
     </div>
+    </template>
   </div>
 </template>
 
@@ -70,6 +87,7 @@ definePageMeta({ layout: 'admin' });
 const config = useRuntimeConfig();
 const settings = ref<any[]>([]);
 const saving = ref(false);
+const loading = ref(false);
 const roles = ['SUPER_ADMIN', 'ADMIN', 'MANAGER', 'STAFF', 'CUSTOMER'];
 const allPermissions = [
   'VIEW_DASHBOARD', 'MANAGE_PRODUCTS', 'MANAGE_CATEGORIES', 'MANAGE_ORDERS',
@@ -96,12 +114,14 @@ const saveSettings = async () => {
 };
 
 const loadSettings = async () => {
+  loading.value = true;
   try {
     const apiBase = config.public.apiBase;
     const token = useCookie('auth_token');
     const res = await $fetch(`${apiBase}/admin/settings`, { headers: { Authorization: `Bearer ${token.value}` } });
     settings.value = res?.data || res || [];
   } catch (e) { console.error('Failed to load settings', e); }
+  finally { loading.value = false; }
 };
 
 const loadPermissions = async () => {

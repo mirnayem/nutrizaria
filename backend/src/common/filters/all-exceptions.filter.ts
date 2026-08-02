@@ -6,9 +6,16 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+  private readonly isDev: boolean;
+
+  constructor(private readonly config: ConfigService) {
+    this.isDev = (config.get('NODE_ENV') || 'development') !== 'production';
+  }
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
@@ -23,10 +30,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
         ? exception.getResponse()
         : 'Internal server error';
 
-    response.status(status).json({
+    const payload: any = {
       statusCode: status,
       message: typeof message === 'string' ? message : (message as any).message || message,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    if (this.isDev && !(exception instanceof HttpException)) {
+      console.error(exception);
+      payload.detail =
+        exception instanceof Error ? exception.message : String(exception);
+    }
+
+    response.status(status).json(payload);
   }
 }

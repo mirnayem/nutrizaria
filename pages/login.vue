@@ -111,16 +111,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
+import { computed, ref, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "~/stores/user";
 import { useAuth } from "~/composables/useAuth";
 
 definePageMeta({ layout: false });
 
 const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
 const { loginWithGoogle } = useAuth();
+
+const redirectTo = computed(() => {
+  const target = route.query.redirect;
+  return typeof target === "string" && target.startsWith("/")
+    ? target
+    : "/";
+});
 
 const email = ref("");
 const password = ref("");
@@ -128,6 +136,12 @@ const showPassword = ref(false);
 const loading = ref(false);
 const errorMessage = ref("");
 const errors = reactive({ email: "", password: "" });
+
+useSeo({
+  title: "Login",
+  description: "Sign in to your NutriZaria account.",
+  noindex: true,
+});
 
 const validate = () => {
   errors.email = "";
@@ -162,7 +176,7 @@ const handleLogin = async () => {
     });
 
     if (success) {
-      router.push("/");
+      router.push(redirectTo.value);
     } else {
       errorMessage.value = "Invalid email or password";
     }
@@ -177,7 +191,7 @@ const handleGoogleLogin = async () => {
   errorMessage.value = "";
   try {
     await loginWithGoogle();
-    router.push("/");
+    router.push(redirectTo.value);
   } catch (err) {
     errorMessage.value = "Google sign-in failed. Please try again.";
   }

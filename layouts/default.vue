@@ -11,15 +11,15 @@
 import { onMounted } from "vue";
 import { useCartStore } from "~/stores/cart";
 import { useUserStore } from "~/stores/user";
-import { useCatalogStore } from "~/stores/catalog";
-
-const cartStore = useCartStore();
-const userStore = useUserStore();
-const catalogStore = useCatalogStore();
+import { useFavoriteStore } from "~/stores/favorite";
 
 onMounted(() => {
-  catalogStore.hydrate();
+  const cartStore = useCartStore();
+  const userStore = useUserStore();
+  const favoriteStore = useFavoriteStore();
+
   cartStore.loadCartFromLocalStorage();
   userStore.loadAuthenticatedUser();
+  favoriteStore.loadFavorites();
 });
 </script>

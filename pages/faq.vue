@@ -48,7 +48,10 @@
     </section>
 
     <section class="grid gap-6 lg:grid-cols-[1.6fr,1fr]">
-      <div class="space-y-4">
+      <div v-if="isLoading" aria-label="Loading FAQs">
+        <SkeletonRows :count="6" />
+      </div>
+      <div v-else class="space-y-4">
         <article
           v-for="(faq, index) in faqs"
           :key="index"
@@ -148,7 +151,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useCatalogStore } from "~/stores/catalog";
 
@@ -158,6 +161,30 @@ const handleFaqOpen = (index: number): void => {
 };
 
 const catalog = useCatalogStore();
-catalog.hydrate();
+await catalog.hydrate();
 const { faqs } = storeToRefs(catalog);
+
+const isLoading = computed(() => catalog.loading && !catalog.hydrated);
+
+useSeo({
+  title: "FAQ",
+  description:
+    "Answers to the most common questions about NutriZaria — ordering, delivery, payments, and returns.",
+  type: "website",
+  jsonld: computed(() => {
+    if (!faqs.value.length) return null;
+    return {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.value.map((faq) => ({
+        "@type": "Question",
+        name: faq.question,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: faq.answer,
+        },
+      })),
+    };
+  }),
+});
 </script>

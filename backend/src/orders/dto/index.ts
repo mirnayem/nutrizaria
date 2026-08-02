@@ -18,9 +18,10 @@ export class CreateOrderDto {
   @IsString()
   shippingName: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  shippingEmail: string;
+  shippingEmail?: string;
 
   @ApiProperty()
   @IsString()
@@ -30,9 +31,10 @@ export class CreateOrderDto {
   @IsString()
   shippingAddress: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  shippingCity: string;
+  shippingCity?: string;
 
   @ApiPropertyOptional({ default: 'Bangladesh' })
   @IsOptional()
@@ -43,6 +45,11 @@ export class CreateOrderDto {
   @IsOptional()
   @IsString()
   shippingPostal?: string;
+
+  @ApiPropertyOptional({ enum: ['inside', 'outside'], default: 'inside' })
+  @IsOptional()
+  @IsString()
+  deliveryArea?: string;
 
   @ApiProperty({ enum: PaymentMethod })
   @IsEnum(PaymentMethod)

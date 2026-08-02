@@ -69,6 +69,7 @@ enum PaymentMethod {
   NAGAD
   COD
   BANK_TRANSFER
+  SSLCOMMERZ
 }
 
 enum PaymentStatus {
@@ -171,11 +172,33 @@ model Product {
   favorites  Favorite[]
   cartItems  CartItem[]
   reviews    Review[]
+  variants   ProductVariant[]
 
   @@index([categoryId])
   @@index([slug])
   @@index([isActive, isFeatured])
   @@index([price])
+}
+
+model ProductVariant {
+  id           String   @id @default(uuid())
+  productId    String
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label        String // e.g., "250g", "500g", "1kg"
+  weight       Float // numeric value for sorting (e.g., 250, 500, 1000)
+  unit         String // "g", "kg", "ml", "l", "pcs"
+  price        Float
+  comparePrice Float?
+  stock        Int      @default(0)
+  sku          String?  @unique
+  image        String?
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([productId])
+  @@index([isActive])
 }
 
 model Cart {
@@ -211,34 +234,36 @@ model Favorite {
 }
 
 model Order {
-  id              String        @id @default(uuid())
-  orderNumber     String        @unique
-  userId          String
-  user            User          @relation(fields: [userId], references: [id])
-  shippingName    String
-  shippingEmail   String
-  shippingPhone   String
-  shippingAddress String
-  shippingCity    String
-  shippingCountry String        @default("Bangladesh")
-  shippingPostal  String?
-  paymentMethod   PaymentMethod
-  paymentStatus   PaymentStatus @default(PENDING)
-  paymentRef      String?
-  stripePaymentId String?
-  subtotal        Float
-  shippingCost    Float         @default(0)
-  discount        Float         @default(0)
-  total           Float
-  status          OrderStatus   @default(PENDING)
-  notes           String?       @db.Text
-  adminNotes      String?       @db.Text
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  paidAt          DateTime?
-  shippedAt       DateTime?
-  deliveredAt     DateTime?
-  cancelledAt     DateTime?
+  id               String        @id @default(uuid())
+  orderNumber      String        @unique
+  userId           String
+  user             User          @relation(fields: [userId], references: [id])
+  shippingName     String
+  shippingEmail    String
+  shippingPhone    String
+  shippingAddress  String
+  shippingCity     String
+  shippingCountry  String        @default("Bangladesh")
+  shippingPostal   String?
+  deliveryArea     String        @default("inside")
+  paymentMethod    PaymentMethod
+  paymentStatus    PaymentStatus @default(PENDING)
+  paymentRef       String?
+  stripePaymentId  String?
+  gatewayPaymentId String?
+  subtotal         Float
+  shippingCost     Float         @default(0)
+  discount         Float         @default(0)
+  total            Float
+  status           OrderStatus   @default(PENDING)
+  notes            String?       @db.Text
+  adminNotes       String?       @db.Text
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  paidAt           DateTime?
+  shippedAt        DateTime?
+  deliveredAt      DateTime?
+  cancelledAt      DateTime?
 
   items OrderItem[]
 

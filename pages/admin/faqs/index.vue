@@ -5,7 +5,11 @@
       <button @click="showModal = true" class="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700">Add FAQ</button>
     </div>
 
-    <div class="space-y-3">
+    <div v-if="loading" aria-label="Loading FAQs">
+      <SkeletonRows :count="6" />
+    </div>
+
+    <div v-else class="space-y-3">
       <div v-for="faq in faqs" :key="faq.id" class="rounded-xl border border-slate-200 bg-white p-4">
         <div class="flex items-start justify-between">
           <div class="flex-1">
@@ -63,6 +67,7 @@ const faqs = ref<any[]>([]);
 const showModal = ref(false);
 const editing = ref<any>(null);
 const saving = ref(false);
+const loading = ref(false);
 
 const form = reactive({ question: '', answer: '', sortOrder: 0, isActive: true });
 
@@ -106,12 +111,14 @@ const deleteFaq = async (id: string) => {
 };
 
 const loadFaqs = async () => {
+  loading.value = true;
   try {
     const apiBase = config.public.apiBase;
     const token = useCookie('auth_token');
     const res = await $fetch(`${apiBase}/admin/faqs`, { headers: { Authorization: `Bearer ${token.value}` } });
     faqs.value = res?.data || res || [];
   } catch (e) { console.error('Failed to load FAQs', e); }
+  finally { loading.value = false; }
 };
 
 onMounted(() => { loadFaqs(); });

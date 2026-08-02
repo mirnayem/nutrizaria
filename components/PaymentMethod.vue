@@ -5,7 +5,7 @@
     </header>
 
     <div class="px-6 py-6">
-      <div class="grid gap-3 sm:grid-cols-3">
+      <div class="grid gap-3 sm:grid-cols-2">
         <button
           v-for="m in methods"
           :key="m.id"
@@ -26,28 +26,6 @@
         </button>
       </div>
 
-      <div class="mt-6 space-y-3">
-        <p v-if="paymentMethod === 'bkash'" class="text-sm text-slate-600">
-          Send the total to <strong>01XXXXXXXXX</strong> (bKash) and share the transaction ID below.
-        </p>
-        <p v-else-if="paymentMethod === 'nagad'" class="text-sm text-slate-600">
-          Send the total to <strong>01XXXXXXXXX</strong> (Nagad) and share the reference ID below.
-        </p>
-        <p v-else class="text-sm text-slate-600">
-          Pay the exact amount when your order arrives.
-        </p>
-
-        <label v-if="paymentMethod !== 'cod'" class="block text-sm font-medium text-slate-700">
-          Transaction / reference ID
-          <input
-            v-model="paymentNote"
-            type="text"
-            class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
-            placeholder="e.g. BKASH-ABC123"
-          />
-        </label>
-      </div>
-
       <p v-if="errorMessage" class="mt-4 rounded-lg bg-rose-50 px-4 py-3 text-sm text-rose-700">
         {{ errorMessage }}
       </p>
@@ -62,25 +40,46 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { BanknotesIcon, WalletIcon } from "@heroicons/vue/24/outline";
+import { computed, ref } from "vue";
+import { BanknotesIcon, BoltIcon, LockClosedIcon } from "@heroicons/vue/24/outline";
 import type { PaymentMethod, PaymentSummary } from "~/types/product";
+import { useRuntimeConfig } from "#app";
 
 const props = defineProps<{ amount: number }>();
 
 const emit = defineEmits<{ (e: "payment:status", summary: PaymentSummary): void }>();
 
 const paymentMethod = ref<PaymentMethod>("cod");
-const paymentNote = ref("");
 const processing = ref(false);
 const errorMessage = ref("");
 const successMessage = ref("");
 
-const methods = [
-  { id: "bkash" as const, label: "bKash", helper: "Manual verification", icon: WalletIcon },
-  { id: "nagad" as const, label: "Nagad", helper: "Manual verification", icon: WalletIcon },
+const showBkash = useRuntimeConfig().public.enableBkash === true;
+const showSslcommerz = useRuntimeConfig().public.enableSslcommerz === true;
+
+const methods = computed(() => [
+  ...(showBkash
+    ? [
+        {
+          id: "bkash" as const,
+          label: "bKash",
+          helper: "Secure online gateway",
+          icon: BoltIcon,
+        },
+      ]
+    : []),
+  ...(showSslcommerz
+    ? [
+        {
+          id: "sslcommerz" as const,
+          label: "SSLCommerz",
+          helper: "Secure online gateway",
+          icon: LockClosedIcon,
+        },
+      ]
+    : []),
   { id: "cod" as const, label: "Cash on Delivery", helper: "Pay on arrival", icon: BanknotesIcon },
-];
+]);
 
 const processPayment = async (): Promise<PaymentSummary> => {
   if (!props.amount || props.amount <= 0) {
@@ -94,17 +93,13 @@ const processPayment = async (): Promise<PaymentSummary> => {
   const summary: PaymentSummary = {
     method: paymentMethod.value,
     status: paymentMethod.value === "cod" ? "pending" : "processing",
-    reference: paymentNote.value ? paymentNote.value.trim() : undefined,
     provider: paymentMethod.value,
   };
 
   if (paymentMethod.value === "cod") {
     successMessage.value = "Cash on delivery selected.";
   } else {
-    if (!summary.reference) {
-      summary.reference = `${paymentMethod.value.toUpperCase()}-${Date.now().toString().slice(-6)}`;
-    }
-    successMessage.value = "We will verify the payment shortly.";
+    successMessage.value = "Redirecting to the secure payment gateway...";
   }
 
   emit("payment:status", summary);

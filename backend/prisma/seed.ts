@@ -132,18 +132,18 @@ async function main() {
   console.log(`${faqs.length} FAQs created`);
 
   const blogPosts = [
-    { title: 'The Future of Organic Food in E-Commerce', slug: 'the-future-of-organic-food-in-e-commerce', category: 'Organic', author: 'Sarah Thompson', content: 'As consumers become more health-conscious, the demand for organic products continues to rise. This blog explores the future of organic food in e-commerce, and how it benefits both customers and the environment.', image: '/images/blogs/organic-food.avif', isPublished: true, publishedAt: new Date('2024-10-01') },
-    { title: 'How to Choose Fresh Produce Online', slug: 'how-to-choose-fresh-produce-online', category: 'Produce', author: 'John Doe', content: 'Shopping for fresh produce online can be tricky. In this guide, we give you tips on how to choose the freshest fruits and vegetables when shopping on e-commerce platforms.', image: '/images/blogs/fresh-produce.avif', isPublished: true, publishedAt: new Date('2024-09-15') },
-    { title: 'Top 10 Quick Meal Ideas with Local Ingredients', slug: 'top-10-quick-meal-ideas-with-local-ingredients', category: 'Recipes', author: 'Emily Williams', content: 'Discover how you can create quick and nutritious meals using locally-sourced ingredients. This blog provides 10 easy meal ideas for busy individuals.', image: '/images/blogs/quick-meal.avif', isPublished: true, publishedAt: new Date('2024-09-28') },
-    { title: 'The Impact of E-Commerce on Food Sustainability', slug: 'the-impact-of-e-commerce-on-food-sustainability', category: 'Sustainability', author: 'Michael Green', content: 'The rise of e-commerce is changing the way we approach sustainability in the food industry. Learn how e-commerce platforms are pushing for more eco-friendly practices.', image: '/images/blogs/sustainability.avif', isPublished: true, publishedAt: new Date('2024-09-20') },
-    { title: 'Understanding the Difference Between Organic and Non-Organic Foods', slug: 'understanding-the-difference-between-organic-and-non-organic-foods', category: 'Organic', author: 'Sarah Thompson', content: 'Many people are confused about the difference between organic and non-organic foods. This blog explains the differences and why organic foods are often preferred.', image: '/images/blogs/organic-vs-non-organic.avif', isPublished: true, publishedAt: new Date('2024-10-05') },
-    { title: 'Top 5 Benefits of Buying Groceries Online', slug: 'top-5-benefits-of-buying-groceries-online', category: 'E-Commerce', author: 'John Doe', content: 'With the increasing shift towards online grocery shopping, this blog highlights the top 5 benefits of purchasing groceries online, including convenience, time-saving, and more.', image: '/images/blogs/online-groceries.avif', isPublished: true, publishedAt: new Date('2024-09-30') },
+    { title: 'The Future of Organic Food in E-Commerce', slug: 'the-future-of-organic-food-in-e-commerce', category: 'Organic', author: 'Sarah Thompson', excerpt: 'As consumers become more health-conscious, the demand for organic products continues to rise.', content: 'As consumers become more health-conscious, the demand for organic products continues to rise. This blog explores the future of organic food in e-commerce, and how it benefits both customers and the environment.', image: '/images/blogs/organic-food.avif', isPublished: true, publishedAt: new Date('2024-10-01') },
+    { title: 'How to Choose Fresh Produce Online', slug: 'how-to-choose-fresh-produce-online', category: 'Produce', author: 'John Doe', excerpt: 'Shopping for fresh produce online can be tricky. Here are tips to pick the freshest fruits and vegetables.', content: 'Shopping for fresh produce online can be tricky. In this guide, we give you tips on how to choose the freshest fruits and vegetables when shopping on e-commerce platforms.', image: '/images/blogs/fresh-produce.avif', isPublished: true, publishedAt: new Date('2024-09-15') },
+    { title: 'Top 10 Quick Meal Ideas with Local Ingredients', slug: 'top-10-quick-meal-ideas-with-local-ingredients', category: 'Recipes', author: 'Emily Williams', excerpt: 'Ten easy, nutritious meal ideas made with locally-sourced ingredients for busy days.', content: 'Discover how you can create quick and nutritious meals using locally-sourced ingredients. This blog provides 10 easy meal ideas for busy individuals.', image: '/images/blogs/quick-meal.avif', isPublished: true, publishedAt: new Date('2024-09-28') },
+    { title: 'The Impact of E-Commerce on Food Sustainability', slug: 'the-impact-of-e-commerce-on-food-sustainability', category: 'Sustainability', author: 'Michael Green', excerpt: 'How the rise of e-commerce is pushing the food industry toward more eco-friendly practices.', content: 'The rise of e-commerce is changing the way we approach sustainability in the food industry. Learn how e-commerce platforms are pushing for more eco-friendly practices.', image: '/images/blogs/sustainability.avif', isPublished: true, publishedAt: new Date('2024-09-20') },
+    { title: 'Understanding the Difference Between Organic and Non-Organic Foods', slug: 'understanding-the-difference-between-organic-and-non-organic-foods', category: 'Organic', author: 'Sarah Thompson', excerpt: 'Confused about organic versus non-organic foods? Here is what the labels really mean.', content: 'Many people are confused about the difference between organic and non-organic foods. This blog explains the differences and why organic foods are often preferred.', image: '/images/blogs/organic-vs-non-organic.avif', isPublished: true, publishedAt: new Date('2024-10-05') },
+    { title: 'Top 5 Benefits of Buying Groceries Online', slug: 'top-5-benefits-of-buying-groceries-online', category: 'E-Commerce', author: 'John Doe', excerpt: 'Convenience, time-saving, and more — five reasons online grocery shopping is here to stay.', content: 'With the increasing shift towards online grocery shopping, this blog highlights the top 5 benefits of purchasing groceries online, including convenience, time-saving, and more.', image: '/images/blogs/online-groceries.avif', isPublished: true, publishedAt: new Date('2024-09-30') },
   ];
 
   for (const post of blogPosts) {
     await prisma.blogPost.upsert({
       where: { slug: post.slug },
-      update: {},
+      update: { excerpt: post.excerpt },
       create: post,
     });
   }
@@ -189,6 +189,8 @@ async function main() {
     { key: 'currency', value: 'bdt', type: 'string' },
     { key: 'currency_symbol', value: 'Tk', type: 'string' },
     { key: 'free_delivery_threshold', value: '2000', type: 'number' },
+    { key: 'delivery_fee_inside_dhaka', value: '80', type: 'number' },
+    { key: 'delivery_fee_outside_dhaka', value: '150', type: 'number' },
     { key: 'delivery_fee', value: '80', type: 'number' },
     { key: 'max_login_attempts', value: '5', type: 'number' },
     { key: 'lockout_duration_minutes', value: '30', type: 'number' },

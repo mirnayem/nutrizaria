@@ -1,10 +1,13 @@
 export interface CartItem {
   id: string;
+  productId: string;
+  variantId?: string;
   name: string;
   image: string;
   price: number;
   quantity: number;
   unit: string;
+  variantLabel?: string;
 }
 export interface Product {
   id: string;
@@ -24,6 +27,21 @@ export interface Product {
   sku?: string;
   metaTitle?: string;
   metaDescription?: string;
+  variants?: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: string;
+  label: string;
+  weight: number;
+  unit: string;
+  price: number;
+  comparePrice?: number;
+  stock: number;
+  sku?: string;
+  image?: string;
+  sortOrder: number;
+  isActive: boolean;
 }
 export interface ProductInput extends Omit<Product, "id"> {}
 
@@ -36,6 +54,9 @@ export interface Post {
   image: string;
   content: string;
   slug?: string;
+  rawSlug?: string;
+  excerpt?: string;
+  views?: number;
 }
 export interface Category {
   id: string;
@@ -55,7 +76,7 @@ export interface Faq {
   isActive?: boolean;
 }
 
-export type PaymentMethod = "bkash" | "nagad" | "cod";
+export type PaymentMethod = "bkash" | "sslcommerz" | "cod";
 
 export type OrderStatus = "pending" | "paid" | "fulfilled" | "cancelled";
 

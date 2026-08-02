@@ -1,11 +1,15 @@
 import { useUserStore } from "~/stores/user";
 
-export default defineNuxtRouteMiddleware((to, from) => {
+export default defineNuxtRouteMiddleware((to) => {
+  if (process.client) {
     const userStore = useUserStore();
     userStore.loadAuthenticatedUser();
-  
-    if (!userStore.authenticatedUser && to.path !== '/signup' && process.client) {
-      return navigateTo('/signup');
+
+    if (!userStore.authenticatedUser) {
+      return navigateTo({
+        path: "/login",
+        query: { redirect: to.fullPath },
+      });
     }
-  });
-  
+  }
+});

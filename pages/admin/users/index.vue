@@ -15,7 +15,11 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div v-if="loading" aria-label="Loading users">
+      <SkeletonTable :rows="5" :columns="6" />
+    </div>
+
+    <div v-else class="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <table class="min-w-full divide-y divide-slate-200">
         <thead class="bg-slate-50">
           <tr>
@@ -118,6 +122,7 @@ const search = ref('');
 const roleFilter = ref('');
 const showCreateModal = ref(false);
 const saving = ref(false);
+const loading = ref(false);
 const roles = ['CUSTOMER', 'STAFF', 'MANAGER', 'ADMIN', 'SUPER_ADMIN'];
 
 const form = reactive({ name: '', email: '', password: '', role: 'CUSTOMER' });
@@ -219,6 +224,7 @@ const deleteUser = async (id: string) => {
 };
 
 const loadUsers = async () => {
+  loading.value = true;
   try {
     const apiBase = config.public.apiBase;
     const token = useCookie('auth_token');
@@ -227,6 +233,7 @@ const loadUsers = async () => {
     });
     users.value = res?.data?.items || res?.items || [];
   } catch (e) { console.error('Failed to load users', e); }
+  finally { loading.value = false; }
 };
 
 onMounted(() => { loadUsers(); });

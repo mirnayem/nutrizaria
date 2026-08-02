@@ -123,122 +123,204 @@
             {{ product.name }}
           </h1>
 
+          <!-- Variant Selector -->
+          <div v-if="product.variants && product.variants.length > 0" class="mt-6">
+            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <label
+                v-for="variant in product.variants"
+                :key="variant.id"
+                class="relative cursor-pointer group"
+                :class="{ 'opacity-50 pointer-events-none': variant.stock === 0 }"
+              >
+                <input
+                  type="radio"
+                  name="variant-selector"
+                  :value="variant.id"
+                  :checked="selectedVariant?.id === variant.id"
+                  :disabled="variant.stock === 0"
+                  @change="selectedVariant = variant"
+                  class="sr-only"
+                />
+                <div class="relative aspect-square rounded-xl border-2 overflow-hidden transition-all duration-200"
+                  :class="
+                    selectedVariant?.id === variant.id
+                      ? 'border-violet-600 bg-violet-50 ring-2 ring-violet-200'
+                      : 'border-slate-200 hover:border-violet-300'
+                  "
+                >
+                  <!-- Variant Image -->
+                  <img
+                    v-if="variant.image"
+                    :src="resolve(variant.image)"
+                    :alt="`${product.name} - ${variant.label}`"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  <img
+                    v-else
+                    :src="activeImage"
+                    :alt="`${product.name} - ${variant.label}`"
+                    class="absolute inset-0 h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                  
+                  <!-- Variant Badge -->
+                  <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-sm font-medium opacity-0 group-hover/label:opacity-100 transition-opacity"
+                    v-if="variant.stock === 0"
+                  >
+                    Out of Stock
+                  </div>
+                  
+                  <!-- Selected Checkmark -->
+                  <div
+                    v-if="selectedVariant?.id === variant.id"
+                    class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                  </div>
+                </div>
+                
+                <!-- Variant Info -->
+                <div class="mt-2 text-center">
+                  <p class="text-xs font-medium text-slate-600">{{ variant.weight }}{{ variant.unit }}</p>
+                </div>
+              </label>
+            </div>
+            
+            <!-- Selected Variant Summary -->
+            <div v-if="selectedVariant" class="mt-4 p-3 bg-violet-50 rounded-xl border border-violet-200 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img
+                  v-if="selectedVariant.image"
+                  :src="resolve(selectedVariant.image)"
+                  :alt="selectedVariant.label"
+                  class="h-10 w-10 rounded-lg object-cover"
+                />
+                <div>
+                  <p class="text-sm font-medium text-slate-900">{{ selectedVariant.label }}</p>
+                  <p class="text-sm font-semibold text-violet-700">{{ selectedVariant.weight }}{{ selectedVariant.unit }}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                @click="selectedVariant = null"
+                class="text-sm text-violet-600 hover:text-violet-700 font-medium"
+              >
+                Change
+              </button>
+            </div>
+          </div>
+
+          <!-- Price Display -->
           <div class="mt-4 flex flex-wrap items-end gap-x-4 gap-y-2">
-            <p class="text-3xl font-bold text-slate-900 sm:text-4xl">
-              {{ currencySymbol }}{{ product.price.toFixed(2) }}
-            </p>
-            <p
-              v-if="product.comparePrice"
-              class="pb-1 text-lg font-medium text-slate-400 line-through"
-            >
-              {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
-            </p>
-            <span class="text-sm font-medium text-slate-500">{{ product.unit }}</span>
+            <div v-if="selectedVariant" class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
+                {{ currencySymbol }}{{ activeProduct?.price.toFixed(2) }}
+              </span>
+              <span class="text-sm text-slate-500">{{ selectedVariant.weight }}{{ selectedVariant.unit }}</span>
+            </div>
+            <div v-else class="flex items-baseline gap-2">
+              <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
+                {{ currencySymbol }}{{ product.price.toFixed(2) }}
+              </span>
+              <span v-if="product.comparePrice" class="pb-1 text-lg font-medium text-slate-400 line-through">
+                {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
+              </span>
+              <span class="text-sm text-slate-500">{{ product.unit }}</span>
+            </div>
           </div>
 
           <p class="mt-4 text-sm leading-relaxed text-slate-600 sm:text-base">
             {{ product.description }}
           </p>
 
-          <div class="mt-6 flex flex-col gap-3 sm:flex-row">
-            <div class="flex items-center justify-between rounded-xl border border-slate-200 px-4">
-              <button
-                type="button"
-                class="py-3 text-slate-500 transition hover:text-violet-600"
-                :class="quantity > 1 ? 'cursor-pointer' : 'cursor-not-allowed'"
-                :disabled="quantity <= 1"
-                aria-label="Decrease quantity"
-                @click="decrementQuantity"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-5"
+          <div class="mt-6 space-y-4">
+            <!-- Quantity Selector -->
+            <div class="flex items-center gap-3">
+              <label class="text-sm font-medium text-slate-700 w-20 shrink-0">Quantity</label>
+              <div class="flex items-center gap-0 bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <button
+                  type="button"
+                  class="flex h-12 w-12 items-center justify-center text-slate-500 transition hover:bg-slate-50 hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  :disabled="quantity <= 1"
+                  aria-label="Decrease quantity"
+                  @click="decrementQuantity"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
-                </svg>
-              </button>
-              <span class="min-w-8 text-center text-base font-semibold text-slate-800">
-                {{ quantity }}
-              </span>
-              <button
-                type="button"
-                class="py-3 text-violet-600 transition hover:text-violet-700"
-                :disabled="quantity >= maxQuantity"
-                aria-label="Increase quantity"
-                @click="incrementQuantity"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="size-5"
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14" />
+                  </svg>
+                </button>
+                <div class="flex h-12 w-12 items-center justify-center border-x border-slate-200 bg-slate-50">
+                  <span class="text-base font-semibold text-slate-800 tabular-nums">{{ quantity }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="flex h-12 w-12 items-center justify-center text-violet-600 transition hover:bg-violet-50 hover:text-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+                  :disabled="quantity >= maxQuantity"
+                  aria-label="Increase quantity"
+                  @click="incrementQuantity"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </button>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                  </svg>
+                </button>
+              </div>
             </div>
 
-            <button
-              type="button"
-              class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
-              :disabled="isOutOfStock"
-              @click="addToCart"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-5"
+            <!-- Add to Cart + Wishlist + Share -->
+            <div class="flex items-center gap-3">
+              <button
+                type="button"
+                class="flex flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500 active:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+                :disabled="isOutOfStock"
+                @click="addToCart"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                />
-              </svg>
-              {{ isOutOfStock ? "Out of stock" : "Add to cart" }}
-            </button>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+                <span v-if="selectedVariant">
+                  Add {{ selectedVariant.label }} to cart
+                </span>
+                <span v-else>
+                  {{ isOutOfStock ? "Out of stock" : "Add to cart" }}
+                </span>
+              </button>
 
-            <button
-              type="button"
-              class="inline-flex items-center justify-center rounded-xl border px-4 py-3.5 text-sm font-semibold transition"
-              :class="
-                isFavorite
-                  ? 'border-violet-200 bg-violet-50 text-violet-700'
-                  : 'border-slate-200 text-slate-600 hover:border-violet-300 hover:text-violet-700'
-              "
-              :aria-pressed="isFavorite"
-              @click="toggleFavorite"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                :fill="isFavorite ? 'currentColor' : 'none'"
-                class="size-5"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+              <div class="flex items-center gap-2">
+                <!-- Wishlist -->
+                <button
+                  type="button"
+                  class="flex h-12 w-12 items-center justify-center rounded-xl border transition"
+                  :class="
+                    isFavorite
+                      ? 'border-violet-200 bg-violet-50 text-violet-700'
+                      : 'border-slate-200 text-slate-600 hover:border-violet-300 hover:text-violet-700 hover:bg-violet-50'
+                  "
+                  :aria-pressed="isFavorite"
+                  @click="toggleFavorite"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" :fill="isFavorite ? 'currentColor' : 'none'" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+                  </svg>
+                </button>
+
+                <!-- Share -->
+                <ShareButton
+                  v-if="product"
+                  :title="`${product.name} - NutriZaria`"
+                  :url="seo.canonicalUrl"
+                  label="Share this product"
                 />
-              </svg>
-            </button>
+              </div>
+            </div>
           </div>
 
           <div class="mt-6 grid grid-cols-2 gap-3 text-xs text-slate-500 sm:grid-cols-3">
             <div class="rounded-xl bg-slate-50 px-3 py-2.5">
               <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Unit</p>
-              <p class="mt-0.5 font-medium text-slate-700">{{ product.unit }}</p>
+              <p class="mt-0.5 font-medium text-slate-700">{{ activeProduct?.unit || product.unit }}</p>
             </div>
             <div class="rounded-xl bg-slate-50 px-3 py-2.5">
               <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Category</p>
@@ -395,10 +477,7 @@ import { useRuntimeConfig } from "#app";
 import { useCatalogStore } from "~/stores/catalog";
 import { useCartStore } from "~/stores/cart";
 import { useFavoriteStore } from "~/stores/favorite";
-
-definePageMeta({
-  title: "Product | NutriZaria",
-});
+import { absoluteUrl, breadcrumbJsonLd } from "~/composables/useSeo";
 
 const route = useRoute();
 const catalogStore = useCatalogStore();
@@ -415,15 +494,48 @@ const productSlug = computed(() => route.params.slug as string);
 const product = computed(() => catalogStore.productBySlug(productSlug.value));
 const isLoading = computed(() => catalogStore.loading && !catalogStore.hydrated);
 
+const selectedVariant = ref<any | null>(null);
+
 watch(productSlug, () => {
   quantity.value = 1;
   activeIndex.value = 0;
+  selectedVariant.value = null;
+});
+
+watch(() => product.value?.variants, (variants) => {
+  if (selectedVariant.value && variants) {
+    const stillExists = variants.find((v: any) => v.id === selectedVariant.value?.id);
+    if (!stillExists) selectedVariant.value = null;
+  }
+}, { immediate: true, deep: true });
+
+const activeProduct = computed(() => {
+  const p = product.value;
+  if (!p) return null;
+  if (selectedVariant.value) {
+    return {
+      ...p,
+      price: selectedVariant.value.price,
+      comparePrice: selectedVariant.value.comparePrice,
+      stock: selectedVariant.value.stock,
+      unit: selectedVariant.value.unit,
+      sku: selectedVariant.value.sku,
+      image: selectedVariant.value.image || p.image,
+      _variant: selectedVariant.value,
+    };
+  }
+  return p;
 });
 
 const gallery = computed<string[]>(() => {
-  const p = product.value;
+  const p = activeProduct.value;
   if (!p) return [];
-  return [...new Set([p.image, ...(p.images ?? [])].filter(Boolean))] as string[];
+  const baseImages = [...new Set([p.image, ...(p.images ?? [])].filter(Boolean))] as string[];
+  const variantImg = p._variant?.image;
+  if (variantImg && !baseImages.includes(variantImg)) {
+    return [variantImg, ...baseImages];
+  }
+  return baseImages;
 });
 
 const activeIndex = ref(0);
@@ -435,7 +547,7 @@ watchEffect(() => {
 const activeImage = computed(() => resolve(gallery.value[activeIndex.value]) || "/nutri.png");
 
 const maxQuantity = computed(() => {
-  const stock = product.value?.stock;
+  const stock = activeProduct.value?.stock;
   return stock && stock > 0 ? stock : 99;
 });
 const quantity = ref(1);
@@ -446,9 +558,9 @@ const incrementQuantity = () => {
   if (quantity.value < maxQuantity.value) quantity.value += 1;
 };
 
-const isOutOfStock = computed(() => product.value?.stock === 0);
+const isOutOfStock = computed(() => activeProduct.value?.stock === 0);
 const discountPercent = computed(() => {
-  const p = product.value;
+  const p = activeProduct.value;
   if (!p?.comparePrice || p.comparePrice <= p.price) return 0;
   return Math.round(((p.comparePrice - p.price) / p.comparePrice) * 100);
 });
@@ -461,8 +573,8 @@ const toggleFavorite = () => {
 };
 
 const addToCart = () => {
-  if (product.value && !isOutOfStock.value) {
-    cartStore.addToCart(product.value, quantity.value);
+  if (activeProduct.value && !isOutOfStock.value) {
+    cartStore.addToCart(activeProduct.value, quantity.value);
   }
 };
 
@@ -472,37 +584,44 @@ const relatedProducts = computed(() =>
     .slice(0, 4)
 );
 
-useSeo({
+const seo = useSeo({
   title: () => (product.value ? product.value.name : "Product"),
   description: () => product.value?.description,
-  image: () => (product.value ? resolve(product.value.image) : null),
+  image: () => activeProduct.value?.image ?? product.value?.image ?? null,
   type: "product",
   noindex: () => !product.value,
   canonicalPath: () => (product.value ? `/products/${product.value.slug || product.value.id}` : undefined),
   jsonld: () => {
     const p = product.value;
     if (!p) return null;
+    const base = config.public.siteUrl || "https://nutrizaria.com";
+    const abs = (path: string) => absoluteUrl(path, base);
+    const img = (path: string) => abs(resolve(path));
+    const variant = activeProduct.value?._variant;
+    const images = variant?.image ? [variant.image, p.image, ...(p.images ?? [])] : [p.image, ...(p.images ?? [])];
     return [
-      breadcrumbJsonLd([
-        { name: "Home", url: "/" },
-        { name: "Shop", url: "/shop" },
-        { name: p.category, url: `/categories/${p.category}` },
-        { name: p.name, url: `/products/${p.slug || p.id}` },
-      ]),
+      breadcrumbJsonLd(
+        [
+          { name: "Home", url: "/" },
+          { name: "Shop", url: "/shop" },
+          { name: p.category, url: `/categories/${p.category}` },
+          { name: p.name, url: `/products/${p.slug || p.id}` },
+        ]
+      ),
       {
         "@context": "https://schema.org",
         "@type": "Product",
         name: p.name,
-        image: [resolve(p.image), ...(p.images ?? []).map((img) => resolve(img))],
+        image: images.filter(Boolean).map(im => img(im)),
         description: p.description,
-        sku: p.sku || String(p.id),
+        sku: variant?.sku || p.sku || String(p.id),
         category: p.category,
         offers: {
           "@type": "Offer",
-          url: absoluteUrl(`/products/${p.slug || p.id}`),
+          url: abs(`/products/${p.slug || p.id}`),
           priceCurrency: "BDT",
-          price: p.price,
-          availability: p.stock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+          price: activeProduct.value?.price ?? p.price,
+          availability: activeProduct.value?.stock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
           itemCondition: "https://schema.org/NewCondition",
         },
       },

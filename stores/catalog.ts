@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { products as seedProducts, categories as seedCategories, faqs as seedFaqs } from "./data";
 import type {
   CartItem,
   Category,
@@ -25,6 +24,7 @@ interface CatalogState extends CatalogSnapshot {
   hydrated: boolean;
   useApi: boolean;
   loading: boolean;
+  hydratePromise: Promise<void> | null;
 }
 
 const STORAGE_KEY = "nutrizaria.catalog.v1";
@@ -32,36 +32,26 @@ const isClient = typeof window !== "undefined";
 
 const clone = <T>(payload: T): T => JSON.parse(JSON.stringify(payload));
 
-const buildSeedSnapshot = (): CatalogSnapshot => {
-  const nextProductId =
-    seedProducts.reduce((max, item) => Math.max(max, item.id), 0) + 1;
-  return {
-    products: clone(seedProducts),
-    categories: clone(seedCategories),
-    faqs: clone(seedFaqs),
-    orders: [],
-    nextProductId,
-  };
-};
+const slugify = (str: string): string =>
+  String(str || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-+|-+$/g, "") || "product";
 
-const DEFAULT_SNAPSHOT = buildSeedSnapshot();
+const normalizeProduct = (p: Product): Product => ({
+  ...p,
+  slug: p.slug || slugify(p.name),
+});
 
 const readSnapshotFromStorage = (): CatalogSnapshot | null => {
   if (!isClient) return null;
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
   try {
-    const parsed = JSON.parse(raw);
-    return {
-      products: parsed.products ?? clone(seedProducts),
-      categories: parsed.categories ?? clone(seedCategories),
-      faqs: parsed.faqs ?? clone(seedFaqs),
-      orders: parsed.orders ?? [],
-      nextProductId:
-        typeof parsed.nextProductId === "number"
-          ? parsed.nextProductId
-          : DEFAULT_SNAPSHOT.nextProductId,
-    };
+    return JSON.parse(raw);
   } catch (error) {
     console.error("[catalog] Failed to parse stored snapshot:", error);
     return null;
@@ -88,6 +78,11 @@ type OrderPayload = {
   total?: number;
 };
 
+const mapUrl = (u: string) => {
+  const s = String(u).trim();
+  return /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
+};
+
 export const useCatalogStore = defineStore("catalog", {
   state: (): CatalogState => ({
     products: [],
@@ -98,10 +93,14 @@ export const useCatalogStore = defineStore("catalog", {
     hydrated: false,
     useApi: false,
     loading: false,
+    hydratePromise: null,
   }),
   getters: {
     productById: (state) => (id: string | number) =>
       state.products.find((product) => String(product.id) === String(id)),
+    productBySlug: (state) => (slug: string) =>
+      state.products.find((product) => product.slug === slug) ||
+      state.products.find((product) => String(product.id) === slug),
     productsByCategory: (state) => (slug: string) =>
       state.products.filter((product) => product.category === slug),
     orderStats: (state) => {
@@ -126,88 +125,98 @@ export const useCatalogStore = defineStore("catalog", {
   actions: {
     async hydrate() {
       if (this.hydrated) return;
+      if (this.hydratePromise) return this.hydratePromise;
 
-      try {
-        const config = useRuntimeConfig();
-        const apiBase = config.public.apiBase;
-        if (apiBase) {
-          const [productsRes, categoriesRes, faqsRes] = await Promise.allSettled([
-            $fetch(`${apiBase}/products?limit=200`),
-            $fetch(`${apiBase}/categories`),
-            $fetch(`${apiBase}/faqs`),
-          ]);
+      this.loading = true;
 
-          if (productsRes.status === "fulfilled" && productsRes.value?.data?.items) {
-            const mapUrl = (u: string) => {
-              const s = String(u).trim();
-              return /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
-            };
-            this.products = productsRes.value.data.items.map((p: any) => ({
-              id: p.id,
-              name: p.name,
-              image: p.image ? mapUrl(p.image) : p.image,
-              category: p.category?.slug || p.category,
-              description: p.description,
-              benefits: p.benefits || [],
-              price: p.price,
-              unit: p.unit,
-              isActive: p.isActive,
-              isFeatured: p.isFeatured,
-              stock: p.stock,
-              comparePrice: p.comparePrice,
-              images: p.images ? p.images.map((u: string) => mapUrl(u)) : p.images,
-              sku: p.sku,
-            }));
-            this.useApi = true;
+      this.hydratePromise = (async () => {
+        try {
+          const config = useRuntimeConfig();
+          const apiBase = config.public.apiBase;
+          if (apiBase) {
+            const [productsRes, categoriesRes, faqsRes] = await Promise.allSettled([
+              $fetch(`${apiBase}/products?limit=200`),
+              $fetch(`${apiBase}/categories`),
+              $fetch(`${apiBase}/faqs`),
+            ]);
+
+            if (productsRes.status === "fulfilled" && productsRes.value?.data?.items) {
+              this.products = productsRes.value.data.items.map((p: any) => ({
+                id: p.id,
+                slug: p.slug,
+                name: p.name,
+                image: p.image ? mapUrl(p.image) : p.image,
+                category: p.category?.slug || p.category,
+                description: p.description,
+                benefits: p.benefits || [],
+                price: p.price,
+                unit: p.unit,
+                isActive: p.isActive,
+                isFeatured: p.isFeatured,
+                stock: p.stock,
+                comparePrice: p.comparePrice,
+                images: p.images ? p.images.map((u: string) => mapUrl(u)) : p.images,
+                sku: p.sku,
+                variants: p.variants?.map((v: any) => ({
+                  id: v.id,
+                  label: v.label,
+                  weight: v.weight,
+                  unit: v.unit,
+                  price: v.price,
+                  comparePrice: v.comparePrice,
+                  stock: v.stock,
+                  sku: v.sku,
+                  image: v.image ? mapUrl(v.image) : v.image,
+                  isActive: v.isActive,
+                  sortOrder: v.sortOrder,
+                })) || [],
+              }));
+              this.useApi = true;
+            }
+
+            if (categoriesRes.status === "fulfilled" && categoriesRes.value?.data) {
+              this.categories = categoriesRes.value.data.map((c: any) => ({
+                id: c.id,
+                name: c.name,
+                slug: c.slug,
+                image: c.image ? mapUrl(c.image) : c.image,
+                description: c.description,
+                isActive: c.isActive,
+                sortOrder: c.sortOrder,
+              }));
+            }
+
+            if (faqsRes.status === "fulfilled" && faqsRes.value?.data) {
+              this.faqs = faqsRes.value.data.map((f: any) => ({
+                id: f.id,
+                question: f.question,
+                answer: f.answer,
+                sortOrder: f.sortOrder,
+                isActive: f.isActive,
+              }));
+            }
           }
-
-          if (categoriesRes.status === "fulfilled" && categoriesRes.value?.data) {
-            const mapUrl = (u: string) => {
-              const s = String(u).trim();
-              return /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
-            };
-            this.categories = categoriesRes.value.data.map((c: any) => ({
-              id: c.id,
-              name: c.name,
-              slug: c.slug,
-              image: c.image ? mapUrl(c.image) : c.image,
-              description: c.description,
-              isActive: c.isActive,
-              sortOrder: c.sortOrder,
-            }));
-          }
-
-          if (faqsRes.status === "fulfilled" && faqsRes.value?.data) {
-            this.faqs = faqsRes.value.data.map((f: any) => ({
-              id: f.id,
-              question: f.question,
-              answer: f.answer,
-              sortOrder: f.sortOrder,
-              isActive: f.isActive,
-            }));
-          }
-
-          if (this.useApi) {
-            this.hydrated = true;
-            return;
-          }
+        } catch (error) {
+          console.warn("[catalog] API unavailable");
+        } finally {
+          this.loading = false;
+          this.hydrated = true;
+          this.hydratePromise = null;
         }
-      } catch (error) {
-        console.warn("[catalog] API unavailable, falling back to local data");
-      }
+      })();
 
-      const snapshot = readSnapshotFromStorage() ?? clone(DEFAULT_SNAPSHOT);
-      this.applySnapshot(snapshot);
-      this.hydrated = true;
+      return this.hydratePromise;
     },
+
     applySnapshot(snapshot: CatalogSnapshot) {
-      this.products = clone(snapshot.products);
+      this.products = clone(snapshot.products).map(normalizeProduct);
       this.categories = clone(snapshot.categories);
       this.faqs = clone(snapshot.faqs);
       this.orders = clone(snapshot.orders);
       this.nextProductId = snapshot.nextProductId;
       this.persist();
     },
+
     persist() {
       const snapshot: CatalogSnapshot = {
         products: this.products,
@@ -218,11 +227,13 @@ export const useCatalogStore = defineStore("catalog", {
       };
       writeSnapshotToStorage(snapshot);
     },
+
     ensureHydrated() {
       if (!this.hydrated) {
-        this.hydrate();
+        return this.hydrate();
       }
     },
+
     async addProduct(payload: ProductInput) {
       this.ensureHydrated();
       if (this.useApi) {
@@ -240,11 +251,13 @@ export const useCatalogStore = defineStore("catalog", {
       const product: Product = {
         ...payload,
         id: this.nextProductId++,
+        slug: payload.slug || slugify(payload.name),
       };
       this.products = [product, ...this.products];
       this.persist();
       return product;
     },
+
     async updateProduct(updatedProduct: Product) {
       this.ensureHydrated();
       if (this.useApi) {
@@ -266,6 +279,7 @@ export const useCatalogStore = defineStore("catalog", {
       );
       this.persist();
     },
+
     async deleteProduct(productId: string | number) {
       this.ensureHydrated();
       if (this.useApi) {
@@ -282,6 +296,7 @@ export const useCatalogStore = defineStore("catalog", {
       );
       this.persist();
     },
+
     recordOrder(payload: OrderPayload) {
       this.ensureHydrated();
       const total =
@@ -304,6 +319,7 @@ export const useCatalogStore = defineStore("catalog", {
       this.persist();
       return order;
     },
+
     updateOrderStatus(orderId: string, status: OrderStatus) {
       this.ensureHydrated();
       this.orders = this.orders.map((order) =>
@@ -311,6 +327,7 @@ export const useCatalogStore = defineStore("catalog", {
       );
       this.persist();
     },
+
     updatePaymentStatus(orderId: string, status: PaymentSummary["status"]) {
       this.ensureHydrated();
       this.orders = this.orders.map((order) =>
@@ -320,9 +337,7 @@ export const useCatalogStore = defineStore("catalog", {
       );
       this.persist();
     },
-    resetToSeedData() {
-      this.applySnapshot(clone(DEFAULT_SNAPSHOT));
-    },
+
     exportSnapshot(pretty = true) {
       this.ensureHydrated();
       const snapshot: CatalogSnapshot = {
@@ -334,6 +349,7 @@ export const useCatalogStore = defineStore("catalog", {
       };
       return JSON.stringify(snapshot, null, pretty ? 2 : undefined);
     },
+
     importSnapshot(input: string | CatalogSnapshot) {
       try {
         const snapshot =
@@ -344,7 +360,7 @@ export const useCatalogStore = defineStore("catalog", {
         this.applySnapshot({
           products: snapshot.products,
           categories: snapshot.categories,
-          faqs: snapshot.faqs ?? clone(seedFaqs),
+          faqs: snapshot.faqs ?? [],
           orders: snapshot.orders ?? [],
           nextProductId:
             snapshot.nextProductId ??
@@ -360,6 +376,7 @@ export const useCatalogStore = defineStore("catalog", {
         throw error;
       }
     },
+
     recordManualPayment(
       orderId: string,
       method: PaymentMethod,

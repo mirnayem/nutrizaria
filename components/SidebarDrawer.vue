@@ -24,11 +24,7 @@
             class="flex items-center justify-between border-b border-slate-100 px-5 pb-4"
           >
             <div class="flex items-center gap-3">
-              <span
-                class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-base font-semibold text-white"
-              >
-                NZ
-              </span>
+              <img src="/nutri.png" alt="NutriZaria Logo" class="h-8 w-8" />
               <div>
                 <p class="text-base font-semibold text-slate-900">NutriZaria</p>
                 <p class="text-xs text-slate-500">
@@ -132,11 +128,7 @@
                   @click="closeDrawer"
                 >
                   <img
-                    :src="
-                      category.image
-                        ? `/images/${category.image}`
-                        : '/nutri.png'
-                    "
+                    :src="resolve(category.image)"
                     :alt="category.name"
                     class="h-10 w-10 rounded-lg object-cover"
                     loading="lazy"
@@ -193,6 +185,8 @@ import { useRoute } from "vue-router";
 import { useCatalogStore } from "~/stores/catalog";
 import { useUIStore } from "~/stores/ui";
 
+const { resolve } = useImageUrl();
+
 type NavLink = {
   label: string;
   to: string;
@@ -203,10 +197,12 @@ const navLinks: NavLink[] = [
   { label: "Shop", to: "/shop" },
   { label: "Categories", to: "/categories/vegetables", match: "/categories" },
   { label: "Favorite", to: "/favorite" },
-  { label: "Checkout", to: "/checkout" },
+  { label: "My account", to: "/profile" },
   { label: "FAQ", to: "/faq" },
 ];
 const quickActions = [
+  { label: "Profile", to: "/profile" },
+  { label: "Orders", to: "/profile?tab=orders" },
   { label: "Favorites", to: "/favorite" },
   { label: "Checkout", to: "/checkout" },
 ];
@@ -241,7 +237,7 @@ watch(
     if (isSidebarOpen.value) {
       closeDrawer();
     }
-  }
+  },
 );
 
 const handleKeydown = (event: KeyboardEvent) => {

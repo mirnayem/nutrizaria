@@ -1,29 +1,56 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useCatalogStore } from "~/stores/catalog";
 import type { Product } from "~/types/product";
 
-definePageMeta({
-  title: "NutriZaria Shop",
-  meta: [
-    {
-      name: "description",
-      content: "Browse the full NutriZaria catalog.",
-    },
-  ],
+useSeo({
+  title: "Shop",
+  description:
+    "Browse the full NutriZaria catalog — fresh produce, pantry staples and more.",
+  image: "/nutri.png",
+  type: "website",
 });
 
+const route = useRoute();
 const catalog = useCatalogStore();
-catalog.hydrate();
+await catalog.hydrate();
 const { products, categories } = storeToRefs(catalog);
+
+// Ensure data is fresh on navigation
+watch(() => route.fullPath, async () => {
+  if (!catalog.hydrated) {
+    await catalog.hydrate();
+  }
+}, { immediate: false });
+
+const config = useRuntimeConfig();
+const currencySymbol = config.public.currencySymbol || "Tk";
 
 const searchQuery = ref("");
 const selectedCategory = ref<string>("all");
-const sortOption = ref<"featured" | "priceLow" | "priceHigh" | "alpha">(
-  "featured"
-);
+const sortOption = ref<"featured" | "priceLow" | "priceHigh" | "alpha">("featured");
+const inStockOnly = ref(false);
 const showFilterPanel = ref(false);
+
+const maxPrice = computed(() =>
+  (products?.value ?? []).reduce((max, p) => Math.max(max, p.price ?? 0), 0)
+);
+
+const priceMin = ref(0);
+const priceMax = ref<number | null>(null);
+const priceInitialized = ref(false);
+
+watch(maxPrice, (value) => {
+  if (value === 0) return;
+  if (!priceInitialized.value) {
+    priceMax.value = value;
+    priceInitialized.value = true;
+  }
+});
+
+const isOutOfStock = (product: Product) => product.stock === 0;
 
 const categoryStats = computed(() => {
   const counts = (products.value ?? []).reduce<Record<string, number>>(
@@ -34,28 +61,40 @@ const categoryStats = computed(() => {
     {}
   );
   return (categories.value ?? []).map((category) => ({
-    ...category,
+    id: category.id,
+    name: category.name,
+    slug: category.slug,
     count: counts[category.slug] ?? 0,
   }));
 });
 
 const filteredProducts = computed<Product[]>(() => {
   let list = [...(products.value ?? [])];
+
   if (selectedCategory.value !== "all") {
-    list = list.filter(
-      (product) => product.category === selectedCategory.value
-    );
+    list = list.filter((product) => product.category === selectedCategory.value);
   }
+
   const keyword = searchQuery.value.trim().toLowerCase();
   if (keyword) {
-    list = list.filter((product) => {
-      return (
+    list = list.filter(
+      (product) =>
         product.name.toLowerCase().includes(keyword) ||
         product.description.toLowerCase().includes(keyword) ||
         product.category.toLowerCase().includes(keyword)
-      );
-    });
+    );
   }
+
+  if (priceMin.value > 0 || priceMax.value < maxPrice.value) {
+    const min = priceMin.value || 0;
+    const max = priceMax.value || Infinity;
+    list = list.filter((product) => product.price >= min && product.price <= max);
+  }
+
+  if (inStockOnly.value) {
+    list = list.filter((product) => !isOutOfStock(product));
+  }
+
   switch (sortOption.value) {
     case "priceLow":
       list.sort((a, b) => a.price - b.price);
@@ -67,32 +106,71 @@ const filteredProducts = computed<Product[]>(() => {
       list.sort((a, b) => a.name.localeCompare(b.name));
       break;
     default:
-      list.sort((a, b) => a.id - b.id);
+      list.sort((a, b) => {
+        const fa = Number(Boolean(a.isFeatured));
+        const fb = Number(Boolean(b.isFeatured));
+        if (fa !== fb) return fb - fa;
+        return String(a.id).localeCompare(String(b.id));
+      });
       break;
   }
   return list;
 });
 
+const isCatalogLoading = computed(() => catalog.loading && !catalog.hydrated);
+
 const totalProducts = computed(() => products.value?.length ?? 0);
 const activeCategoryName = computed(() => {
-  if (selectedCategory.value === "all") return "All categories";
+  if (selectedCategory.value === "all") return "All products";
   return (
-    categoryStats.value.find((cat) => cat.slug === selectedCategory.value)
-      ?.name ?? "All categories"
+    categoryStats.value.find((cat) => cat.slug === selectedCategory.value)?.name ??
+    "All products"
   );
 });
-const hasActiveFilters = computed(
+
+const priceRangeActive = computed(
+  () => priceMin.value > 0 || (priceMax.value !== null && priceMax.value < maxPrice.value)
+);
+const activeFilterCount = computed(
   () =>
-    selectedCategory.value !== "all" ||
-    Boolean(searchQuery.value.trim()) ||
-    sortOption.value !== "featured"
+    (selectedCategory.value !== "all" ? 1 : 0) +
+    (Boolean(searchQuery.value.trim()) ? 1 : 0) +
+    (priceRangeActive.value ? 1 : 0) +
+    (inStockOnly.value ? 1 : 0)
+);
+const hasActiveFilters = computed(() => activeFilterCount.value > 0);
+
+const sortLabel = computed(() =>
+  sortOption.value === "priceLow"
+    ? "Price: Low to High"
+    : sortOption.value === "priceHigh"
+    ? "Price: High to Low"
+    : sortOption.value === "alpha"
+    ? "Alphabetical"
+    : "Featured"
 );
 
 const clearFilters = () => {
   searchQuery.value = "";
   selectedCategory.value = "all";
   sortOption.value = "featured";
+  priceMin.value = 0;
+  priceMax.value = maxPrice.value;
+  priceInitialized.value = true;
+  inStockOnly.value = false;
   showFilterPanel.value = false;
+};
+
+const removeCategoryFilter = () => {
+  selectedCategory.value = "all";
+};
+const removePriceFilter = () => {
+  priceMin.value = 0;
+  priceMax.value = maxPrice.value;
+  priceInitialized.value = true;
+};
+const removeStockFilter = () => {
+  inStockOnly.value = false;
 };
 
 const toggleFilterPanel = () => {
@@ -102,304 +180,61 @@ const closeFilterPanel = () => {
   showFilterPanel.value = false;
 };
 
-watch([selectedCategory, sortOption], () => {
+watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
   showFilterPanel.value = false;
 });
 </script>
+
 <template>
-  <main class="bg-slate-50 py-4 sm:py-12">
-    <div class="mx-auto max-w-6xl space-y-6 px-0 sm:space-y-8 sm:px-4">
-      <section
-        class="rounded-3xl border border-slate-100 bg-gradient-to-br from-white via-white to-violet-50/80 p-4 shadow-sm sm:p-8"
-      >
-        <div
-          class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between"
+  <main class="min-h-screen bg-slate-50 py-6 sm:py-10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+      <nav class="mb-5 flex items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
+        <NuxtLink to="/" class="transition hover:text-violet-600">Home</NuxtLink>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="size-3.5 text-slate-300"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
         >
-          <div class="max-w-2xl space-y-3 sm:space-y-4">
-            <p
-              class="text-[10px] font-semibold uppercase tracking-[0.35em] text-violet-600 sm:text-xs"
-            >
-              Bangladesh pantry market
-            </p>
-            <h1
-              class="text-3xl font-semibold leading-tight text-slate-900 sm:text-4xl"
-            >
-              Trusted everyday essentials for Bangladeshi kitchens
-            </h1>
-            <p class="text-sm text-slate-500 sm:text-base">
-              Browse fresh produce, halal proteins, and pantry staples curated
-              for local tastes. From Cox’s Bazar seafood to Dinajpur rice, every
-              order ships quickly across the country.
-            </p>
-          </div>
-          <div
-            class="grid gap-4 rounded-2xl border border-slate-100 bg-white/90 p-4 text-center text-xs text-slate-500 sm:grid-cols-2 sm:text-sm"
-          >
-            <div>
-              <p class="text-xs uppercase tracking-wide text-slate-400">
-                Total products
-              </p>
-              <p class="text-2xl font-semibold text-slate-900 sm:text-3xl">
-                {{ totalProducts }}
-              </p>
-            </div>
-            <div>
-              <p class="text-xs uppercase tracking-wide text-slate-400">
-                Categories
-              </p>
-              <p class="text-2xl font-semibold text-slate-900 sm:text-3xl">
-                {{ categoryStats.length }}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+        <span class="font-medium text-slate-700">Shop</span>
+      </nav>
 
-      <section
-        class="space-y-4 rounded-3xl border border-slate-100 bg-white/95 p-4 shadow-sm lg:hidden"
-      >
+      <header class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <label class="text-sm font-semibold text-slate-600"
-            >Search inventory</label
-          >
-          <div
-            class="mt-3 flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-violet-400"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="size-5 text-slate-400"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m15.75 15.75 4.5 4.5m-2.25-7.5a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"
-              />
-            </svg>
-            <input
-              v-model="searchQuery"
-              type="search"
-              placeholder="Search items, e.g. honey"
-              class="ml-3 w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-            />
-          </div>
-        </div>
-        <div class="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            class="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
-            @click="toggleFilterPanel"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="size-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 6h16.5M4.5 12h15m-13.5 6h12"
-              />
-            </svg>
-            Sort & Filters
-          </button>
-          <button
-            v-if="hasActiveFilters"
-            type="button"
-            class="inline-flex items-center gap-2 rounded-2xl border border-transparent bg-violet-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-violet-700"
-            @click="clearFilters"
-          >
-            Reset
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="size-3.5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18 18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        <div class="space-y-2">
-          <p
-            class="text-[10px] font-semibold uppercase tracking-[0.35em] text-slate-400"
-          >
-            Categories
+          <h1 class="text-2xl font-semibold text-slate-900 sm:text-3xl">Shop</h1>
+          <p class="mt-1 text-sm text-slate-500">
+            Fresh, authentic essentials — curated for Bangladeshi kitchens.
           </p>
-          <div class="mt-1 flex gap-2 overflow-x-auto pb-1">
-            <button
-              type="button"
-              class="flex-shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-wide transition"
-              :class="
-                selectedCategory === 'all'
-                  ? 'border-violet-400 bg-violet-50 text-violet-700'
-                  : 'border-slate-200 bg-white text-slate-600'
-              "
-              @click="selectedCategory = 'all'"
-            >
-              All ({{ totalProducts }})
-            </button>
-            <button
-              v-for="category in categoryStats"
-              :key="category.id"
-              type="button"
-              class="flex-shrink-0 rounded-full border px-4 py-2 text-[11px] font-semibold uppercase tracking-wide transition"
-              :class="
-                selectedCategory === category.slug
-                  ? 'border-violet-400 bg-violet-50 text-violet-700'
-                  : 'border-slate-200 bg-white text-slate-600'
-              "
-              @click="selectedCategory = category.slug"
-            >
-              {{ category.name }} ({{ category.count }})
-            </button>
-          </div>
         </div>
-      </section>
+        <p class="text-sm text-slate-500">
+          {{ filteredProducts.length }}
+          <span class="text-slate-400">of {{ totalProducts }} products</span>
+        </p>
+      </header>
 
-      <div class="grid gap-6 lg:grid-cols-[300px,1fr]">
-        <aside class="hidden space-y-6 lg:block lg:sticky lg:top-24 lg:h-fit">
-          <div
-            class="rounded-3xl border border-slate-100 bg-white/95 p-5 shadow-sm"
-          >
-            <label class="text-sm font-semibold text-slate-600"
-              >Search inventory</label
-            >
-            <div
-              class="mt-3 flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-violet-400"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="size-5 text-slate-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m15.75 15.75 4.5 4.5m-2.25-7.5a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"
-                />
-              </svg>
-              <input
-                v-model="searchQuery"
-                type="search"
-                placeholder="Search items, e.g. honey"
-                class="ml-3 w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-              />
-            </div>
-          </div>
-
-          <div
-            class="rounded-3xl border border-slate-100 bg-white/95 p-5 shadow-sm"
-          >
-            <div class="flex items-center justify-between">
-              <h2 class="text-sm font-semibold text-slate-600">Categories</h2>
-              <span class="text-xs text-slate-400"
-                >{{ categoryStats.length }} total</span
-              >
-            </div>
-            <div class="mt-4 space-y-2 max-h-80 overflow-y-auto pr-1">
-              <button
-                type="button"
-                class="flex w-full items-center justify-between rounded-2xl border px-4 py-2 text-left text-sm transition"
-                :class="
-                  selectedCategory === 'all'
-                    ? 'border-violet-200 bg-violet-50 text-violet-700'
-                    : 'border-transparent bg-slate-50/60 text-slate-600 hover:border-slate-200'
-                "
-                @click="selectedCategory = 'all'"
-              >
-                <span>All products</span>
-                <span class="text-xs text-slate-400">{{ totalProducts }}</span>
-              </button>
-              <button
-                v-for="category in categoryStats"
-                :key="category.id"
-                type="button"
-                class="flex w-full items-center justify-between rounded-2xl border px-4 py-2 text-left text-sm transition"
-                :class="
-                  selectedCategory === category.slug
-                    ? 'border-violet-200 bg-violet-50 text-violet-700'
-                    : 'border-transparent bg-slate-50/60 text-slate-600 hover:border-slate-200'
-                "
-                @click="selectedCategory = category.slug"
-              >
-                <span>{{ category.name }}</span>
-                <span class="text-xs text-slate-400">{{ category.count }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div
-            class="rounded-3xl border border-slate-100 bg-white/95 p-5 shadow-sm space-y-3"
-          >
-            <label class="text-sm font-semibold text-slate-600"
-              >Sort products</label
-            >
-            <select
-              v-model="sortOption"
-              class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-violet-400"
-            >
-              <option value="featured">Featured (default)</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-              <option value="alpha">Alphabetical</option>
-            </select>
-          </div>
-        </aside>
-
-        <section
-          class="space-y-5 rounded-3xl border border-slate-100 bg-white/95 py-4 px-2 shadow-sm sm:p-6 lg:order-2"
-        >
-          <div
-            class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div>
-              <p
-                class="text-xs font-semibold uppercase tracking-[0.3em] text-violet-500"
-              >
-                Results
-              </p>
-              <h2
-                class="text-[1.75rem] font-semibold text-slate-900 sm:text-2xl"
-              >
-                {{ filteredProducts.length }} products available
-              </h2>
-              <p class="text-sm text-slate-500 sm:text-base">
-                {{ activeCategoryName }}
-                • Sorted by
-                {{
-                  sortOption === "priceLow"
-                    ? "Price (Low → High)"
-                    : sortOption === "priceHigh"
-                    ? "Price (High → Low)"
-                    : sortOption === "alpha"
-                    ? "Alphabetical"
-                    : "Featured"
-                }}
-              </p>
-            </div>
+      <div class="grid gap-8 lg:grid-cols-[260px,minmax(0,1fr)]">
+        <aside class="hidden lg:block">
+          <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-24">
+            <ShopFilters
+              v-model:search-query="searchQuery"
+              v-model:selected-category="selectedCategory"
+              v-model:price-min="priceMin"
+              v-model:price-max="priceMax"
+              v-model:in-stock-only="inStockOnly"
+              :categories="categoryStats"
+              :max-price="maxPrice"
+              :total-products="totalProducts"
+            />
             <button
               v-if="hasActiveFilters"
               type="button"
-              class="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-[11px] font-semibold uppercase tracking-wide text-slate-600 transition hover:border-violet-200 hover:text-violet-700"
+              class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:border-violet-300 hover:text-violet-700"
               @click="clearFilters"
             >
-              Clear filters
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="size-4"
@@ -411,71 +246,56 @@ watch([selectedCategory, sortOption], () => {
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
+                  d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
                 />
               </svg>
+              Clear all filters
             </button>
           </div>
+        </aside>
 
-          <Products
-            :products="filteredProducts"
-            :paginate="true"
-            :page-size="12"
-            :max-two-per-row="true"
-          />
-        </section>
-      </div>
-    </div>
+        <section>
+          <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-violet-300 hover:text-violet-700 lg:hidden"
+                @click="toggleFilterPanel"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="size-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+                  />
+                </svg>
+                Filters
+                <span
+                  v-if="activeFilterCount > 0"
+                  class="inline-flex size-5 items-center justify-center rounded-full bg-violet-600 text-[11px] font-semibold text-white"
+                >
+                  {{ activeFilterCount }}
+                </span>
+              </button>
 
-    <div
-      v-if="showFilterPanel"
-      class="fixed inset-0 z-40 flex bg-slate-950/40 backdrop-blur-sm lg:hidden"
-    >
-      <button
-        class="flex-1"
-        @click="closeFilterPanel"
-        aria-label="Close filters"
-      ></button>
-      <div
-        class="h-full w-[85%] max-w-sm overflow-y-auto rounded-l-3xl border border-white/10 bg-white p-5 shadow-2xl"
-      >
-        <div class="mb-4 flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-slate-900">
-            Filters & sorting
-          </h2>
-          <button
-            type="button"
-            class="rounded-full bg-slate-100 p-2 text-slate-500"
-            @click="closeFilterPanel"
-            aria-label="Close filters"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="size-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="1.5"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M6 18 18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-        <div class="space-y-6">
-          <div>
-            <label class="text-sm font-semibold text-slate-600"
-              >Search inventory</label
-            >
-            <div
-              class="mt-3 flex items-center rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:border-violet-400"
-            >
+              <div class="hidden items-center gap-2 text-sm text-slate-500 sm:flex">
+                <span class="font-medium text-slate-700">{{ activeCategoryName }}</span>
+                <span class="text-slate-300">•</span>
+                <span>Sorted by {{ sortLabel }}</span>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="size-5 text-slate-400"
+                class="size-4 text-slate-400"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke-width="1.5"
@@ -484,81 +304,217 @@ watch([selectedCategory, sortOption], () => {
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                  d="m15.75 15.75 4.5 4.5m-2.25-7.5a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z"
+                  d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"
                 />
               </svg>
-              <input
-                v-model="searchQuery"
-                type="search"
-                placeholder="Search items"
-                class="ml-3 w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-              />
+              <select
+                v-model="sortOption"
+                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
+              >
+                <option value="featured">Featured</option>
+                <option value="priceLow">Price: Low to High</option>
+                <option value="priceHigh">Price: High to Low</option>
+                <option value="alpha">Alphabetical</option>
+              </select>
             </div>
           </div>
 
-          <div>
-            <div class="flex items-center justify-between">
-              <h3 class="text-sm font-semibold text-slate-600">Categories</h3>
-              <span class="text-xs text-slate-400"
-                >{{ categoryStats.length }} total</span
-              >
-            </div>
-            <div class="mt-3 space-y-2">
-              <button
-                type="button"
-                class="flex w-full items-center justify-between rounded-2xl border px-4 py-2 text-left text-sm transition"
-                :class="
-                  selectedCategory === 'all'
-                    ? 'border-violet-200 bg-violet-50 text-violet-700'
-                    : 'border-slate-100 bg-slate-50 text-slate-600'
-                "
-                @click="selectedCategory = 'all'"
-              >
-                <span>All products</span>
-                <span class="text-xs text-slate-400">{{ totalProducts }}</span>
-              </button>
-              <button
-                v-for="category in categoryStats"
-                :key="category.id"
-                type="button"
-                class="flex w-full items-center justify-between rounded-2xl border px-4 py-2 text-left text-sm transition"
-                :class="
-                  selectedCategory === category.slug
-                    ? 'border-violet-200 bg-violet-50 text-violet-700'
-                    : 'border-slate-100 bg-slate-50 text-slate-600'
-                "
-                @click="selectedCategory = category.slug"
-              >
-                <span>{{ category.name }}</span>
-                <span class="text-xs text-slate-400">{{ category.count }}</span>
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label class="text-sm font-semibold text-slate-600"
-              >Sort products</label
-            >
-            <select
-              v-model="sortOption"
-              class="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none focus:border-violet-400"
-            >
-              <option value="featured">Featured (default)</option>
-              <option value="priceLow">Price: Low to High</option>
-              <option value="priceHigh">Price: High to Low</option>
-              <option value="alpha">Alphabetical</option>
-            </select>
-          </div>
-
-          <button
-            type="button"
-            class="w-full rounded-2xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
-            @click="closeFilterPanel"
+          <div
+            v-if="hasActiveFilters"
+            class="mb-4 flex flex-wrap items-center gap-2"
           >
-            Apply & close
-          </button>
-        </div>
+            <span class="text-xs font-medium uppercase tracking-wide text-slate-400">
+              Active:
+            </span>
+            <button
+              v-if="selectedCategory !== 'all'"
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 transition hover:bg-violet-100"
+              @click="removeCategoryFilter"
+            >
+              {{ activeCategoryName }}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="size-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+<button
+  v-if="priceRangeActive"
+  type="button"
+  class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 transition hover:bg-violet-100"
+  @click="removePriceFilter"
+>
+  {{ priceMin > 0 ? currencySymbol + priceMin : "0" }} –
+  {{ priceMax !== null && priceMax < maxPrice ? currencySymbol + priceMax : currencySymbol + maxPrice }}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    class="size-3"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke-width="2"
+    stroke="currentColor"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+  </svg>
+</button>
+            <button
+              v-if="inStockOnly"
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 transition hover:bg-violet-100"
+              @click="removeStockFilter"
+            >
+              In stock
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="size-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="text-xs font-medium text-slate-400 underline-offset-2 transition hover:text-slate-600 hover:underline"
+              @click="clearFilters"
+            >
+              Clear all
+            </button>
+          </div>
+
+          <Products
+            v-if="!isCatalogLoading && filteredProducts.length"
+            :products="filteredProducts"
+            :paginate="true"
+            :page-size="12"
+            :columns="3"
+          />
+          <div
+            v-else-if="isCatalogLoading"
+            aria-label="Loading products"
+          >
+            <SkeletonProductGrid :count="6" :columns="3" />
+          </div>
+          <div
+            v-else
+            class="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-20 text-center"
+          >
+            <div class="flex size-14 items-center justify-center rounded-full bg-slate-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="size-7 text-slate-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+            </div>
+            <p class="mt-4 text-base font-semibold text-slate-800">No products found</p>
+            <p class="mt-1 max-w-sm text-sm text-slate-500">
+              We couldn't find anything matching your search. Try different keywords or clear
+              your filters.
+            </p>
+            <button
+              type="button"
+              class="mt-6 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              @click="clearFilters"
+            >
+              Clear all filters
+            </button>
+          </div>
+        </section>
       </div>
     </div>
+
+    <Transition name="fade">
+      <div
+        v-if="showFilterPanel"
+        class="fixed inset-0 z-40 flex bg-slate-950/40 backdrop-blur-sm lg:hidden"
+      >
+        <button
+          type="button"
+          class="flex-1"
+          @click="closeFilterPanel"
+          aria-label="Close filters"
+        ></button>
+        <div
+          class="flex h-full w-[85%] max-w-sm flex-col rounded-l-3xl border border-white/10 bg-white shadow-2xl"
+        >
+          <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+            <h2 class="text-lg font-semibold text-slate-900">Filters</h2>
+            <button
+              type="button"
+              class="rounded-full bg-slate-100 p-2 text-slate-500 transition hover:bg-slate-200"
+              @click="closeFilterPanel"
+              aria-label="Close filters"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="size-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="flex-1 overflow-y-auto px-5 py-5">
+            <ShopFilters
+              v-model:search-query="searchQuery"
+              v-model:selected-category="selectedCategory"
+              v-model:price-min="priceMin"
+              v-model:price-max="priceMax"
+              v-model:in-stock-only="inStockOnly"
+              :categories="categoryStats"
+              :max-price="maxPrice"
+              :total-products="totalProducts"
+            />
+          </div>
+          <div class="flex gap-3 border-t border-slate-100 px-5 py-4">
+            <button
+              type="button"
+              class="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:border-slate-300"
+              @click="clearFilters"
+            >
+              Clear all
+            </button>
+            <button
+              type="button"
+              class="flex-1 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              @click="closeFilterPanel"
+            >
+              Show {{ filteredProducts.length }} results
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </main>
 </template>
+
+<style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

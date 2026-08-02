@@ -14,7 +14,11 @@
       </div>
     </div>
 
-    <div class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+    <div v-if="loading" aria-label="Loading orders">
+      <SkeletonTable :rows="5" :columns="7" />
+    </div>
+
+    <div v-else class="overflow-hidden rounded-xl border border-slate-200 bg-white">
       <table class="min-w-full divide-y divide-slate-200">
         <thead class="bg-slate-50">
           <tr>
@@ -141,6 +145,7 @@ const orders = ref<any[]>([]);
 const search = ref('');
 const statusFilter = ref('');
 const selectedOrder = ref<any>(null);
+const loading = ref(false);
 
 const statuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
 
@@ -220,6 +225,7 @@ const viewOrder = (order: any) => {
 };
 
 const loadOrders = async () => {
+  loading.value = true;
   try {
     const apiBase = config.public.apiBase;
     const token = useCookie('auth_token');
@@ -229,6 +235,9 @@ const loadOrders = async () => {
     orders.value = res?.data?.items || res?.items || [];
   } catch (e) {
     console.error('Failed to load orders', e);
+  }
+  finally {
+    loading.value = false;
   }
 };
 

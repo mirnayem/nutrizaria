@@ -9,15 +9,15 @@
         to="/"
         class="flex items-center gap-2 text-lg font-semibold text-violet-700"
       >
-        <span
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-white"
-        >
-          NZ
-        </span>
+        <img
+          src="/nutri.png"
+          alt="NutriZaria Logo"
+          class="h-10 w-10 rounded-full"
+        />
         NutriZaria
       </NuxtLink>
 
-      <nav class="hidden items-center gap-6 lg:flex">
+      <nav class="hidden items-center gap-6 ml-4 lg:flex">
         <NuxtLink
           to="/shop"
           class="transition hover:text-violet-700"
@@ -93,9 +93,7 @@
                 class="flex items-center gap-3 rounded-2xl border border-slate-100 p-3 text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-800"
               >
                 <img
-                  :src="
-                    category.image ? `/images/${category.image}` : '/nutri.png'
-                  "
+                  :src="resolve(category.image)"
                   :alt="category.name"
                   class="h-12 w-12 rounded-xl object-cover"
                   loading="lazy"
@@ -158,12 +156,102 @@
           </ClientOnly>
         </button>
 
-        <NuxtLink
-          to="/checkout"
-          class="hidden rounded-full bg-violet-600 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white shadow-md transition hover:bg-violet-500 lg:inline-flex"
-        >
-          Checkout
-        </NuxtLink>
+        <div class="relative" ref="profileRef">
+          <ClientOnly>
+            <button
+              v-if="!isAuthenticated"
+              type="button"
+              class="inline-flex rounded-full bg-white/90 p-2 shadow transition hover:text-violet-700"
+              @click="router.push('/login')"
+              aria-label="Sign in to your account"
+            >
+              <UserIcon class="size-5 text-slate-600" />
+            </button>
+
+            <button
+              v-else
+              type="button"
+              class="relative flex items-center gap-1 rounded-full bg-white/90 p-1.5 pr-2 shadow transition hover:text-violet-700"
+              @click="toggleProfile()"
+              :aria-expanded="isProfileOpen"
+              aria-haspopup="true"
+              aria-label="Account menu"
+            >
+              <span
+                class="flex size-7 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white"
+              >
+                {{ initials }}
+              </span>
+              <ChevronDownIcon
+                class="size-3.5 text-slate-500 transition"
+                :class="isProfileOpen ? 'rotate-180' : ''"
+              />
+            </button>
+          </ClientOnly>
+
+          <transition
+            enter-active-class="transition duration-150 ease-out"
+            enter-from-class="translate-y-1 opacity-0"
+            enter-to-class="translate-y-0 opacity-100"
+            leave-active-class="transition duration-100 ease-in"
+            leave-from-class="translate-y-0 opacity-100"
+            leave-to-class="translate-y-1 opacity-0"
+          >
+            <div
+              v-if="isProfileOpen && isAuthenticated"
+              class="absolute right-0 top-full z-50 mt-3 w-72 overflow-hidden rounded-2xl border border-slate-100 bg-white/95 shadow-2xl backdrop-blur"
+            >
+              <div class="border-b border-slate-100 px-5 py-4">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="flex size-11 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white"
+                  >
+                    {{ initials }}
+                  </span>
+                  <div class="min-w-0">
+                    <p class="truncate text-sm font-semibold text-slate-900">
+                      {{ userStore.displayName }}
+                    </p>
+                    <p class="truncate text-xs text-slate-500">
+                      {{ userStore.authenticatedUser?.email }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <nav class="p-2">
+                <NuxtLink
+                  v-for="link in profileLinks"
+                  :key="link.label"
+                  :to="link.to"
+                  class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+                  @click="isProfileOpen = false"
+                >
+                  <component :is="link.icon" class="size-5 text-slate-400" />
+                  {{ link.label }}
+                </NuxtLink>
+                <NuxtLink
+                  v-if="isAdmin"
+                  to="/admin"
+                  class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+                  @click="isProfileOpen = false"
+                >
+                  <Squares2X2Icon class="size-5 text-slate-400" />
+                  Admin dashboard
+                </NuxtLink>
+              </nav>
+              <div class="border-t border-slate-100 p-2">
+                <button
+                  type="button"
+                  class="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                  @click="handleLogout"
+                >
+                  <ArrowRightStartOnRectangleIcon class="size-5" />
+                  Sign out
+                </button>
+              </div>
+            </div>
+          </transition>
+        </div>
 
         <button
           type="button"
@@ -200,41 +288,85 @@
 
 <script setup lang="ts">
 import {
+  ArrowRightStartOnRectangleIcon,
   Bars3Icon,
+  ChevronDownIcon,
+  ClipboardDocumentListIcon,
+  Cog6ToothIcon,
   HeartIcon,
+  MapPinIcon,
   QuestionMarkCircleIcon,
   ShoppingBagIcon,
+  Squares2X2Icon,
+  UserCircleIcon,
+  UserIcon,
 } from "@heroicons/vue/24/outline";
 import { storeToRefs } from "pinia";
 import { computed, ref, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useCartStore } from "~/stores/cart";
 import { useFavoriteStore } from "~/stores/favorite";
 import { useCatalogStore } from "~/stores/catalog";
 import { useUIStore } from "~/stores/ui";
+import { useUserStore } from "~/stores/user";
 import { useClickOutside } from "~/composables/useClickOutside";
+
+const { resolve } = useImageUrl();
 
 const mobileLinks = [
   { label: "Shop", to: "/shop", icon: ShoppingBagIcon },
   { label: "Favorite", to: "/favorite", icon: HeartIcon },
-  { label: "Checkout", to: "/checkout", icon: ShoppingBagIcon },
+  { label: "Profile", to: "/profile", icon: UserCircleIcon },
   { label: "FAQ", to: "/faq", icon: QuestionMarkCircleIcon },
 ];
 const cartStore = useCartStore();
 const favoriteStore = useFavoriteStore();
 const catalogStore = useCatalogStore();
+const userStore = useUserStore();
+const route = useRoute();
+const router = useRouter();
 catalogStore.hydrate();
 
 const { items: favoriteItems } = storeToRefs(favoriteStore);
 const { totalItems: cartTotalItems } = storeToRefs(cartStore);
 const { categories } = storeToRefs(catalogStore);
 
+if (typeof window !== "undefined") {
+  favoriteStore.loadFavorites();
+  cartStore.loadCartFromLocalStorage();
+  userStore.loadAuthenticatedUser();
+}
+
+const isAuthenticated = computed(() => !!userStore.authenticatedUser);
+const isAdmin = computed(() => {
+  const role = userStore.authenticatedUser?.role;
+  return role === "ADMIN" || role === "SUPER_ADMIN";
+});
+const initials = computed(() => {
+  const name =
+    userStore.authenticatedUser?.name?.trim() ||
+    (userStore.authenticatedUser?.email || "").split("@")[0];
+  const parts = name.split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
+});
+const profileLinks = computed(() => [
+  { label: "My profile", to: "/profile", icon: UserCircleIcon },
+  {
+    label: "My orders",
+    to: "/profile?tab=orders",
+    icon: ClipboardDocumentListIcon,
+  },
+  { label: "Saved addresses", to: "/profile?tab=addresses", icon: MapPinIcon },
+  { label: "Settings", to: "/profile?tab=settings", icon: Cog6ToothIcon },
+]);
+
 const featuredCategories = computed(() => categories.value.slice(0, 8));
 
 const isCategoriesOpen = ref(false);
 const categoriesRef = ref<HTMLElement | null>(null);
-const route = useRoute();
-const uiStore = useUIStore();
+
+const isProfileOpen = ref(false);
+const profileRef = ref<HTMLElement | null>(null);
 
 const toggleCategories = (value?: boolean) => {
   if (typeof value === "boolean") {
@@ -244,14 +376,33 @@ const toggleCategories = (value?: boolean) => {
   isCategoriesOpen.value = !isCategoriesOpen.value;
 };
 
+const toggleProfile = (value?: boolean) => {
+  if (typeof value === "boolean") {
+    isProfileOpen.value = value;
+    return;
+  }
+  isProfileOpen.value = !isProfileOpen.value;
+};
+
+const handleLogout = () => {
+  userStore.logoutUser();
+  isProfileOpen.value = false;
+  router.push("/");
+};
+
 useClickOutside(categoriesRef, () => {
   isCategoriesOpen.value = false;
+});
+
+useClickOutside(profileRef, () => {
+  isProfileOpen.value = false;
 });
 
 watch(
   () => route.fullPath,
   () => {
     isCategoriesOpen.value = false;
-  }
+    isProfileOpen.value = false;
+  },
 );
 </script>

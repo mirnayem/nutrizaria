@@ -161,7 +161,6 @@ definePageMeta({ layout: false });
 const route = useRoute();
 const router = useRouter();
 const config = useRuntimeConfig();
-const userStore = useUserStore();
 const adminApi = useAdminApi();
 
 const isLoadingAuth = ref(true);
@@ -170,14 +169,24 @@ const showNotifications = ref(false);
 const notifications = ref<any[]>([]);
 const unreadCount = ref(0);
 
-const userName = computed(() => userStore.authenticatedUser?.name || 'Admin');
-const userRole = computed(() => userStore.authenticatedUser?.role || 'ADMIN');
+const userName = computed(() => {
+  const userStore = useUserStore();
+  return userStore.authenticatedUser?.name || 'Admin';
+});
+const userRole = computed(() => {
+  const userStore = useUserStore();
+  return userStore.authenticatedUser?.role || 'ADMIN';
+});
 const userInitials = computed(() => {
-  const name = userName.value;
+  const userStore = useUserStore();
+  const name = userStore.authenticatedUser?.name || 'Admin';
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 });
 
-const isAuthenticated = computed(() => !!userStore.authenticatedUser);
+const isAuthenticated = computed(() => {
+  const userStore = useUserStore();
+  return !!userStore.authenticatedUser;
+});
 
 const pageTitle = computed(() => {
   const path = route.path;
@@ -221,6 +230,7 @@ const isActive = (path: string) => {
 };
 
 const handleLogout = () => {
+  const userStore = useUserStore();
   userStore.logoutUser();
   router.push('/login');
 };
@@ -229,6 +239,7 @@ onMounted(async () => {
   // Check authentication on mount
   if (process.client) {
     const token = useCookie('auth_token').value;
+    const userStore = useUserStore();
     if (!token) {
       isLoadingAuth.value = false;
       return;

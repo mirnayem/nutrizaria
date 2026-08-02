@@ -68,7 +68,7 @@ const props = defineProps({
   },
   maxWidth: {
     type: String,
-    default: "max-w-4xl",
+    default: "max-w-6xl",
   },
   closeOnEsc: {
     type: Boolean,

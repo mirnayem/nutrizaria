@@ -88,11 +88,16 @@
       </div>
     </div>
 
-    <AppModal :isOpen="showModal" :title="editingProduct ? 'Edit Product' : 'Add Product'" maxWidth="max-w-lg" @handleModal="closeModal">
+    <AppModal :isOpen="showModal" :title="editingProduct ? 'Edit Product' : 'Add Product'" maxWidth="max-w-6xl" @handleModal="closeModal">
       <form @submit.prevent="saveProduct" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
           <input v-model="form.name" type="text" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Slug</label>
+          <input v-model="form.slug" type="text" placeholder="auto-generated from name" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          <p class="mt-1 text-xs text-slate-500">Used in the product URL. Leave empty to auto-generate.</p>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -135,6 +140,120 @@
             </label>
           </div>
         </div>
+
+        <div class="border-t border-slate-200 pt-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-slate-900">Product Variants</h3>
+            <button type="button" @click="addVariant" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Add Variant
+            </button>
+          </div>
+          
+          <div v-if="form.variants.length === 0" class="text-center py-10 border-2 border-dashed border-slate-200 rounded-xl bg-slate-50">
+            <div class="mx-auto w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mb-4">
+              <svg class="h-8 w-8 text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </div>
+            <p class="text-sm font-medium text-slate-700">No variants added yet</p>
+            <p class="mt-1 text-xs text-slate-500">Product will use base price and stock if no variants are defined</p>
+            <button type="button" @click="addVariant" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              Add First Variant
+            </button>
+          </div>
+          
+          <div v-else class="space-y-4">
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200">
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">#</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Image</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Label *</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Weight *</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Unit *</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Price *</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Compare Price</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Stock</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">SKU</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Sort Order</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Active</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="(variant, index) in form.variants" :key="variant.id || index" class="hover:bg-slate-50">
+                    <td class="px-3 py-2 font-medium text-slate-700">{{ index + 1 }}</td>
+                    <td class="px-3 py-2">
+                      <ImageUploader :images="variant.image ? [variant.image] : []" @update:images="urls => variant.image = urls[0] || ''" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model="variant.label" type="text" required placeholder="e.g., 250g, 500g, 1kg" class="w-full max-w-xs rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <div class="flex items-center gap-1">
+                        <input v-model.number="variant.weight" type="number" min="0" step="0.01" required class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+                        <select v-model="variant.unit" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500">
+                          <option value="g">g</option>
+                          <option value="kg">kg</option>
+                          <option value="ml">ml</option>
+                          <option value="l">l</option>
+                          <option value="pcs">pcs</option>
+                        </select>
+                      </div>
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model.number="variant.price" type="number" min="0" step="0.01" required class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model.number="variant.comparePrice" type="number" min="0" step="0.01" class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" placeholder="Optional" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model.number="variant.stock" type="number" min="0" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model="variant.sku" type="text" class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" placeholder="Optional" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model.number="variant.sortOrder" type="number" min="0" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <label class="flex items-center gap-2 cursor-pointer">
+                        <input v-model="variant.isActive" type="checkbox" class="rounded border-slate-300 text-violet-600 focus:ring-violet-500" />
+                        <span class="text-xs text-slate-600">Active</span>
+                      </label>
+                    </td>
+                    <td class="px-3 py-2">
+                      <button type="button" @click="removeVariant(index)" class="text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-red-50 transition-colors">
+                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                        <span class="hidden sm:inline">Remove</span>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="flex items-center gap-2 pt-4 border-t border-slate-200">
+              <span class="text-xs text-slate-500 flex-1">* Required fields</span>
+              <button type="button" @click="addVariant" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+                Add Another Variant
+              </button>
+            </div>
+          </div>
+        </div>
+
         <p v-if="saveError" class="text-sm text-red-600">{{ saveError }}</p>
         <div class="flex gap-3 pt-2">
           <button type="submit" class="flex-1 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700" :disabled="saving">
@@ -158,7 +277,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, reactive } from 'vue';
+import { ref, computed, onMounted, reactive, watch } from 'vue';
 
 definePageMeta({ layout: 'admin' });
 
@@ -181,6 +300,7 @@ const saveError = ref('');
 
 const form = reactive({
   name: '',
+  slug: '',
   price: 0,
   unit: '',
   categorySlug: '',
@@ -189,6 +309,7 @@ const form = reactive({
   description: '',
   stock: 100,
   isActive: true,
+  variants: [] as any[],
 });
 
 const confirmModal = reactive({
@@ -198,6 +319,22 @@ const confirmModal = reactive({
   confirmText: 'Delete',
   resolve: null as ((val: boolean) => void) | null,
 });
+
+const slugify = (str: string): string =>
+  String(str || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'product';
+
+watch(
+  () => form.name,
+  (name) => {
+    if (!form.slug.trim()) form.slug = slugify(name);
+  }
+);
 
 const filteredProducts = computed(() => {
   if (!search.value) return products.value;
@@ -233,6 +370,7 @@ const openCreateModal = () => {
 const editProduct = (product: any) => {
   editingProduct.value = product;
   form.name = product.name;
+  form.slug = product.slug || '';
   form.price = product.price;
   form.unit = product.unit;
   form.categorySlug = product.category?.slug || product.category;
@@ -241,11 +379,47 @@ const editProduct = (product: any) => {
   form.description = product.description || '';
   form.stock = product.stock ?? 100;
   form.isActive = product.isActive ?? true;
+  form.variants = (product.variants || []).map((v: any) => ({
+    id: v.id,
+    label: v.label,
+    weight: v.weight,
+    unit: v.unit,
+    price: v.price,
+    comparePrice: v.comparePrice,
+    stock: v.stock,
+    sku: v.sku,
+    image: v.image,
+    sortOrder: v.sortOrder,
+    isActive: v.isActive ?? true,
+  }));
   showModal.value = true;
+};
+
+const addVariant = () => {
+  form.variants.push({
+    label: '',
+    weight: 0,
+    unit: 'g',
+    price: 0,
+    comparePrice: undefined,
+    stock: 0,
+    sku: '',
+    image: '',
+    sortOrder: form.variants.length,
+    isActive: true,
+    _isNew: true, // flag to track new variants
+  });
+};
+
+const removeVariant = (index: number) => {
+  form.variants.splice(index, 1);
+  // Re-index sortOrder
+  form.variants.forEach((v, i) => { v.sortOrder = i; });
 };
 
 const resetForm = () => {
   form.name = '';
+  form.slug = '';
   form.price = 0;
   form.unit = '';
   form.categorySlug = '';
@@ -254,6 +428,7 @@ const resetForm = () => {
   form.description = '';
   form.stock = 100;
   form.isActive = true;
+  form.variants = [];
 };
 
 const closeModal = () => {
@@ -274,7 +449,26 @@ const saveProduct = async () => {
   saving.value = true;
   saveError.value = '';
   try {
-    const payload = JSON.parse(JSON.stringify(form));
+    // Filter variants to only include valid ones with required fields
+    const validVariants = (form.variants || [])
+      .filter((v: any) => v.label?.trim() && v.weight > 0 && v.unit?.trim() && v.price > 0)
+      .map((v: any, index: number) => ({
+        label: v.label.trim(),
+        weight: v.weight,
+        unit: v.unit,
+        price: v.price,
+        comparePrice: v.comparePrice && v.comparePrice > 0 ? v.comparePrice : undefined,
+        stock: v.stock || 0,
+        sku: v.sku?.trim() || undefined,
+        image: v.image?.trim() || undefined,
+        sortOrder: v.sortOrder ?? index,
+      }));
+
+    const payload = JSON.parse(JSON.stringify({
+      ...form,
+      variants: validVariants.length > 0 ? validVariants : undefined,
+    }));
+    
     const endpoint = editingProduct.value
       ? `${apiBase}/admin/products/${editingProduct.value.id}`
       : `${apiBase}/admin/products`;
