@@ -18,6 +18,7 @@ type CatalogSnapshot = {
   faqs: Faq[];
   orders: OrderRecord[];
   nextProductId: number;
+  useApi?: boolean;
 };
 
 interface CatalogState extends CatalogSnapshot {
@@ -134,6 +135,7 @@ export const useCatalogStore = defineStore("catalog", {
         this.products = clone(snap.products).map(normalizeProduct);
         this.categories = clone(snap.categories);
         this.faqs = clone(snap.faqs);
+        this.useApi = snap.useApi ?? false;
         this.hydrated = true;
         return;
       }
@@ -219,6 +221,7 @@ export const useCatalogStore = defineStore("catalog", {
               products: this.products,
               categories: this.categories,
               faqs: this.faqs,
+              useApi: this.useApi,
             };
           }
         }

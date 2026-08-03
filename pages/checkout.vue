@@ -477,7 +477,7 @@ const placeOrder = async () => {
         shippingCountry: "Bangladesh",
         deliveryArea: shipping.value.area,
         items: cartStore.items.map((item: any) => ({
-          productId: item.id,
+          productId: item.productId || item.id,
           quantity: item.quantity,
         })),
       });
@@ -507,7 +507,7 @@ const placeOrder = async () => {
         paymentRef: summary.reference,
         notes: summary.notes,
         items: cartStore.items.map((item: any) => ({
-          productId: item.id,
+          productId: item.productId || item.id,
           quantity: item.quantity,
         })),
       });
