@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, QueryProductDto, CreateProductVariantDto } from './dto';
 
@@ -161,9 +161,12 @@ export class ProductsService {
 
     const { variants, categorySlug, ...productData } = dto;
 
+    const base = this.resolveBaseFields(productData, variants, null);
+
     return this.prisma.product.create({
       data: {
         ...productData,
+        ...base,
         slug,
         categoryId: category.id,
         variants: variants?.length ? {
@@ -201,9 +204,9 @@ export class ProductsService {
       data.slug = await this.generateUniqueSlug(this.slugify(dto.name), id);
     }
 
-    // Handle variants
-    if (variants && variants.length > 0) {
-      // Delete existing variants and recreate
+    // Handle variants: an explicit array replaces all existing variants
+    // (an empty array removes them entirely).
+    if (Array.isArray(variants)) {
       await this.prisma.productVariant.deleteMany({ where: { productId: id } });
       data.variants = {
         create: variants.map((v, index) => ({
@@ -213,11 +216,82 @@ export class ProductsService {
       };
     }
 
+    // Ensure display fields (price/unit/image/stock) are always populated.
+    const base = this.resolveBaseFields(restData, variants, product);
+    Object.assign(data, base);
+
     return this.prisma.product.update({
       where: { id },
       data,
       include: { category: true, variants: { orderBy: { sortOrder: 'asc' } } },
     });
+  }
+
+  /**
+   * Resolves the product-level display fields. For variant products these are
+   * derived from the variants (cheapest price, its unit, first variant image,
+   * total stock) so storefront cards keep working. Explicit values win.
+   */
+  private resolveBaseFields(
+    input: any,
+    variants: any[] | undefined,
+    existing: {
+      price: number;
+      unit: string;
+      image: string;
+      images: string[];
+      stock: number;
+    } | null,
+  ): { price: number; unit: string; image: string; images: string[]; stock: number } {
+    const hasVariants = Array.isArray(variants) && variants.length > 0;
+    const activeVariants = hasVariants ? variants.filter((v) => v.isActive !== false) : [];
+
+    const has = (val: any) => val !== undefined && val !== null && val !== '';
+
+    const base = {
+      price: existing?.price ?? 0,
+      unit: existing?.unit ?? '',
+      image: existing?.image ?? '',
+      images: existing?.images ?? [],
+      stock: existing?.stock ?? 0,
+    };
+
+    if (has(input.price)) base.price = input.price;
+    if (has(input.unit)) base.unit = input.unit;
+    if (has(input.image)) base.image = input.image;
+    if (Array.isArray(input.images) && input.images.length > 0) base.images = input.images;
+    if (has(input.stock)) base.stock = input.stock;
+
+    if (hasVariants) {
+      const sorted = [...activeVariants].sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+      const cheapest = sorted[0] || variants[0];
+      if (cheapest) {
+        if (!has(input.price)) base.price = cheapest.price;
+        if (!has(input.unit)) base.unit = cheapest.unit;
+        if (!has(input.stock)) {
+          base.stock = activeVariants.reduce((sum, v) => sum + (v.stock ?? 0), 0);
+        }
+      }
+      const variantImg = variants.map((v) => v.image).find(Boolean);
+      if (variantImg && !has(input.image)) base.image = variantImg;
+      const variantImgs = variants.map((v) => v.image).filter(Boolean);
+      if (variantImgs.length && !(Array.isArray(input.images) && input.images.length > 0)) {
+        base.images = variantImgs;
+      }
+    } else if (!existing || (Array.isArray(variants) && variants.length === 0)) {
+      // Non-variant product (new, or variants being removed): base fields required.
+      if (!has(input.price) && !base.price) {
+        throw new BadRequestException('Price is required for a non-variant product');
+      }
+      if (!has(input.unit) && !base.unit) {
+        throw new BadRequestException('Unit is required for a non-variant product');
+      }
+      if (!has(input.image) && !base.image) {
+        throw new BadRequestException('Image is required for a non-variant product');
+      }
+    }
+
+    return base;
   }
 
   async remove(id: string) {

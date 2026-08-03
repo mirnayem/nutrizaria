@@ -10,14 +10,27 @@
     </div>
     <div class="flex flex-1 flex-col text-sm text-slate-600">
       <div class="flex items-start justify-between gap-3">
-        <div>
-          <p class="text-base font-semibold text-slate-900">
+        <div class="min-w-0">
+          <p class="truncate text-base font-semibold text-slate-900">
             {{ cartItem.name }}
           </p>
-          <p class="text-xs text-slate-500">
-            {{ currencySymbol }}{{ cartItem.price.toFixed(2) }} /
-            {{ cartItem.unit }}
-          </p>
+          <div class="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span
+              v-if="cartItem.variantLabel"
+              class="inline-flex items-center rounded-full bg-violet-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700"
+            >
+              {{ cartItem.variantLabel }}
+            </span>
+            <span
+              v-else-if="cartItem.unit"
+              class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"
+            >
+              {{ cartItem.unit }}
+            </span>
+            <span class="text-xs font-medium text-slate-500">
+              {{ currencySymbol }}{{ cartItem.price.toFixed(2) }}
+            </span>
+          </div>
         </div>
         <button
           type="button"
@@ -46,7 +59,7 @@
             class="rounded-full p-1 transition hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent"
             @click="updateCartItem(cartItem.id, 'DEC')"
             :disabled="cartItem.quantity === 1"
-            aria-label="Decrease {{ cartItem.name }} quantity"
+            :aria-label="`Decrease ${cartItem.name} quantity`"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -66,7 +79,7 @@
             type="button"
             class="rounded-full p-1 transition hover:bg-slate-100"
             @click="updateCartItem(cartItem.id, 'INC')"
-            aria-label="Increase {{ cartItem.name }} quantity"
+            :aria-label="`Increase ${cartItem.name} quantity`"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

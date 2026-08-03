@@ -13,6 +13,7 @@ export interface Product {
   id: string;
   name: string;
   slug?: string;
+  brand?: string;
   image: string;
   images?: string[];
   category: string;

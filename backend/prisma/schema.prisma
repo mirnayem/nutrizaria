@@ -151,6 +151,7 @@ model Product {
   name            String
   slug            String   @unique
   description     String   @db.Text
+  brand           String?
   price           Float
   comparePrice    Float?
   unit            String
@@ -184,7 +185,7 @@ model ProductVariant {
   id           String   @id @default(uuid())
   productId    String
   product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  label        String // e.g., "250g", "500g", "1kg"
+  label        String? // optional; storefront falls back to weight + unit
   weight       Float // numeric value for sorting (e.g., 250, 500, 1000)
   unit         String // "g", "kg", "ml", "l", "pcs"
   price        Float

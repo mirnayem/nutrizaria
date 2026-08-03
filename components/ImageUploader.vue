@@ -1,24 +1,45 @@
 <template>
   <div class="space-y-2">
     <div
-      class="relative flex cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 p-3 transition hover:border-violet-400 hover:bg-slate-50"
+      class="flex flex-wrap gap-2 rounded-lg border border-dashed border-slate-300 p-3 transition"
       :class="isDragging ? 'border-violet-500 bg-violet-50' : ''"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
-      @click="inputRef?.click()"
     >
-      <div v-if="items.length === 0" class="flex flex-col items-center gap-1">
-        <svg class="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <button
+        type="button"
+        class="flex h-16 w-16 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-400 transition hover:border-violet-400 hover:bg-slate-50 hover:text-violet-500"
+        @click="inputRef?.click()"
+      >
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
         </svg>
-        <p class="text-xs text-slate-500">Upload</p>
+      </button>
+
+      <div v-for="(item, idx) in items" :key="item.key" class="relative">
+        <img
+          :src="item.displayUrl"
+          :class="item.status === 'error' ? 'opacity-40' : ''"
+          class="h-16 w-16 cursor-zoom-in rounded-lg border border-slate-200 object-cover"
+          @click="previewImg = item.displayUrl"
+        />
+        <button
+          type="button"
+          class="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow transition hover:bg-red-600"
+          @click="removeImage(idx)"
+        >
+          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <span v-if="item.status === 'uploading'" class="absolute inset-0 flex items-center justify-center rounded-lg bg-white/60 text-[10px] font-medium text-slate-600">
+          Uploading…
+        </span>
       </div>
-      <div v-else class="flex items-center justify-center">
-        <img :src="items[0].displayUrl" class="h-12 w-12 rounded-lg object-cover" />
-      </div>
-      <input ref="inputRef" type="file" :accept="accept" :multiple="multiple" class="hidden" @change="handleFiles" />
     </div>
+
+    <input ref="inputRef" type="file" :accept="accept" :multiple="multiple" class="hidden" @change="handleFiles" />
 
     <Teleport to="body">
       <transition name="fade">
@@ -111,14 +132,35 @@ const processFiles = async (files: File[]) => {
     if (!file.type.match(/\/(jpg|jpeg|png|gif|webp|avif)$/)) continue;
 
     const objectUrl = URL.createObjectURL(file);
-    const idx = items.value.length;
 
-    items.value.push({
-      key: keyCounter++,
-      displayUrl: objectUrl,
-      remoteUrl: '',
-      status: 'uploading',
-    });
+    let idx: number;
+    if (props.multiple) {
+      idx = items.value.length;
+      items.value.push({
+        key: keyCounter++,
+        displayUrl: objectUrl,
+        remoteUrl: '',
+        status: 'uploading',
+      });
+    } else if (items.value.length > 0) {
+      const prev = items.value[0];
+      if (prev.displayUrl.startsWith('blob:')) URL.revokeObjectURL(prev.displayUrl);
+      idx = 0;
+      items.value[0] = {
+        key: keyCounter++,
+        displayUrl: objectUrl,
+        remoteUrl: '',
+        status: 'uploading',
+      };
+    } else {
+      idx = 0;
+      items.value.push({
+        key: keyCounter++,
+        displayUrl: objectUrl,
+        remoteUrl: '',
+        status: 'uploading',
+      });
+    }
 
     try {
       const formData = new FormData();

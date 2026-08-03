@@ -124,93 +124,31 @@
           <h1 class="mt-3 text-2xl font-semibold text-slate-900 sm:text-3xl">
             {{ product.name }}
           </h1>
+          <p
+            v-if="product.brand"
+            class="mt-1 text-xs font-medium uppercase tracking-wider text-slate-500"
+          >
+            Brand: {{ product.brand }}
+          </p>
 
           <!-- Variant Selector -->
-          <div v-if="product.variants && product.variants.length > 0" class="mt-6">
-            <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <label
-                v-for="variant in product.variants"
-                :key="variant.id"
-                class="relative cursor-pointer group"
-                :class="{ 'opacity-50 pointer-events-none': variant.stock === 0 }"
-              >
-                <input
-                  type="radio"
-                  name="variant-selector"
-                  :value="variant.id"
-                  :checked="selectedVariant?.id === variant.id"
-                  :disabled="variant.stock === 0"
-                  @change="selectedVariant = variant"
-                  class="sr-only"
-                />
-                <div class="relative aspect-square rounded-xl border-2 overflow-hidden transition-all duration-200"
-                  :class="
-                    selectedVariant?.id === variant.id
-                      ? 'border-violet-600 bg-violet-50 ring-2 ring-violet-200'
-                      : 'border-slate-200 hover:border-violet-300'
-                  "
-                >
-                  <!-- Variant Image -->
-                  <img
-                    v-if="variant.image"
-                    :src="resolve(variant.image)"
-                    :alt="`${product.name} - ${variant.label}`"
-                    class="absolute inset-0 h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                  <img
-                    v-else
-                    :src="activeImage"
-                    :alt="`${product.name} - ${variant.label}`"
-                    class="absolute inset-0 h-full w-full object-cover"
-                    loading="lazy"
-                  />
-                  
-                  <!-- Variant Badge -->
-                  <div class="absolute inset-0 flex items-center justify-center bg-black/40 text-white text-sm font-medium opacity-0 group-hover/label:opacity-100 transition-opacity"
-                    v-if="variant.stock === 0"
-                  >
-                    Out of Stock
-                  </div>
-                  
-                  <!-- Selected Checkmark -->
-                  <div
-                    v-if="selectedVariant?.id === variant.id"
-                    class="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-white"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                  </div>
-                </div>
-                
-                <!-- Variant Info -->
-                <div class="mt-2 text-center">
-                  <p class="text-xs font-medium text-slate-600">{{ variant.weight }}{{ variant.unit }}</p>
-                </div>
-              </label>
-            </div>
-            
-            <!-- Selected Variant Summary -->
-            <div v-if="selectedVariant" class="mt-4 p-3 bg-violet-50 rounded-xl border border-violet-200 flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <img
-                  v-if="selectedVariant.image"
-                  :src="resolve(selectedVariant.image)"
-                  :alt="selectedVariant.label"
-                  class="h-10 w-10 rounded-lg object-cover"
-                />
-                <div>
-                  <p class="text-sm font-medium text-slate-900">{{ selectedVariant.label }}</p>
-                  <p class="text-sm font-semibold text-violet-700">{{ selectedVariant.weight }}{{ selectedVariant.unit }}</p>
-                </div>
-              </div>
+          <div v-if="variantOptions.length > 0" class="mt-6">
+            <label class="text-sm font-semibold text-slate-800">Options</label>
+            <div class="mt-2.5 flex flex-wrap gap-2">
               <button
+                v-for="variant in variantOptions"
+                :key="variant.id"
                 type="button"
-                @click="selectedVariant = null"
-                class="text-sm text-violet-600 hover:text-violet-700 font-medium"
+                :disabled="variant.stock === 0"
+                class="min-w-16 rounded-xl border-2 px-4 py-2.5 text-sm font-semibold transition"
+                :class="variant.stock === 0
+                  ? 'cursor-not-allowed border-slate-200 text-slate-300 line-through'
+                  : selectedVariant?.id === variant.id
+                    ? 'border-violet-600 bg-violet-50 text-violet-700 ring-2 ring-violet-200'
+                    : 'border-slate-200 text-slate-700 hover:border-violet-300'"
+                @click="selectedVariant = variant"
               >
-                Change
+                {{ variantSizeLabel(variant) }}
               </button>
             </div>
           </div>
@@ -221,7 +159,12 @@
               <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
                 {{ currencySymbol }}{{ activeProduct?.price.toFixed(2) }}
               </span>
-              <span class="text-sm text-slate-500">{{ selectedVariant.weight }}{{ selectedVariant.unit }}</span>
+              <span
+                v-if="activeProduct?.comparePrice && activeProduct.comparePrice > activeProduct.price"
+                class="pb-1 text-lg font-medium text-slate-400 line-through"
+              >
+                {{ currencySymbol }}{{ activeProduct.comparePrice.toFixed(2) }}
+              </span>
             </div>
             <div v-else class="flex items-baseline gap-2">
               <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -282,10 +225,7 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
                 </svg>
-                <span v-if="selectedVariant">
-                  Add {{ selectedVariant.label }} to cart
-                </span>
-                <span v-else>
+                <span>
                   {{ isOutOfStock ? "Out of stock" : "Add to cart" }}
                 </span>
               </button>
@@ -313,27 +253,10 @@
                 <ShareButton
                   v-if="product"
                   :title="`${product.name} - NutriZaria`"
-                  :url="seo.canonicalUrl"
+                  :url="shareUrl"
                   label="Share this product"
                 />
               </div>
-            </div>
-          </div>
-
-          <div class="mt-6 grid grid-cols-2 gap-3 text-xs text-slate-500 sm:grid-cols-3">
-            <div class="rounded-xl bg-slate-50 px-3 py-2.5">
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Unit</p>
-              <p class="mt-0.5 font-medium text-slate-700">{{ activeProduct?.unit || product.unit }}</p>
-            </div>
-            <div class="rounded-xl bg-slate-50 px-3 py-2.5">
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Category</p>
-              <p class="mt-0.5 font-medium capitalize text-slate-700">{{ product.category }}</p>
-            </div>
-            <div class="rounded-xl bg-slate-50 px-3 py-2.5">
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Availability</p>
-              <p class="mt-0.5 font-medium" :class="isOutOfStock ? 'text-rose-600' : 'text-emerald-700'">
-                {{ isOutOfStock ? "Out of stock" : "In stock" }}
-              </p>
             </div>
           </div>
 
@@ -360,60 +283,7 @@
             </ul>
           </div>
 
-          <div class="mt-6 grid gap-2.5 border-t border-slate-100 pt-6 text-xs text-slate-500 sm:grid-cols-3">
-            <div class="flex items-center gap-2.5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="size-5 flex-shrink-0 text-violet-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
-                />
-              </svg>
-              <span>Free delivery over {{ currencySymbol }}2,000</span>
-            </div>
-            <div class="flex items-center gap-2.5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="size-5 flex-shrink-0 text-violet-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Z"
-                />
-              </svg>
-              <span>COD, bKash &amp; Nagad accepted</span>
-            </div>
-            <div class="flex items-center gap-2.5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="size-5 flex-shrink-0 text-violet-600"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
-                />
-              </svg>
-              <span>Authentic &amp; quality checked</span>
-            </div>
           </div>
-        </div>
       </section>
 
       <section v-else class="rounded-3xl border border-slate-200 bg-white px-6 py-20 text-center shadow-sm">
@@ -499,6 +369,16 @@ const isLoading = computed(() => catalogStore.loading && !catalogStore.hydrated)
 
 const selectedVariant = ref<any | null>(null);
 
+const variantSizeLabel = (v: any) =>
+  v && v.weight > 0 && v.unit ? `${v.weight}${v.unit}` : v.label || "";
+
+const variantOptions = computed(() => {
+  const vs = product.value?.variants || [];
+  return vs
+    .filter((v: any) => v.isActive !== false)
+    .sort((a: any, b: any) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || (a.price ?? 0) - (b.price ?? 0));
+});
+
 watch(productSlug, () => {
   quantity.value = 1;
   activeIndex.value = 0;
@@ -506,9 +386,17 @@ watch(productSlug, () => {
 });
 
 watch(() => product.value?.variants, (variants) => {
-  if (selectedVariant.value && variants) {
+  if (!variants || variants.length === 0) {
+    selectedVariant.value = null;
+    return;
+  }
+  if (selectedVariant.value) {
     const stillExists = variants.find((v: any) => v.id === selectedVariant.value?.id);
     if (!stillExists) selectedVariant.value = null;
+  }
+  if (!selectedVariant.value) {
+    selectedVariant.value =
+      variants.find((v: any) => v.isActive !== false && v.stock > 0) || variants[0];
   }
 }, { immediate: true, deep: true });
 
@@ -531,14 +419,10 @@ const activeProduct = computed(() => {
 });
 
 const gallery = computed<string[]>(() => {
-  const p = activeProduct.value;
+  const p = product.value;
   if (!p) return [];
-  const baseImages = [...new Set([p.image, ...(p.images ?? [])].filter(Boolean))] as string[];
-  const variantImg = p._variant?.image;
-  if (variantImg && !baseImages.includes(variantImg)) {
-    return [variantImg, ...baseImages];
-  }
-  return baseImages;
+  if (p.variants && p.variants.length > 0) return [];
+  return [...new Set([p.image, ...(p.images ?? [])].filter(Boolean))] as string[];
 });
 
 const activeIndex = ref(0);
@@ -547,7 +431,11 @@ watchEffect(() => {
     activeIndex.value = Math.min(activeIndex.value, gallery.value.length - 1);
   }
 });
-const activeImage = computed(() => resolve(gallery.value[activeIndex.value]) || "/nutri.png");
+const activeImage = computed(() => {
+  const variantImg = selectedVariant.value?.image;
+  if (variantImg) return resolve(variantImg);
+  return resolve(gallery.value[activeIndex.value] || product.value?.image) || "/nutri.png";
+});
 
 const maxQuantity = computed(() => {
   const stock = activeProduct.value?.stock;
@@ -631,6 +519,8 @@ const seo = useSeo({
     ];
   },
 });
+
+const shareUrl = computed(() => seo.canonicalUrl.value);
 
 watchEffect(() => {
   const p = product.value;

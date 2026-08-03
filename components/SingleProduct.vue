@@ -19,21 +19,68 @@ const config = useRuntimeConfig();
 const currencySymbol = config.public.currencySymbol || "Tk";
 const detailLink = computed(() => `/products/${props.product.slug || props.product.id}`);
 
-const selectedItem = computed<CartItem>(() => ({
-  id: props.product.id,
-  name: props.product.name,
-  price: props.product.price,
-  image: props.product.image,
-  quantity: 1,
-  unit: props.product.unit,
-}));
+const selectedItem = computed<CartItem>(() => {
+  const v = activeVariant.value;
+  return {
+    id: v ? `${props.product.id}-${v.id}` : props.product.id,
+    productId: props.product.id,
+    name: props.product.name,
+    price: displayPrice.value,
+    image: v?.image || props.product.image,
+    quantity: 1,
+    unit: displayUnit.value,
+    variantId: v?.id,
+    variantLabel: variantSizeLabel(v),
+  };
+});
 
 const { resolve } = useImageUrl();
-const imageSrc = computed(() => resolve(props.product?.image) || "/nutri.png");
+const imageSrc = computed(
+  () => resolve(activeVariant.value?.image || props.product.image) || "/nutri.png"
+);
 
-const isOutOfStock = computed(() => props.product.stock === 0);
+const activeVariants = computed(() => {
+  const vs = props.product.variants || [];
+  return vs
+    .filter((v) => v.isActive !== false)
+    .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0) || (a.price ?? 0) - (b.price ?? 0));
+});
+const hasVariants = computed(() => activeVariants.value.length > 0);
+
+const selectedVariant = ref<any | null>(null);
+watch(
+  () => props.product.variants,
+  (vs) => {
+    if (!vs || vs.length === 0) {
+      selectedVariant.value = null;
+      return;
+    }
+    const active = vs.filter((v) => v.isActive !== false);
+    selectedVariant.value = active.find((v) => v.stock > 0) || active[0] || null;
+  },
+  { immediate: true, deep: true }
+);
+const selectVariant = (v: any) => {
+  if (v.stock > 0) selectedVariant.value = v;
+};
+
+const activeVariant = computed(() => selectedVariant.value || null);
+const variantSizeLabel = (v: any) =>
+  v && v.weight > 0 && v.unit ? `${v.weight}${v.unit}` : v.label || "";
+const displayPrice = computed(() => activeVariant.value?.price ?? props.product.price);
+const displayUnit = computed(() => activeVariant.value?.unit ?? props.product.unit);
+const displayComparePrice = computed(() =>
+  activeVariant.value?.comparePrice ?? props.product.comparePrice
+);
+const displayStock = computed(() =>
+  hasVariants.value
+    ? (activeVariant.value?.stock ?? 0)
+    : (props.product.stock ?? 0)
+);
+const isOutOfStock = computed(() => displayStock.value === 0);
 const discountPercent = computed(() => {
-  const { comparePrice, price } = props.product;
+  const { comparePrice } = props.product;
+  const price = displayPrice.value;
   if (!comparePrice || comparePrice <= price) return 0;
   return Math.round(((comparePrice - price) / comparePrice) * 100);
 });
@@ -152,9 +199,11 @@ const openModal = () => (isModalOpen.value = true);
         {{ product.name }}
       </NuxtLink>
 
-      <div class="mt-1.5 flex items-center gap-1 text-[11px] text-slate-500">
+      <div
+        v-if="isOutOfStock"
+        class="mt-1.5 flex items-center gap-1 text-[11px] text-rose-500"
+      >
         <svg
-          v-if="isOutOfStock"
           xmlns="http://www.w3.org/2000/svg"
           class="size-3 text-rose-400"
           fill="none"
@@ -168,20 +217,44 @@ const openModal = () => (isModalOpen.value = true);
             d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"
           />
         </svg>
-        <span v-if="isOutOfStock" class="text-rose-500">Out of stock</span>
-        <span v-else>Unit: {{ product.unit }}</span>
+        <span>Out of stock</span>
+      </div>
+
+      <div
+        v-if="hasVariants"
+        class="mt-2.5 flex flex-wrap gap-1.5"
+        role="radiogroup"
+        aria-label="Select size"
+      >
+        <button
+          v-for="v in activeVariants"
+          :key="v.id"
+          type="button"
+          role="radio"
+          :aria-checked="activeVariant?.id === v.id"
+          :disabled="v.stock === 0"
+          class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition disabled:cursor-not-allowed"
+          :class="v.stock === 0
+            ? 'border-slate-200 text-slate-300 line-through'
+            : activeVariant?.id === v.id
+              ? 'border-violet-600 bg-violet-600 text-white shadow-sm'
+              : 'border-slate-200 text-slate-600 hover:border-violet-400 hover:text-violet-600'"
+          @click="selectVariant(v)"
+        >
+          {{ variantSizeLabel(v) }}
+        </button>
       </div>
 
       <div class="mt-auto flex items-end justify-between gap-2 pt-3">
         <div class="min-w-0">
           <p class="text-base font-bold text-slate-900 sm:text-lg">
-            {{ currencySymbol }}{{ product.price.toFixed(2) }}
+            {{ currencySymbol }}{{ displayPrice.toFixed(2) }}
           </p>
           <p
-            v-if="product.comparePrice"
+            v-if="displayComparePrice > displayPrice"
             class="text-xs font-medium text-slate-500 line-through"
           >
-            {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
+            {{ currencySymbol }}{{ displayComparePrice.toFixed(2) }}
           </p>
         </div>
         <button
@@ -240,17 +313,17 @@ const openModal = () => (isModalOpen.value = true);
           <div class="rounded-2xl bg-slate-50 p-4">
             <div class="flex items-end gap-3">
               <p class="text-3xl font-semibold text-violet-700">
-                {{ currencySymbol }}{{ product.price.toFixed(2) }}
+                {{ currencySymbol }}{{ displayPrice.toFixed(2) }}
               </p>
               <p
-                v-if="product.comparePrice"
+                v-if="displayComparePrice > displayPrice"
                 class="pb-1 text-sm font-medium text-slate-500 line-through"
               >
-                {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
+                {{ currencySymbol }}{{ displayComparePrice.toFixed(2) }}
               </p>
             </div>
             <p class="text-xs uppercase tracking-wide text-slate-500">
-              {{ product.unit }}
+              {{ displayUnit }}
             </p>
           </div>
           <QuantityControl :product="product" />

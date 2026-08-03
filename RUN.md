@@ -185,6 +185,11 @@ ADMIN_PASSPHRASE=
    # Run inside the container:
    npx prisma migrate deploy
    npx prisma db seed
+   ```
+   > The `20260803090000_seed_default_settings` migration auto-creates the 14
+   > default settings (site name, delivery fees, etc.) on every fresh/prod DB,
+   > so the admin **Settings** page is never empty. It runs automatically on
+   > each deploy (the Dockerfile's CMD runs `prisma migrate deploy`).
 
    # One-time: migrate any images uploaded before Cloudinary was enabled
    # (run BEFORE your next deploy wipes the local uploads folder).

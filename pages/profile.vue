@@ -612,10 +612,10 @@ import {
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
   HeartIcon,
+  MapPinIcon,
   Squares2X2Icon,
   UserCircleIcon,
 } from "@heroicons/vue/24/outline";
-import MapPinIcon from "@heroicons/vue/24/outline/esm/MapPinIcon";
 import { useUserStore } from "~/stores/user";
 import { useFavoriteStore } from "~/stores/favorite";
 import { useCatalogStore } from "~/stores/catalog";

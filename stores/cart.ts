@@ -33,8 +33,11 @@ export const useCartStore = defineStore('cart', {
       // Handle both Product and CartItem
       const productId = 'productId' in item ? item.productId : item.id;
       const variantId = 'variantId' in item ? item.variantId : (item as any)._variant?.id;
-      const variantLabel = 'variantLabel' in item ? item.variantLabel : (item as any)._variant?.label;
-      const variantPrice = 'variantId' in item ? item.price : (item as any)._variant?.price;
+      const _variant = (item as any)._variant;
+      const variantLabel = 'variantLabel' in item
+        ? item.variantLabel
+        : (_variant && _variant.weight > 0 && _variant.unit ? `${_variant.weight}${_variant.unit}` : _variant?.label);
+      const variantPrice = 'variantId' in item ? item.price : _variant?.price;
       
       const cartItem: CartItem = {
         id: variantId ? `${productId}-${variantId}` : productId,

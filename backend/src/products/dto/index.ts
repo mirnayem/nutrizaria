@@ -3,9 +3,12 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CreateProductVariantDto {
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Optional display label. When omitted, the storefront shows weight + unit.',
+  })
+  @IsOptional()
   @IsString()
-  label: string;
+  label?: string;
 
   @ApiProperty()
   @IsNumber()
@@ -114,28 +117,42 @@ export class CreateProductDto {
   @IsString()
   description: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Required for non-variant products; auto-derived from the cheapest variant for variant products.',
+  })
+  @IsOptional()
   @IsNumber()
   @Min(0)
-  price: number;
+  price?: number;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
   comparePrice?: number;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Required for non-variant products; auto-derived from variants for variant products.',
+  })
+  @IsOptional()
   @IsString()
-  unit: string;
+  unit?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Required for non-variant products; auto-derived from variants for variant products.',
+  })
+  @IsOptional()
   @IsString()
-  image: string;
+  image?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsArray()
   images?: string[];
+
+  @ApiPropertyOptional({ description: 'Product brand (optional).' })
+  @IsOptional()
+  @IsString()
+  brand?: string;
 
   @ApiProperty()
   @IsString()
@@ -216,6 +233,11 @@ export class UpdateProductDto {
   @IsOptional()
   @IsArray()
   images?: string[];
+
+  @ApiPropertyOptional({ description: 'Product brand (optional).' })
+  @IsOptional()
+  @IsString()
+  brand?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

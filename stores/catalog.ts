@@ -156,6 +156,7 @@ export const useCatalogStore = defineStore("catalog", {
                 id: p.id,
                 slug: p.slug,
                 name: p.name,
+                brand: p.brand || '',
                 image: p.image ? mapUrl(p.image) : p.image,
                 category: p.category?.slug || p.category,
                 description: p.description,

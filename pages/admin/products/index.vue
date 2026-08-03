@@ -62,8 +62,11 @@
                 <div class="flex items-center gap-3">
                   <img :src="resolve(product.image) || '/placeholder.svg'" :alt="product.name" class="h-10 w-10 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
                   <div>
-                    <p class="text-sm font-medium text-slate-900">{{ product.name }}</p>
-                    <p class="text-xs text-slate-500">{{ product.unit }}</p>
+                    <p class="text-sm font-medium text-slate-900">
+                      {{ product.name }}
+                      <span v-if="product.variants?.length > 0" class="ml-1 rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-700">Variant</span>
+                    </p>
+                    <p class="text-xs text-slate-500">{{ product.brand }}{{ product.brand && product.unit ? ' • ' : '' }}{{ product.unit }}</p>
                   </div>
                 </div>
               </td>
@@ -99,6 +102,52 @@
           <input v-model="form.slug" type="text" placeholder="auto-generated from name" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
           <p class="mt-1 text-xs text-slate-500">Used in the product URL. Leave empty to auto-generate.</p>
         </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Product Type</label>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <button
+              type="button"
+              @click="productType = 'single'"
+              class="rounded-lg border px-4 py-2.5 text-left text-sm font-medium transition"
+              :class="productType === 'single' ? 'border-violet-600 bg-violet-50 text-violet-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'"
+            >
+              <span class="flex items-center gap-2">
+                <span class="flex h-4 w-4 items-center justify-center rounded-full border" :class="productType === 'single' ? 'border-violet-600' : 'border-slate-300'">
+                  <span v-if="productType === 'single'" class="h-2 w-2 rounded-full bg-violet-600"></span>
+                </span>
+                Non-variant product
+              </span>
+              <span class="mt-1 block text-xs font-normal text-slate-500">Own price, unit and images</span>
+            </button>
+            <button
+              type="button"
+              @click="productType = 'variant'"
+              class="rounded-lg border px-4 py-2.5 text-left text-sm font-medium transition"
+              :class="productType === 'variant' ? 'border-violet-600 bg-violet-50 text-violet-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'"
+            >
+              <span class="flex items-center gap-2">
+                <span class="flex h-4 w-4 items-center justify-center rounded-full border" :class="productType === 'variant' ? 'border-violet-600' : 'border-slate-300'">
+                  <span v-if="productType === 'variant'" class="h-2 w-2 rounded-full bg-violet-600"></span>
+                </span>
+                Variant product
+              </span>
+              <span class="mt-1 block text-xs font-normal text-slate-500">Price, unit and images set per variant</span>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Brand <span class="font-normal text-slate-400">(optional)</span></label>
+          <input v-model="form.brand" type="text" placeholder="e.g., NutriZaria, Nestlé, ACI"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
+          <select v-model="form.categorySlug" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500">
+            <option value="">Select category</option>
+            <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
+          </select>
+        </div>
+        <template v-if="productType === 'single'">
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Price</label>
@@ -110,13 +159,6 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
-          <select v-model="form.categorySlug" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500">
-            <option value="">Select category</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
-          </select>
-        </div>
-        <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Main Image</label>
           <ImageUploader :images="form.image ? [form.image] : []" @update:images="onMainImageUpload" />
         </div>
@@ -124,12 +166,13 @@
           <label class="block text-sm font-medium text-slate-700 mb-1">Additional Images</label>
           <ImageUploader :multiple="true" :images="form.images" @update:images="onAdditionalImagesUpload" />
         </div>
+        </template>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Description</label>
           <textarea v-model="form.description" rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500"></textarea>
         </div>
         <div class="grid grid-cols-2 gap-4">
-          <div>
+          <div v-if="productType === 'single'">
             <label class="block text-sm font-medium text-slate-700 mb-1">Stock</label>
             <input v-model.number="form.stock" type="number" min="0" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
           </div>
@@ -141,9 +184,12 @@
           </div>
         </div>
 
-        <div class="border-t border-slate-200 pt-4">
+        <div v-if="productType === 'variant'" class="border-t border-slate-200 pt-4">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-medium text-slate-900">Product Variants</h3>
+            <div>
+              <h3 class="text-lg font-medium text-slate-900">Product Variants</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Each variant holds its own price, weight, stock and image.</p>
+            </div>
             <button type="button" @click="addVariant" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -159,7 +205,7 @@
               </svg>
             </div>
             <p class="text-sm font-medium text-slate-700">No variants added yet</p>
-            <p class="mt-1 text-xs text-slate-500">Product will use base price and stock if no variants are defined</p>
+            <p class="mt-1 text-xs text-slate-500">Add at least one variant with a weight, unit and price to save.</p>
             <button type="button" @click="addVariant" class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors">
               <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -175,7 +221,7 @@
                   <tr class="bg-slate-50 border-b border-slate-200">
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">#</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Image</th>
-                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Label *</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Label</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Weight *</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Unit *</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Price *</th>
@@ -194,7 +240,7 @@
                       <ImageUploader :images="variant.image ? [variant.image] : []" @update:images="urls => variant.image = urls[0] || ''" />
                     </td>
                     <td class="px-3 py-2">
-                      <input v-model="variant.label" type="text" required placeholder="e.g., 250g, 500g, 1kg" class="w-full max-w-xs rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
+                      <input v-model="variant.label" type="text" placeholder="Optional — e.g., 250g" class="w-full max-w-xs rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
                     </td>
                     <td class="px-3 py-2">
                       <div class="flex items-center gap-1">
@@ -297,10 +343,12 @@ const editingProduct = ref<any>(null);
 const saving = ref(false);
 const loadingProducts = ref(false);
 const saveError = ref('');
+const productType = ref<'single' | 'variant'>('single');
 
 const form = reactive({
   name: '',
   slug: '',
+  brand: '',
   price: 0,
   unit: '',
   categorySlug: '',
@@ -363,14 +411,17 @@ const toggleSelectAll = () => {
 
 const openCreateModal = () => {
   editingProduct.value = null;
+  productType.value = 'single';
   resetForm();
   showModal.value = true;
 };
 
 const editProduct = (product: any) => {
   editingProduct.value = product;
+  productType.value = (product.variants && product.variants.length > 0) ? 'variant' : 'single';
   form.name = product.name;
   form.slug = product.slug || '';
+  form.brand = product.brand || '';
   form.price = product.price;
   form.unit = product.unit;
   form.categorySlug = product.category?.slug || product.category;
@@ -420,6 +471,7 @@ const removeVariant = (index: number) => {
 const resetForm = () => {
   form.name = '';
   form.slug = '';
+  form.brand = '';
   form.price = 0;
   form.unit = '';
   form.categorySlug = '';
@@ -451,9 +503,9 @@ const saveProduct = async () => {
   try {
     // Filter variants to only include valid ones with required fields
     const validVariants = (form.variants || [])
-      .filter((v: any) => v.label?.trim() && v.weight > 0 && v.unit?.trim() && v.price > 0)
+      .filter((v: any) => v.weight > 0 && v.unit?.trim() && v.price > 0)
       .map((v: any, index: number) => ({
-        label: v.label.trim(),
+        label: v.label?.trim() || undefined,
         weight: v.weight,
         unit: v.unit,
         price: v.price,
@@ -464,11 +516,30 @@ const saveProduct = async () => {
         sortOrder: v.sortOrder ?? index,
       }));
 
-    const payload = JSON.parse(JSON.stringify({
-      ...form,
-      variants: validVariants.length > 0 ? validVariants : undefined,
-    }));
-    
+    const payload: any = JSON.parse(JSON.stringify({ ...form }));
+
+    if (productType.value === 'variant') {
+      if (validVariants.length === 0) {
+        saveError.value = 'Add at least one complete variant (weight, unit and price).';
+        saving.value = false;
+        return;
+      }
+      // Variant product: derive display fields from the cheapest variant so the
+      // storefront cards and listings keep working.
+      const sorted = [...validVariants].sort((a, b) => a.price - b.price);
+      const cheapest = sorted[0];
+      const variantImgs = validVariants.map((v: any) => v.image).filter(Boolean);
+      payload.price = cheapest.price;
+      payload.unit = cheapest.unit;
+      payload.image = cheapest.image || variantImgs[0] || '';
+      payload.images = variantImgs;
+      payload.stock = validVariants.reduce((s: number, v: any) => s + (v.stock || 0), 0);
+      payload.variants = validVariants;
+    } else {
+      // Non-variant product: no variants allowed (removes any existing ones).
+      payload.variants = [];
+    }
+
     const endpoint = editingProduct.value
       ? `${apiBase}/admin/products/${editingProduct.value.id}`
       : `${apiBase}/admin/products`;
