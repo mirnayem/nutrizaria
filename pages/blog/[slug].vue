@@ -22,7 +22,7 @@
       </NuxtLink>
 
       <div class="space-y-4">
-        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+        <div class="flex flex-wrap items-center gap-3 text-sm text-slate-500">
           <span class="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700">
             {{ blog.category }}
           </span>
@@ -58,6 +58,8 @@
         v-if="blogImage"
         :src="blogImage"
         :alt="blog.title"
+        width="1280"
+        height="720"
         class="h-full w-full object-cover"
       />
       <div v-else class="flex h-full w-full items-center justify-center">

@@ -20,27 +20,46 @@ export default defineNuxtPlugin({
     win.fbq.version = '2.0';
     win.fbq.queue = [];
 
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = 'https://connect.facebook.net/en_US/fbevents.js';
-    document.head.appendChild(script);
-
-    win.fbq('init', pixelId);
-
-    const noscript = document.createElement('noscript');
-    const img = document.createElement('img');
-    img.height = 1;
-    img.width = 1;
-    img.style.display = 'none';
-    img.src = `https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`;
-    noscript.appendChild(img);
-    document.body.appendChild(noscript);
-
     const router = useRouter();
-    router.afterEach(() => {
-      win.fbq('track', 'PageView');
-    });
 
-    nuxtApp.provide('fbq', win.fbq);
+    const loadScript = () => {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://connect.facebook.net/en_US/fbevents.js';
+      document.head.appendChild(script);
+      win.fbq('init', pixelId);
+
+      router.afterEach(() => {
+        win.fbq('track', 'PageView');
+      });
+
+      nuxtApp.provide('fbq', win.fbq);
+    };
+
+    const loadWhenIdle = () => {
+      if (typeof window.requestIdleCallback === 'function') {
+        window.requestIdleCallback(loadScript, { timeout: 4000 });
+      } else {
+        window.setTimeout(loadScript, 4000);
+      }
+    };
+
+    const consent = getStoredConsent();
+    if (consent === 'accepted') {
+      if (document.readyState === 'complete') {
+        loadWhenIdle();
+      } else {
+        window.addEventListener('load', loadWhenIdle, { once: true });
+      }
+    } else if (consent === null) {
+      window.addEventListener(
+        'nutrizaria:consent',
+        (event: Event) => {
+          const detail = (event as CustomEvent<string>).detail;
+          if (detail === 'accepted') loadWhenIdle();
+        },
+        { once: true },
+      );
+    }
   },
 });

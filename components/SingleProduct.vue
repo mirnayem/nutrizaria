@@ -10,6 +10,7 @@ const favoriteStore = useFavoriteStore();
 
 interface Props {
   product: Product;
+  priority?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -61,7 +62,10 @@ const openModal = () => (isModalOpen.value = true);
       <img
         :src="imageSrc"
         :alt="product.name"
-        loading="lazy"
+        :loading="priority ? 'eager' : 'lazy'"
+        :fetchpriority="priority ? 'high' : 'auto'"
+        width="600"
+        height="600"
         class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
       />
 
@@ -148,7 +152,7 @@ const openModal = () => (isModalOpen.value = true);
         {{ product.name }}
       </NuxtLink>
 
-      <div class="mt-1.5 flex items-center gap-1 text-[11px] text-slate-400">
+      <div class="mt-1.5 flex items-center gap-1 text-[11px] text-slate-500">
         <svg
           v-if="isOutOfStock"
           xmlns="http://www.w3.org/2000/svg"
@@ -175,7 +179,7 @@ const openModal = () => (isModalOpen.value = true);
           </p>
           <p
             v-if="product.comparePrice"
-            class="text-xs font-medium text-slate-400 line-through"
+            class="text-xs font-medium text-slate-500 line-through"
           >
             {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
           </p>
@@ -240,7 +244,7 @@ const openModal = () => (isModalOpen.value = true);
               </p>
               <p
                 v-if="product.comparePrice"
-                class="pb-1 text-sm font-medium text-slate-400 line-through"
+                class="pb-1 text-sm font-medium text-slate-500 line-through"
               >
                 {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
               </p>

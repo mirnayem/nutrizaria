@@ -48,6 +48,8 @@
               <img
                 :src="itemImage(item)"
                 :alt="item.name"
+                width="56"
+                height="56"
                 class="size-14 rounded-xl object-cover"
                 loading="lazy"
               />

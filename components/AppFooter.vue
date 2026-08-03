@@ -13,19 +13,22 @@
           <p class="text-sm text-slate-400 max-w-xs">
             Authentic Bangladeshi pantry staples — sourced from trusted growers and delivered nationwide.
           </p>
-          <div class="flex flex-wrap gap-4" role="list" aria-label="Social links">
-            <a
+          <ul class="flex flex-wrap gap-4" aria-label="Social links">
+            <li
               v-for="social in socials"
               :key="social.label"
-              :href="social.href"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sm font-medium text-slate-300 transition hover:text-violet-300"
-              :aria-label="social.label"
             >
-              {{ social.label }}
-            </a>
-          </div>
+              <a
+                :href="social.href"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm font-medium text-slate-300 transition hover:text-violet-300"
+                :aria-label="social.label"
+              >
+                {{ social.label }}
+              </a>
+            </li>
+          </ul>
         </section>
 
         <section aria-labelledby="shop-heading">
@@ -70,7 +73,7 @@
 
       <div class="mt-10 pt-8 border-t border-slate-800">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p class="text-xs text-slate-500">
+          <p class="text-xs text-slate-400">
             &copy; {{ new Date().getFullYear() }} NutriZaria. All rights reserved.
           </p>
           <nav class="flex flex-wrap items-center gap-4" aria-label="Legal links">
@@ -78,12 +81,12 @@
               v-for="link in legalLinks"
               :key="link.to"
               :to="link.to"
-              class="text-xs text-slate-500 transition hover:text-white"
+              class="text-xs text-slate-400 transition hover:text-white"
             >
               {{ link.label }}
             </NuxtLink>
           </nav>
-          <div class="flex items-center gap-2 text-xs text-slate-500">
+          <div class="flex items-center gap-2 text-xs text-slate-400">
             <span>Payments:</span>
             <div class="flex items-center gap-2">
               <img

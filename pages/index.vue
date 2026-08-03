@@ -15,6 +15,8 @@ useSeo({
   type: "website",
 });
 
+const { resolve } = useImageUrl();
+
 const isCatalogLoading = computed(() => catalog.loading && !catalog.hydrated);
 
 const groupedProducts = computed(() => {
@@ -32,6 +34,19 @@ const groupedProducts = computed(() => {
     })
     .filter((group) => group.items.length);
 });
+
+const firstGroupId = computed(() => groupedProducts.value[0]?.category.id);
+
+const lcpImage = computed(() => {
+  const first = groupedProducts.value[0]?.items[0];
+  return first?.image ? resolve(first.image) : null;
+});
+
+useHead(() => ({
+  link: lcpImage.value
+    ? [{ rel: "preload", as: "image", href: lcpImage.value, fetchpriority: "high" }]
+    : [],
+}));
 </script>
 
 <template>
@@ -88,9 +103,10 @@ const groupedProducts = computed(() => {
         class="grid grid-cols-2 gap-1 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4"
       >
         <SingleProduct
-          v-for="product in group.items"
+          v-for="(product, index) in group.items"
           :key="product.id"
           :product="product"
+          :priority="group.category.id === firstGroupId && index === 0"
         />
       </div>
     </section>

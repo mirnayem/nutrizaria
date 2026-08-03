@@ -212,7 +212,7 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
         </div>
         <p class="text-sm text-slate-500">
           {{ filteredProducts.length }}
-          <span class="text-slate-400">of {{ totalProducts }} products</span>
+          <span class="text-slate-500">of {{ totalProducts }} products</span>
         </p>
       </header>
 
@@ -309,6 +309,7 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
               </svg>
               <select
                 v-model="sortOption"
+                aria-label="Sort products"
                 class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
               >
                 <option value="featured">Featured</option>
@@ -323,7 +324,7 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
             v-if="hasActiveFilters"
             class="mb-4 flex flex-wrap items-center gap-2"
           >
-            <span class="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <span class="text-xs font-medium uppercase tracking-wide text-slate-500">
               Active:
             </span>
             <button
@@ -383,7 +384,7 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
             </button>
             <button
               type="button"
-              class="text-xs font-medium text-slate-400 underline-offset-2 transition hover:text-slate-600 hover:underline"
+              class="text-xs font-medium text-slate-500 underline-offset-2 transition hover:text-slate-600 hover:underline"
               @click="clearFilters"
             >
               Clear all

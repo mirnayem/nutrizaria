@@ -69,9 +69,16 @@
       <ClientOnly>
         <HeroSlider :slides="heroSlides" />
         <template #fallback>
-          <div
-            class="min-h-[360px] rounded-2xl bg-white/10 shadow-lg ring-1 ring-white/20"
-          ></div>
+          <div class="min-h-[360px] rounded-2xl overflow-hidden bg-white/10 shadow-lg ring-1 ring-white/20">
+            <img
+              :src="`/images/${heroSlides[0].image}`"
+              :alt="heroSlides[0].name"
+              width="1024"
+              height="768"
+              fetchpriority="high"
+              class="h-full w-full object-cover object-center"
+            />
+          </div>
         </template>
       </ClientOnly>
     </div>

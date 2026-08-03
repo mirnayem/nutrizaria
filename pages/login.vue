@@ -30,7 +30,7 @@
 
         <div class="my-5 flex items-center gap-3">
           <div class="h-px flex-1 bg-slate-200"></div>
-          <span class="text-xs text-slate-400">or</span>
+          <span class="text-xs text-slate-500">or</span>
           <div class="h-px flex-1 bg-slate-200"></div>
         </div>
 
@@ -67,6 +67,7 @@
                 type="button"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 @click="showPassword = !showPassword"
+                :aria-label="showPassword ? 'Hide password' : 'Show password'"
                 tabindex="-1"
               >
                 <svg v-if="!showPassword" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">

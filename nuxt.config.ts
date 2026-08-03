@@ -11,6 +11,25 @@ export default defineNuxtConfig({
         changeOrigin: true,
       },
     },
+    compressPublicAssets: true,
+  },
+
+  routeRules: {
+    '/_nuxt/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
+    '/images/**': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
+    '/nutri.png': {
+      headers: {
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    },
   },
 
   vite: {
@@ -117,9 +136,6 @@ export default defineNuxtConfig({
 
   css: [
     "~/assets/css/main.css",
-    "quill/dist/quill.snow.css",
-    "quill/dist/quill.bubble.css",
-    "quill/dist/quill.core.css",
   ],
   postcss: {
     plugins: {
@@ -128,8 +144,7 @@ export default defineNuxtConfig({
     },
   },
   modules: ["@nuxt/image"],
-  plugins: ["~/plugins/pinia.ts", "~/plugins/slugify.ts"],
-  runtimeConfig: {
+  plugins: ["~/plugins/pinia.ts", "~/plugins/slugify.ts"],  runtimeConfig: {
     public: {
       siteUrl: process.env.SITE_URL || "https://nutrizaria.com",
       apiBase: process.env.API_BASE_URL || "http://localhost:4000/api",

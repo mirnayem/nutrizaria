@@ -2,17 +2,19 @@
   <article
     class="group flex flex-col overflow-hidden rounded-3xl border border-slate-200/70 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-200/60"
   >
-    <NuxtLink :to="`/blog/${post.slug}`" class="focus:outline-none" :aria-label="post.title">
+    <NuxtLink :to="`/blog/${post.slug}`" class="focus:outline-none">
       <div class="relative aspect-[16/10] overflow-hidden bg-slate-100">
         <img
           v-if="imageSrc"
           :src="imageSrc"
           :alt="post.title"
+          width="640"
+          height="400"
           class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           loading="lazy"
         />
         <div v-else class="flex h-full w-full items-center justify-center">
-          <span class="text-sm font-medium text-slate-400">NutriZaria</span>
+          <span class="text-sm font-medium text-slate-500">NutriZaria</span>
         </div>
         <span
           v-if="post.category"
@@ -24,7 +26,7 @@
     </NuxtLink>
 
     <div class="flex flex-1 flex-col gap-3 p-6">
-      <div class="flex items-center gap-2 text-xs text-slate-400">
+      <div class="flex items-center gap-2 text-xs text-slate-500">
         <span>{{ useDateFormatter(post.date) }}</span>
         <span class="size-1 rounded-full bg-slate-300" aria-hidden="true"></span>
         <span class="inline-flex items-center gap-1">

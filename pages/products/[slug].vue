@@ -57,6 +57,8 @@
             <img
               :src="activeImage"
               :alt="product.name"
+              width="1024"
+              height="1024"
               class="h-full w-full object-cover"
               loading="eager"
             />
@@ -92,7 +94,7 @@
               :aria-label="`View image ${index + 1}`"
               @click="activeIndex = index"
             >
-              <img :src="resolve(img)" :alt="`${product.name} ${index + 1}`" class="h-full w-full object-cover" loading="lazy" />
+              <img :src="resolve(img)" :alt="`${product.name} ${index + 1}`" width="96" height="96" class="h-full w-full object-cover" loading="lazy" />
             </button>
           </div>
         </div>
@@ -112,7 +114,7 @@
                 <span class="size-2 rounded-full bg-rose-500"></span>
                 Out of stock
               </span>
-              <span v-else class="inline-flex items-center gap-1.5 text-emerald-600">
+              <span v-else class="inline-flex items-center gap-1.5 text-emerald-700">
                 <span class="size-2 rounded-full bg-emerald-500"></span>
                 In stock
               </span>
@@ -225,7 +227,7 @@
               <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
                 {{ currencySymbol }}{{ product.price.toFixed(2) }}
               </span>
-              <span v-if="product.comparePrice" class="pb-1 text-lg font-medium text-slate-400 line-through">
+              <span v-if="product.comparePrice" class="pb-1 text-lg font-medium text-slate-500 line-through">
                 {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
               </span>
               <span class="text-sm text-slate-500">{{ product.unit }}</span>
@@ -299,6 +301,7 @@
                       : 'border-slate-200 text-slate-600 hover:border-violet-300 hover:text-violet-700 hover:bg-violet-50'
                   "
                   :aria-pressed="isFavorite"
+                  :aria-label="isFavorite ? 'Remove from favorites' : 'Add to favorites'"
                   @click="toggleFavorite"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" :fill="isFavorite ? 'currentColor' : 'none'" class="size-5">
@@ -319,16 +322,16 @@
 
           <div class="mt-6 grid grid-cols-2 gap-3 text-xs text-slate-500 sm:grid-cols-3">
             <div class="rounded-xl bg-slate-50 px-3 py-2.5">
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Unit</p>
+              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Unit</p>
               <p class="mt-0.5 font-medium text-slate-700">{{ activeProduct?.unit || product.unit }}</p>
             </div>
             <div class="rounded-xl bg-slate-50 px-3 py-2.5">
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Category</p>
+              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Category</p>
               <p class="mt-0.5 font-medium capitalize text-slate-700">{{ product.category }}</p>
             </div>
             <div class="rounded-xl bg-slate-50 px-3 py-2.5">
-              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-400">Availability</p>
-              <p class="mt-0.5 font-medium" :class="isOutOfStock ? 'text-rose-600' : 'text-emerald-600'">
+              <p class="text-[10px] font-semibold uppercase tracking-wide text-slate-500">Availability</p>
+              <p class="mt-0.5 font-medium" :class="isOutOfStock ? 'text-rose-600' : 'text-emerald-700'">
                 {{ isOutOfStock ? "Out of stock" : "In stock" }}
               </p>
             </div>

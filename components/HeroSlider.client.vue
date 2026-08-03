@@ -20,8 +20,7 @@
         v-for="(slide, index) in slides"
         :key="`${slide.slug ?? index}`"
         class="group !grid min-h-[320px] gap-0 rounded-2xl bg-white/5 text-white ring-1 ring-white/10 lg:min-h-[400px] lg:grid-cols-[1.05fr,0.95fr]"
-      >
-        <div class="flex flex-col justify-between gap-4 p-6 lg:p-8">
+      >        <div class="flex flex-col justify-between gap-4 p-6 lg:p-8">
           <div class="space-y-3">
             <p
               class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/80"
@@ -62,7 +61,10 @@
           <img
             :src="`/images/${slide.image}`"
             :alt="slide.name"
-            loading="lazy"
+            :loading="index === 0 ? 'eager' : 'lazy'"
+            :fetchpriority="index === 0 ? 'high' : 'auto'"
+            width="1024"
+            height="768"
             class="h-full w-full object-cover object-center transition duration-500 group-hover:scale-[1.03]"
           />
           <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent"></div>

@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <div>
-      <label class="mb-2 block text-sm font-semibold text-slate-700">Search</label>
+      <label for="shop-filter-search" class="mb-2 block text-sm font-semibold text-slate-700">Search</label>
       <div class="relative">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -18,6 +18,7 @@
           />
         </svg>
         <input
+          id="shop-filter-search"
           v-model="searchQuery"
           type="search"
           :placeholder="`Search ${totalProducts} products...`"
@@ -68,7 +69,7 @@
           @click="selectedCategory = 'all'"
         >
           <span>All products</span>
-          <span class="text-xs text-slate-400">{{ totalProducts }}</span>
+          <span class="text-xs text-slate-500">{{ totalProducts }}</span>
         </button>
         <button
           v-for="category in categories"
@@ -83,7 +84,7 @@
           @click="selectedCategory = category.slug"
         >
           <span class="truncate">{{ category.name }}</span>
-          <span class="text-xs text-slate-400">{{ category.count }}</span>
+          <span class="text-xs text-slate-500">{{ category.count }}</span>
         </button>
       </div>
     </div>
@@ -107,15 +108,17 @@
           min="0"
           :max="priceMax || maxPrice"
           placeholder="Min"
+          aria-label="Minimum price"
           class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
         />
-        <span class="text-slate-400">–</span>
+        <span class="text-slate-500" aria-hidden="true">–</span>
         <input
           v-model.number="priceMax"
           type="number"
           :min="priceMin"
           :max="maxPrice"
           placeholder="Max"
+          aria-label="Maximum price"
           class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
         />
       </div>

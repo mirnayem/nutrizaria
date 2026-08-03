@@ -40,12 +40,13 @@
         <NuxtLink
           :to="`/blog/${featuredPost.slug}`"
           class="relative block aspect-[16/10] overflow-hidden bg-slate-100 lg:aspect-auto"
-          :aria-label="featuredPost.title"
         >
           <img
             v-if="featuredImage"
             :src="featuredImage"
             :alt="featuredPost.title"
+            width="1280"
+            height="800"
             class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
           <div
@@ -56,7 +57,7 @@
           </div>
         </NuxtLink>
         <div class="flex flex-col justify-center gap-4 p-6 sm:p-8">
-          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+          <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
             <span class="rounded-full bg-violet-50 px-3 py-1 font-semibold text-violet-700">
               {{ featuredPost.category }}
             </span>
@@ -152,7 +153,7 @@
           <p class="text-sm font-medium text-slate-500">
             No articles found.
           </p>
-          <p class="mt-1 text-sm text-slate-400">
+          <p class="mt-1 text-sm text-slate-500">
             Try a different category or search term.
           </p>
           <button

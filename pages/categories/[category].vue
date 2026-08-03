@@ -99,7 +99,7 @@
         <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p class="text-sm text-slate-500">
             <span class="font-semibold text-slate-700">{{ sortedProducts.length }}</span>
-            <span class="text-slate-400">of {{ productCount }} products</span>
+            <span class="text-slate-500">of {{ productCount }} products</span>
             <span class="mx-2 text-slate-300">•</span>
             <span>Sorted by {{ sortLabel }}</span>
           </p>
@@ -120,6 +120,7 @@
             </svg>
             <select
               v-model="sortOption"
+              aria-label="Sort products"
               class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
             >
               <option value="featured">Featured</option>

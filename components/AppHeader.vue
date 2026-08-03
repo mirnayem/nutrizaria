@@ -12,6 +12,8 @@
         <img
           src="/nutri.png"
           alt="NutriZaria Logo"
+          width="40"
+          height="40"
           class="h-10 w-10 rounded-full"
         />
         NutriZaria
@@ -95,6 +97,8 @@
                 <img
                   :src="resolve(category.image)"
                   :alt="category.name"
+                  width="48"
+                  height="48"
                   class="h-12 w-12 rounded-xl object-cover"
                   loading="lazy"
                 />
@@ -128,6 +132,7 @@
         <NuxtLink
           to="/favorite"
           class="relative rounded-full bg-white/90 p-2 shadow"
+          aria-label="View favorites"
         >
           <HeartIcon class="size-5 text-slate-600" />
           <ClientOnly>
@@ -144,6 +149,7 @@
           type="button"
           class="relative rounded-full bg-white/90 p-2 shadow"
           @click="cartStore.toggleCart()"
+          aria-label="Open shopping cart"
         >
           <ShoppingBagIcon class="size-5 text-slate-600" />
           <ClientOnly>
@@ -257,6 +263,7 @@
           type="button"
           class="inline-flex rounded-full border border-slate-200 p-2 lg:hidden"
           @click="uiStore.toggleSidebar(true)"
+          aria-label="Open menu"
         >
           <Bars3Icon class="size-6 text-slate-700" />
         </button>

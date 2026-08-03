@@ -127,6 +127,17 @@ export const useCatalogStore = defineStore("catalog", {
       if (this.hydrated) return;
       if (this.hydratePromise) return this.hydratePromise;
 
+      const nuxtApp = useNuxtApp();
+
+      if (import.meta.client && nuxtApp.payload?.catalog) {
+        const snap = nuxtApp.payload.catalog as CatalogSnapshot;
+        this.products = clone(snap.products).map(normalizeProduct);
+        this.categories = clone(snap.categories);
+        this.faqs = clone(snap.faqs);
+        this.hydrated = true;
+        return;
+      }
+
       this.loading = true;
 
       this.hydratePromise = (async () => {
@@ -202,6 +213,13 @@ export const useCatalogStore = defineStore("catalog", {
           this.loading = false;
           this.hydrated = true;
           this.hydratePromise = null;
+          if (import.meta.server) {
+            nuxtApp.payload.catalog = {
+              products: this.products,
+              categories: this.categories,
+              faqs: this.faqs,
+            };
+          }
         }
       })();
 
