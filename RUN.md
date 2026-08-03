@@ -187,7 +187,9 @@ ADMIN_PASSPHRASE=
    npx prisma db seed
 
    # One-time: migrate any images uploaded before Cloudinary was enabled
-   # (run BEFORE your next deploy wipes the local uploads folder):
+   # (run BEFORE your next deploy wipes the local uploads folder).
+   # NOTE: the backend service's Root Directory is "backend", so in the
+   # Railway shell the code is at /app — do NOT `cd backend`, just run:
    npm run migrate:uploads
    ```
 
