@@ -18,6 +18,16 @@ export class UploadsService {
         api_key: config.get('CLOUDINARY_API_KEY'),
         api_secret: config.get('CLOUDINARY_API_SECRET'),
       });
+      console.log(
+        `[uploads] Using Cloudinary object storage (cloud: ${cloudName}). ` +
+          'Uploaded images will persist across deploys.',
+      );
+    } else {
+      console.warn(
+        '[uploads] Cloudinary is NOT configured — images are stored on local disk and ' +
+          'will be LOST on every redeploy. Set CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET ' +
+          'in production.',
+      );
     }
   }
 
@@ -26,7 +36,10 @@ export class UploadsService {
     if (cloudName && cloudName !== 'placeholder') {
       try {
         return await this.uploadToCloudinary(file);
-      } catch {
+      } catch (error) {
+        console.warn(
+          `[uploads] Cloudinary upload failed, falling back to local disk: ${(error as Error).message}`,
+        );
         // Fall through to local upload
       }
     }

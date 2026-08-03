@@ -159,7 +159,7 @@ ADMIN_PASSPHRASE=
 3. **Add Backend Service**: Click **+ New** → **GitHub Repo** → Select your repo
    - **Root Directory**: `backend`
    - Railway auto-detects the `Dockerfile` and builds
-4. Environment Variables (for the backend service):
+ 4. Environment Variables (for the backend service):
    ```
    DATABASE_URL=    ← Railway fills this from the Postgres plugin
    JWT_SECRET=      ← generate a strong random secret
@@ -168,13 +168,27 @@ ADMIN_PASSPHRASE=
    FRONTEND_URL=    ← your Vercel URL (e.g. https://nutrizaria.vercel.app)
    ADMIN_EMAIL=admin@nutrizaria.com
    ADMIN_PASSWORD=  ← set a strong password
+
+   # REQUIRED for uploaded images to survive redeploys.
+   # Create a free account at https://cloudinary.com → Dashboard, then copy:
+   CLOUDINARY_CLOUD_NAME=your-cloud-name
+   CLOUDINARY_API_KEY=your-api-key
+   CLOUDINARY_API_SECRET=your-api-secret
    ```
+   > Railway's filesystem is **ephemeral** — it is wiped on every deploy. Without
+   > Cloudinary, images are stored in a local `uploads/` folder and **break after each
+   > redeploy** (the DB keeps the old `/uploads/...` URL, but the file is gone).
+   > The backend logs a warning at startup when Cloudinary is not configured.
 5. Once deployed, run migrations and seed once:
    ```bash
    # Open Railway shell for the backend service
    # Run inside the container:
    npx prisma migrate deploy
    npx prisma db seed
+
+   # One-time: migrate any images uploaded before Cloudinary was enabled
+   # (run BEFORE your next deploy wipes the local uploads folder):
+   npm run migrate:uploads
    ```
 
 Railway auto-deploys on every push to the connected branch. No extra CI config needed.
