@@ -15,6 +15,7 @@ import { AuthService } from './auth.service';
 import {
   RegisterDto,
   LoginDto,
+  GoogleLoginDto,
   UpdateProfileDto,
   ChangePasswordDto,
   CreateAddressDto,
@@ -38,6 +39,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @Post('google')
+  @HttpCode(HttpStatus.OK)
+  googleLogin(@Body() dto: GoogleLoginDto) {
+    return this.authService.googleLogin(dto.token);
   }
 
   @Get('profile')

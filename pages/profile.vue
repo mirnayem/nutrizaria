@@ -244,6 +244,7 @@
                       />
                       <div class="min-w-0 flex-1">
                         <p class="truncate text-sm font-medium text-slate-800">{{ item.name }}</p>
+                        <p class="text-xs text-slate-500" v-if="item.variantLabel">{{ item.variantLabel }}</p>
                         <p class="text-xs text-slate-500">
                           {{ item.quantity }} × {{ currencySymbol }}{{ item.price }}
                         </p>

@@ -5,6 +5,7 @@ export interface UserAccount {
   phone?: string;
   role?: string;
   avatar?: string;
+  googleId?: string;
   createdAt?: string;
 }
 

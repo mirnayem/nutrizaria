@@ -478,6 +478,7 @@ const placeOrder = async () => {
         deliveryArea: shipping.value.area,
         items: cartStore.items.map((item: any) => ({
           productId: item.productId || item.id,
+          variantId: item.variantId,
           quantity: item.quantity,
         })),
       });
@@ -508,6 +509,7 @@ const placeOrder = async () => {
         notes: summary.notes,
         items: cartStore.items.map((item: any) => ({
           productId: item.productId || item.id,
+          variantId: item.variantId,
           quantity: item.quantity,
         })),
       });

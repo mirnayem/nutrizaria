@@ -167,6 +167,71 @@ export const useUserStore = defineStore("user", {
         this.users = users;
       }
     },
+
+    async googleLogin(token: string): Promise<boolean> {
+      try {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        if (!apiBase) return false;
+
+        const result = await $fetch(`${apiBase}/auth/google`, {
+          method: "POST",
+          body: { token },
+        });
+
+        const data = result?.data ?? result;
+        if (data?.accessToken) {
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            phone: data.user.phone,
+            role: data.user.role,
+            avatar: data.user.avatar,
+          };
+          this.authenticatedUser = user;
+          this.apiToken = data.accessToken;
+          this.useApi = true;
+          persistSession(data.accessToken, user);
+          return true;
+        }
+      } catch (error) {
+        console.warn("[user] Google API login failed, falling back to local");
+      }
+
+      const googleUser =
+        typeof window !== "undefined"
+          ? JSON.parse(localStorage.getItem("googleUser") || "null")
+          : null;
+      if (googleUser?.email) {
+        const existing =
+          JSON.parse(localStorage.getItem("users") || "[]").find(
+            (u: User) =>
+              u.email === googleUser.email ||
+              u.googleId === googleUser.googleId
+          ) || null;
+        const user: User = existing || {
+          id: googleUser.googleId || `g-${googleUser.email}`,
+          email: googleUser.email,
+          name: googleUser.name || null,
+          avatar: googleUser.photoURL || null,
+          googleId: googleUser.googleId,
+        };
+        if (!existing) {
+          this.registerUser(user);
+        }
+        this.authenticatedUser = user;
+        this.useApi = false;
+        if (typeof window !== "undefined") {
+          localStorage.setItem(
+            "authenticatedUser",
+            JSON.stringify(user)
+          );
+        }
+        return true;
+      }
+      return false;
+    },
     async loginUser(authUser: User): Promise<boolean> {
       const apiResult = await this.loginApi(authUser.email, authUser.password || "");
       if (apiResult) return true;

@@ -8,6 +8,11 @@ export class CreateOrderItemDto {
   @IsString()
   productId: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  variantId?: string;
+
   @ApiProperty()
   @IsNumber()
   quantity: number;

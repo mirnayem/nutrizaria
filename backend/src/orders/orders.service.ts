@@ -36,17 +36,45 @@ export class OrdersService {
       throw new BadRequestException('One or more products not found');
     }
 
+    const variantIds = dto.items
+      .map((i) => i.variantId)
+      .filter((v): v is string => Boolean(v));
+
+    const variants = variantIds.length
+      ? await this.prisma.productVariant.findMany({ where: { id: { in: variantIds } } })
+      : [];
+
     let subtotal = 0;
     const orderItems = dto.items.map((item) => {
       const product = products.find((p) => p.id === item.productId)!;
-      const lineTotal = product.price * item.quantity;
+      let price = product.price;
+      let unit = product.unit;
+      let variantId: string | undefined;
+      let variantLabel: string | undefined;
+
+      if (item.variantId) {
+        const variant = variants.find((v) => v.id === item.variantId);
+        if (!variant || variant.productId !== product.id) {
+          throw new BadRequestException(`Variant not found for product ${product.name}`);
+        }
+        price = variant.price;
+        unit = variant.unit;
+        variantId = variant.id;
+        variantLabel =
+          variant.label ||
+          (variant.weight > 0 ? `${variant.weight}${variant.unit}` : variant.unit);
+      }
+
+      const lineTotal = price * item.quantity;
       subtotal += lineTotal;
       return {
         productId: product.id,
         name: product.name,
-        price: product.price,
+        price,
         quantity: item.quantity,
-        unit: product.unit,
+        unit,
+        variantId,
+        variantLabel,
       };
     });
 
@@ -99,7 +127,7 @@ export class OrdersService {
   async findById(id: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
-      include: { items: { include: { product: true } }, user: true },
+      include: { items: { include: { product: true, variant: true } }, user: true },
     });
     if (!order) throw new NotFoundException('Order not found');
     return order;

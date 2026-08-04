@@ -49,6 +49,10 @@ export class AuthService {
     });
     if (!user || !user.isActive)
       throw new UnauthorizedException('Invalid credentials');
+    if (!user.password)
+      throw new UnauthorizedException(
+        'This account uses Google sign-in. Please continue with Google.',
+      );
 
     const valid = await bcrypt.compare(dto.password, user.password);
     if (!valid) throw new UnauthorizedException('Invalid credentials');
@@ -59,6 +63,82 @@ export class AuthService {
     });
 
     return this.generateTokens(user);
+  }
+
+  async googleLogin(token: string) {
+    const claims = await this.verifyGoogleToken(token);
+    if (!claims || !claims.email)
+      throw new UnauthorizedException('Invalid Google token');
+
+    const email = claims.email;
+    const googleId = claims.sub;
+
+    const payloadUser = {
+      name: claims.name ?? undefined,
+      avatar: claims.picture ?? undefined,
+    };
+
+    // 1) Link by googleId (stable account identity)
+    let user = googleId
+      ? await this.prisma.user.findUnique({ where: { googleId } })
+      : null;
+
+    // 2) Link by email so an existing email/password account becomes the same account
+    if (!user) {
+      user = email
+        ? await this.prisma.user.findUnique({ where: { email } })
+        : null;
+    }
+
+    if (user) {
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          ...(payloadUser.name && { name: payloadUser.name }),
+          ...(payloadUser.avatar && { avatar: payloadUser.avatar }),
+          ...(googleId && user.googleId !== googleId && { googleId }),
+          emailVerified: true,
+          lastLoginAt: new Date(),
+        },
+      });
+    } else {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          googleId,
+          name: payloadUser.name,
+          avatar: payloadUser.avatar,
+          emailVerified: true,
+          lastLoginAt: new Date(),
+        },
+      });
+    }
+
+    return this.generateTokens(user);
+  }
+
+  /**
+   * Validates a Google OAuth access token (obtained via Google Identity
+   * Services "token client") against Google's userinfo endpoint. No client
+   * secret required server-side.
+   */
+  private async verifyGoogleToken(
+    accessToken: string,
+  ): Promise<Record<string, any> | null> {
+    try {
+      const res = await fetch(
+        'https://www.googleapis.com/oauth2/v3/userinfo',
+        { headers: { Authorization: `Bearer ${accessToken}` } },
+      );
+      if (!res.ok) return null;
+      const info: Record<string, any> = await res.json();
+      if (info.error) return null;
+      if (info.email_verified === false) return null;
+      if (!info.email || !info.sub) return null;
+      return info;
+    } catch {
+      return null;
+    }
   }
 
   async getProfile(userId: string) {
@@ -104,6 +184,10 @@ export class AuthService {
   async changePassword(userId: string, dto: ChangePasswordDto) {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
+    if (!user.password)
+      throw new BadRequestException(
+        'This account uses Google sign-in and has no password set.',
+      );
 
     const valid = await bcrypt.compare(dto.currentPassword, user.password);
     if (!valid) throw new BadRequestException('Current password is incorrect');

@@ -231,7 +231,8 @@ const handleRegister = async () => {
 const handleGoogleSignup = async () => {
   errorMessage.value = "";
   try {
-    await loginWithGoogle();
+    const ok = await loginWithGoogle();
+    if (!ok) return;
     router.push(redirectTo.value);
   } catch (err) {
     errorMessage.value = "Google sign-up failed. Please try again.";

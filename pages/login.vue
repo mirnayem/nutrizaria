@@ -191,7 +191,8 @@ const handleLogin = async () => {
 const handleGoogleLogin = async () => {
   errorMessage.value = "";
   try {
-    await loginWithGoogle();
+    const ok = await loginWithGoogle();
+    if (!ok) return;
     router.push(redirectTo.value);
   } catch (err) {
     errorMessage.value = "Google sign-in failed. Please try again.";

@@ -38,6 +38,15 @@ export class LoginDto {
   password: string;
 }
 
+export class GoogleLoginDto {
+  @ApiProperty({
+    example: 'ya29.a0AfH6S...',
+    description: 'Google OAuth access token returned by Google Identity Services',
+  })
+  @IsString()
+  token: string;
+}
+
 export class UpdateProfileDto {
   @ApiPropertyOptional({ example: 'John Doe' })
   @IsOptional()

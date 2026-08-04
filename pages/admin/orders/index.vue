@@ -100,6 +100,7 @@
             <div v-for="item in selectedOrder.items" :key="item.id" class="flex items-center justify-between rounded-lg border border-slate-100 p-3">
               <div>
                 <p class="text-sm font-medium text-slate-900">{{ item.name }}</p>
+                <p class="text-xs text-slate-500" v-if="item.variantLabel">{{ item.variantLabel }}</p>
                 <p class="text-xs text-slate-500">{{ item.quantity }} x {{ currencySymbol }}{{ item.price }}</p>
               </div>
               <p class="text-sm font-semibold text-slate-900">{{ currencySymbol }}{{ (item.quantity * item.price).toFixed(2) }}</p>
