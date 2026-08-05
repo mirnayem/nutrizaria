@@ -1,9 +1,9 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyBxd8k-eThZX0qpAUUlQ1Yp5TzE5jXm9q8",
-  authDomain: "nutrizaria-27ac1.firebaseapp.com",
-  projectId: "nutrizaria-27ac1",
-  storageBucket: "nutrizaria-27ac1.firebasestorage.app",
-  messagingSenderId: "589188719972",
-  appId: "1:589188719972:web:81fb73b34f84ef4e184671",
-  measurementId: "G-P37VV5JMNK",
+  apiKey: "AIzaSyDNFJHMx1boVbOPYyT_QG3YygntcMhxAlc",
+  authDomain: "nutrizaria-fdcb4.firebaseapp.com",
+  projectId: "nutrizaria-fdcb4",
+  storageBucket: "nutrizaria-fdcb4.firebasestorage.app",
+  messagingSenderId: "930065455396",
+  appId: "1:930065455396:web:460f733ea9a53a7d71fbb1",
+  measurementId: "G-2B9YGR7H7T",
 };

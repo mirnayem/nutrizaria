@@ -8,7 +8,7 @@ import type { Product } from "~/types/product";
 useSeo({
   title: "Shop",
   description:
-    "Browse the full NutriZaria catalog — fresh produce, pantry staples and more.",
+    "Browse the full NutriZaria catalog — fresh produce, daily essentials and more.",
   image: "/nutri.png",
   type: "website",
 });
@@ -16,7 +16,7 @@ useSeo({
 const route = useRoute();
 const catalog = useCatalogStore();
 await catalog.hydrate();
-const { products, categories } = storeToRefs(catalog);
+const { products, categories, brands } = storeToRefs(catalog);
 
 // Ensure data is fresh on navigation
 watch(() => route.fullPath, async () => {
@@ -30,6 +30,7 @@ const currencySymbol = config.public.currencySymbol || "Tk";
 
 const searchQuery = ref("");
 const selectedCategory = ref<string>("all");
+const selectedBrand = ref<string>("all");
 const sortOption = ref<"featured" | "priceLow" | "priceHigh" | "alpha">("featured");
 const inStockOnly = ref(false);
 const showFilterPanel = ref(false);
@@ -65,7 +66,25 @@ const categoryStats = computed(() => {
     name: category.name,
     slug: category.slug,
     count: counts[category.slug] ?? 0,
-  }));
+  })).filter((c) => c.count > 0);
+});
+
+const brandStats = computed(() => {
+  const counts = (products.value ?? []).reduce<Record<string, number>>(
+    (acc, product) => {
+      if (product.brand) {
+        acc[product.brand] = (acc[product.brand] ?? 0) + 1;
+      }
+      return acc;
+    },
+    {}
+  );
+  return (brands.value ?? []).map((brand) => ({
+    id: brand.id,
+    name: brand.name,
+    slug: brand.slug,
+    count: counts[brand.slug] ?? 0,
+  })).filter((b) => b.count > 0);
 });
 
 const filteredProducts = computed<Product[]>(() => {
@@ -75,13 +94,18 @@ const filteredProducts = computed<Product[]>(() => {
     list = list.filter((product) => product.category === selectedCategory.value);
   }
 
+  if (selectedBrand.value !== "all") {
+    list = list.filter((product) => product.brand === selectedBrand.value);
+  }
+
   const keyword = searchQuery.value.trim().toLowerCase();
   if (keyword) {
     list = list.filter(
       (product) =>
         product.name.toLowerCase().includes(keyword) ||
         product.description.toLowerCase().includes(keyword) ||
-        product.category.toLowerCase().includes(keyword)
+        product.category.toLowerCase().includes(keyword) ||
+        (product.brand || "").toLowerCase().includes(keyword)
     );
   }
 
@@ -134,6 +158,7 @@ const priceRangeActive = computed(
 const activeFilterCount = computed(
   () =>
     (selectedCategory.value !== "all" ? 1 : 0) +
+    (selectedBrand.value !== "all" ? 1 : 0) +
     (Boolean(searchQuery.value.trim()) ? 1 : 0) +
     (priceRangeActive.value ? 1 : 0) +
     (inStockOnly.value ? 1 : 0)
@@ -150,9 +175,17 @@ const sortLabel = computed(() =>
     : "Featured"
 );
 
+const sortOptions = [
+  { value: "featured", label: "Featured" },
+  { value: "priceLow", label: "Price: Low to High" },
+  { value: "priceHigh", label: "Price: High to Low" },
+  { value: "alpha", label: "Alphabetical" },
+];
+
 const clearFilters = () => {
   searchQuery.value = "";
   selectedCategory.value = "all";
+  selectedBrand.value = "all";
   sortOption.value = "featured";
   priceMin.value = 0;
   priceMax.value = maxPrice.value;
@@ -163,6 +196,9 @@ const clearFilters = () => {
 
 const removeCategoryFilter = () => {
   selectedCategory.value = "all";
+};
+const removeBrandFilter = () => {
+  selectedBrand.value = "all";
 };
 const removePriceFilter = () => {
   priceMin.value = 0;
@@ -222,10 +258,12 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
             <ShopFilters
               v-model:search-query="searchQuery"
               v-model:selected-category="selectedCategory"
+              v-model:selected-brand="selectedBrand"
               v-model:price-min="priceMin"
               v-model:price-max="priceMax"
               v-model:in-stock-only="inStockOnly"
               :categories="categoryStats"
+              :brands="brandStats"
               :max-price="maxPrice"
               :total-products="totalProducts"
             />
@@ -307,16 +345,12 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
                   d="M3 4.5h14.25M3 9h9.75M3 13.5h9.75m4.5-4.5v12m0 0-3.75-3.75M17.25 21 21 17.25"
                 />
               </svg>
-              <select
+              <AppSelect
                 v-model="sortOption"
+                :options="sortOptions"
                 aria-label="Sort products"
-                class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-100"
-              >
-                <option value="featured">Featured</option>
-                <option value="priceLow">Price: Low to High</option>
-                <option value="priceHigh">Price: High to Low</option>
-                <option value="alpha">Alphabetical</option>
-              </select>
+                id="shop-sort"
+              />
             </div>
           </div>
 
@@ -334,6 +368,24 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
               @click="removeCategoryFilter"
             >
               {{ activeCategoryName }}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="size-3"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <button
+              v-if="selectedBrand !== 'all'"
+              type="button"
+              class="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 transition hover:bg-violet-100"
+              @click="removeBrandFilter"
+            >
+              {{ brandStats.find((b) => b.slug === selectedBrand)?.name || selectedBrand }}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="size-3"
@@ -475,14 +527,16 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
               </svg>
             </button>
           </div>
-          <div class="flex-1 overflow-y-auto px-5 py-5">
+          <div class="flex-1 overflow-y-auto px-5 py-5 scrollbar-slim">
             <ShopFilters
               v-model:search-query="searchQuery"
               v-model:selected-category="selectedCategory"
+              v-model:selected-brand="selectedBrand"
               v-model:price-min="priceMin"
               v-model:price-max="priceMax"
               v-model:in-stock-only="inStockOnly"
               :categories="categoryStats"
+              :brands="brandStats"
               :max-price="maxPrice"
               :total-products="totalProducts"
             />

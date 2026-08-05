@@ -29,6 +29,7 @@ export class AdminController {
     @CurrentUser('id') userId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string,
     @Query('role') role?: string,
     @Query('search') search?: string,
     @Query('isActive') isActive?: string,
@@ -37,6 +38,7 @@ export class AdminController {
       userId,
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 20,
+      cursor,
       { role, search, isActive },
     );
   }
@@ -92,15 +94,27 @@ export class AdminController {
     @CurrentUser('id') userId: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
+    @Query('cursor') cursor?: string,
     @Query('userId') filterUserId?: string,
     @Query('action') action?: string,
     @Query('entityType') entityType?: string,
+    @Query('search') search?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
   ) {
     return this.adminService.getActivityLogs(
       userId,
       page ? parseInt(page) : 1,
       limit ? parseInt(limit) : 50,
-      { userId: filterUserId, action, entityType },
+      cursor,
+      {
+        userId: filterUserId,
+        action,
+        entityType,
+        search,
+        startDate: from ? new Date(from) : undefined,
+        endDate: to ? new Date(to) : undefined,
+      },
     );
   }
 

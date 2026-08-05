@@ -110,6 +110,11 @@ export class QueryOrderDto {
   @Type(() => Number)
   limit?: number = 20;
 
+  @ApiPropertyOptional({ description: 'Cursor for cursor-based pagination (takes precedence over page)' })
+  @IsOptional()
+  @IsString()
+  cursor?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

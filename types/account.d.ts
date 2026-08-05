@@ -1,11 +1,12 @@
 export interface UserAccount {
   id?: string;
   name?: string;
-  email: string;
+  email?: string;
   phone?: string;
   role?: string;
   avatar?: string;
   googleId?: string;
+  firebaseUid?: string;
   createdAt?: string;
 }
 

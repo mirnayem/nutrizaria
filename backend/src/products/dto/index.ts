@@ -149,10 +149,10 @@ export class CreateProductDto {
   @IsArray()
   images?: string[];
 
-  @ApiPropertyOptional({ description: 'Product brand (optional).' })
+  @ApiPropertyOptional({ description: 'Brand slug (optional).' })
   @IsOptional()
   @IsString()
-  brand?: string;
+  brandSlug?: string;
 
   @ApiProperty()
   @IsString()
@@ -234,10 +234,10 @@ export class UpdateProductDto {
   @IsArray()
   images?: string[];
 
-  @ApiPropertyOptional({ description: 'Product brand (optional).' })
+  @ApiPropertyOptional({ description: 'Brand slug (optional).' })
   @IsOptional()
   @IsString()
-  brand?: string;
+  brandSlug?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -288,10 +288,20 @@ export class QueryProductDto {
   @Type(() => Number)
   limit?: number = 12;
 
+  @ApiPropertyOptional({ description: 'Cursor for cursor-based pagination (takes precedence over page)' })
+  @IsOptional()
+  @IsString()
+  cursor?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   category?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  brand?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

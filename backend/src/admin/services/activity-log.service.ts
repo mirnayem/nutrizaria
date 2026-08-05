@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ActivityAction } from '@prisma/client';
+import { parsePagination, buildPaginationResult } from '../../common/pagination';
 
 @Injectable()
 export class ActivityLogService {
@@ -32,13 +33,15 @@ export class ActivityLogService {
     userId?: string;
     action?: ActivityAction;
     entityType?: string;
+    search?: string;
     startDate?: Date;
     endDate?: Date;
     page?: number;
     limit?: number;
+    cursor?: string;
   }) {
-    const { userId, action, entityType, startDate, endDate, page = 1, limit = 50 } = filters || {};
-    const skip = (page - 1) * limit;
+    const { userId, action, entityType, search, startDate, endDate, page = 1, limit = 50, cursor } = filters || {};
+    const pagination = parsePagination({ page, limit, cursor }, 50);
 
     const where: any = {};
     if (userId) where.userId = userId;
@@ -49,31 +52,39 @@ export class ActivityLogService {
       if (startDate) where.createdAt.gte = startDate;
       if (endDate) where.createdAt.lte = endDate;
     }
+    if (search) {
+      where.OR = [
+        { entityType: { contains: search, mode: 'insensitive' } },
+        { entityId: { contains: search, mode: 'insensitive' } },
+        { details: { contains: search, mode: 'insensitive' } },
+        { user: { is: { email: { contains: search, mode: 'insensitive' } } } },
+        { user: { is: { name: { contains: search, mode: 'insensitive' } } } },
+      ];
+    }
 
-    const [logs, total] = await Promise.all([
-      this.prisma.adminActivityLog.findMany({
-        where,
-        include: {
-          user: {
-            select: { id: true, email: true, name: true, role: true },
-          },
+    const findManyArgs: any = {
+      where,
+      include: {
+        user: {
+          select: { id: true, email: true, name: true, role: true },
         },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.adminActivityLog.count({ where }),
-    ]);
-
-    return {
-      logs,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
       },
+      orderBy: { createdAt: 'desc' },
+      take: pagination.take,
     };
+
+    if (pagination.mode === 'cursor') {
+      findManyArgs.cursor = { id: pagination.cursor };
+      findManyArgs.skip = 1;
+    } else {
+      findManyArgs.skip = pagination.skip;
+    }
+
+    const count = await this.prisma.adminActivityLog.count({ where });
+    const rawLogs = await this.prisma.adminActivityLog.findMany(findManyArgs);
+
+    const result = buildPaginationResult(rawLogs, pagination, count);
+    return { logs: result.items, meta: result.meta };
   }
 
   async findByUser(userId: string, page = 1, limit = 50) {

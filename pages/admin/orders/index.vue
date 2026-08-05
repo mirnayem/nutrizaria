@@ -3,7 +3,7 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 class="text-xl font-semibold text-slate-900">Orders</h2>
-        <p class="text-sm text-slate-500">{{ orders.length }} orders total</p>
+        <p class="text-sm text-slate-500">{{ meta.total ?? orders.length }} orders total</p>
       </div>
       <div class="flex gap-2">
         <select v-model="statusFilter" class="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500">
@@ -58,8 +58,14 @@
               </select>
             </td>
             <td class="px-4 py-3 text-xs text-slate-500">{{ new Date(order.createdAt).toLocaleDateString() }}</td>
-            <td class="px-4 py-3 text-right">
-              <button @click="viewOrder(order)" class="text-sm text-violet-600 hover:text-violet-700">View</button>
+            <td class="px-4 py-3">
+              <AdminRowActions
+                :entity="order.orderNumber"
+                :actions="[
+                  { label: 'View order', icon: 'view', handler: () => viewOrder(order) },
+                  { label: 'Invoice', icon: 'print', handler: () => openInvoice(order) },
+                ]"
+              />
             </td>
           </tr>
           <tr v-if="filteredOrders.length === 0">
@@ -68,6 +74,14 @@
         </tbody>
       </table>
     </div>
+
+    <AdminPagination
+      :meta="meta"
+      :loading="loading"
+      :page-size="pageSize"
+      @page="onPageChange"
+      @cursor="onCursorChange"
+    />
 
     <div v-if="selectedOrder" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4">
       <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl bg-white p-6 shadow-xl">
@@ -127,15 +141,20 @@
           <button @click="markAsPaid(selectedOrder.id)" class="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700" :disabled="selectedOrder.paymentStatus === 'PAID'">
             {{ selectedOrder.paymentStatus === 'PAID' ? 'Already Paid' : 'Mark as Paid' }}
           </button>
+          <button @click="openInvoice(selectedOrder)" class="flex-1 rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700">
+            View Invoice
+          </button>
           <button @click="selectedOrder = null" class="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Close</button>
         </div>
       </div>
     </div>
+
+    <OrderInvoice :order="invoiceOrder" @close="invoiceOrder = null" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 
 definePageMeta({ layout: 'admin' });
 
@@ -146,25 +165,15 @@ const orders = ref<any[]>([]);
 const search = ref('');
 const statusFilter = ref('');
 const selectedOrder = ref<any>(null);
+const invoiceOrder = ref<any>(null);
 const loading = ref(false);
+const pageSize = 20;
+const meta = ref<any>({});
+let activeCursor: string | null = null;
 
 const statuses = ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED'];
 
-const filteredOrders = computed(() => {
-  let result = orders.value;
-  if (statusFilter.value) {
-    result = result.filter(o => o.status === statusFilter.value);
-  }
-  if (search.value) {
-    const q = search.value.toLowerCase();
-    result = result.filter(o =>
-      o.orderNumber.toLowerCase().includes(q) ||
-      o.shippingName.toLowerCase().includes(q) ||
-      o.shippingEmail.toLowerCase().includes(q)
-    );
-  }
-  return result;
-});
+const filteredOrders = computed(() => orders.value);
 
 const statusClass = (status: string) => {
   const classes: Record<string, string> = {
@@ -225,15 +234,29 @@ const viewOrder = (order: any) => {
   selectedOrder.value = order;
 };
 
+const openInvoice = (order: any) => {
+  if (!order) return;
+  selectedOrder.value = null;
+  invoiceOrder.value = order;
+};
+
 const loadOrders = async () => {
   loading.value = true;
   try {
     const apiBase = config.public.apiBase;
     const token = useCookie('auth_token');
-    const res = await $fetch(`${apiBase}/admin/orders?limit=200`, {
+    const params: any = { limit: pageSize };
+    if (activeCursor) params.cursor = activeCursor;
+    else params.page = meta.value.page || 1;
+    if (search.value.trim()) params.search = search.value.trim();
+    if (statusFilter.value) params.status = statusFilter.value;
+    const res = await $fetch(`${apiBase}/admin/orders`, {
+      params,
       headers: { Authorization: `Bearer ${token.value}` },
     });
-    orders.value = res?.data?.items || res?.items || [];
+    const data = res?.data || res || {};
+    orders.value = data?.items || data || [];
+    meta.value = data.meta || {};
   } catch (e) {
     console.error('Failed to load orders', e);
   }
@@ -241,6 +264,24 @@ const loadOrders = async () => {
     loading.value = false;
   }
 };
+
+const onPageChange = (page: number) => {
+  activeCursor = null;
+  meta.value = { ...meta.value, page };
+  loadOrders();
+};
+
+const onCursorChange = (cursor: string | null) => {
+  activeCursor = cursor;
+  if (!cursor) meta.value = { ...meta.value, page: 1 };
+  loadOrders();
+};
+
+watch([search, statusFilter], () => {
+  activeCursor = null;
+  meta.value = { ...meta.value, page: 1 };
+  loadOrders();
+});
 
 onMounted(() => {
   loadOrders();

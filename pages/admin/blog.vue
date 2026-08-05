@@ -173,27 +173,15 @@
                   {{ post.isPublished ? "Published" : "Draft" }}
                 </button>
               </td>
-              <td class="px-4 py-3 text-right whitespace-nowrap">
-                <NuxtLink
-                  v-if="post.slug"
-                  :to="`/blog/${post.slug}`"
-                  target="_blank"
-                  class="mr-3 text-sm font-semibold text-slate-500 hover:text-slate-700"
-                >
-                  View
-                </NuxtLink>
-                <button
-                  class="mr-3 text-sm font-semibold text-violet-700 hover:text-violet-500"
-                  @click="startEdit(post)"
-                >
-                  Edit
-                </button>
-                <button
-                  class="text-sm font-semibold text-rose-600 hover:text-rose-400"
-                  @click="askDelete(post)"
-                >
-                  Delete
-                </button>
+              <td class="px-4 py-3 whitespace-nowrap">
+                <AdminRowActions
+                  :entity="post.title"
+                  :actions="[
+                    { label: 'View', icon: 'external', handler: () => { if (post.slug) window.open(`/blog/${post.slug}`, '_blank') }, tooltip: true },
+                    { label: 'Edit', icon: 'edit', handler: () => startEdit(post) },
+                    { label: 'Delete', icon: 'delete', handler: () => askDelete(post), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
+                  ]"
+                />
               </td>
             </tr>
             <tr v-if="loadingPosts">
@@ -207,28 +195,12 @@
           </tbody>
         </table>
       </div>
-      <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-        <p class="text-sm text-slate-500">
-          Page {{ currentPage }} of {{ totalPages }}
-        </p>
-        <div class="flex gap-2">
-          <button
-            type="button"
-            class="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:opacity-40"
-            :disabled="currentPage <= 1"
-            @click="changePage(currentPage - 1)"
-          >
-            Previous
-          </button>
-          <button
-            type="button"
-            class="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-violet-300 hover:text-violet-700 disabled:opacity-40"
-            :disabled="currentPage >= totalPages"
-            @click="changePage(currentPage + 1)"
-          >
-            Next
-          </button>
-        </div>
+      <div v-if="totalPages > 1" class="mt-4">
+        <AdminPagination
+          :meta="{ total: totalPosts, page: currentPage, limit: 20, totalPages }"
+          :page-size="20"
+          @page="changePage"
+        />
       </div>
     </section>
 

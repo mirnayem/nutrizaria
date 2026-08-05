@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderStatusDto, UpdatePaymentStatusDto, QueryOrderDto } from './dto';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
+import { parsePagination, buildPaginationResult } from '../common/pagination';
 
 @Injectable()
 export class OrdersService {
@@ -160,7 +161,9 @@ export class OrdersService {
   }
 
   async findAllAdmin(query: QueryOrderDto) {
-    const { page = 1, limit = 20, status, search } = query;
+    const { status, search } = query;
+    const pagination = parsePagination(query, 20);
+
     const where: any = {};
     if (status) where.status = status as OrderStatus;
     if (search) {
@@ -171,18 +174,24 @@ export class OrdersService {
       ];
     }
 
-    const skip = (page - 1) * limit;
-    const [items, total] = await Promise.all([
-      this.prisma.order.findMany({
-        where,
-        include: { items: true, user: { select: { id: true, email: true, name: true } } },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.order.count({ where }),
-    ]);
-    return { items, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    const findManyArgs: any = {
+      where,
+      include: { items: true, user: { select: { id: true, email: true, name: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: pagination.take,
+    };
+
+    if (pagination.mode === 'cursor') {
+      findManyArgs.cursor = { id: pagination.cursor };
+      findManyArgs.skip = 1;
+    } else {
+      findManyArgs.skip = pagination.skip;
+    }
+
+    const count = await this.prisma.order.count({ where });
+    const rawItems = await this.prisma.order.findMany(findManyArgs);
+
+    return buildPaginationResult(rawItems, pagination, count);
   }
 
   async updateStatus(id: string, dto: UpdateOrderStatusDto) {

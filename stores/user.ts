@@ -232,6 +232,156 @@ export const useUserStore = defineStore("user", {
       }
       return false;
     },
+    async phoneLogin(idToken: string, phone?: string): Promise<any> {
+      try {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        if (apiBase) {
+          const result = await $fetch(`${apiBase}/auth/phone`, {
+            method: "POST",
+            body: { token: idToken },
+          });
+
+          const data = result?.data ?? result;
+          if (data?.requiresSetup) {
+            return {
+              requiresSetup: true,
+              setupToken: data.setupToken,
+              phone: data.phone,
+            };
+          }
+          if (data?.accessToken) {
+            const user: User = {
+              id: data.user.id,
+              email: data.user.email,
+              name: data.user.name,
+              phone: data.user.phone,
+              role: data.user.role,
+              avatar: data.user.avatar,
+            };
+            this.authenticatedUser = user;
+            this.apiToken = data.accessToken;
+            this.useApi = true;
+            persistSession(data.accessToken, user);
+            return { success: true };
+          }
+        }
+      } catch (error) {
+        console.warn("[user] Phone API login failed, falling back to local");
+      }
+
+      // Local fallback when the backend is unavailable
+      if (phone && typeof window !== "undefined") {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const existing = users.find((u: User) => u.phone === phone) || null;
+        const user: User = existing || {
+          id: `p-${phone.replace(/\D/g, "")}`,
+          phone,
+        };
+        if (!existing) {
+          this.registerUser(user);
+        }
+        this.authenticatedUser = user;
+        this.useApi = false;
+        localStorage.setItem("authenticatedUser", JSON.stringify(user));
+        return { success: true };
+      }
+      return { success: false };
+    },
+
+    async completeProfile(data: {
+      setupToken: string;
+      name: string;
+      password: string;
+    }): Promise<boolean> {
+      try {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        if (!apiBase) return false;
+
+        const result = await $fetch(`${apiBase}/auth/complete-profile`, {
+          method: "POST",
+          body: data,
+        });
+
+        const responseData = result?.data ?? result;
+        if (responseData?.accessToken) {
+          const user: User = {
+            id: responseData.user.id,
+            email: responseData.user.email,
+            name: responseData.user.name,
+            phone: responseData.user.phone,
+            role: responseData.user.role,
+            avatar: responseData.user.avatar,
+          };
+          this.authenticatedUser = user;
+          this.apiToken = responseData.accessToken;
+          this.useApi = true;
+          persistSession(responseData.accessToken, user);
+          return true;
+        }
+      } catch (error) {
+        console.warn("[user] Complete profile failed", error);
+      }
+      return false;
+    },
+
+    async checkPhone(phone: string): Promise<{ exists: boolean; hasPassword: boolean; name: string | null }> {
+      try {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        if (!apiBase) return { exists: false, hasPassword: false, name: null };
+
+        const result = await $fetch(`${apiBase}/auth/check-phone`, {
+          method: "POST",
+          body: { phone },
+        });
+
+        const data = result?.data ?? result;
+        return {
+          exists: data?.exists ?? false,
+          hasPassword: data?.hasPassword ?? false,
+          name: data?.name ?? null,
+        };
+      } catch (error) {
+        console.warn("[user] Check phone failed", error);
+        return { exists: false, hasPassword: false, name: null };
+      }
+    },
+
+    async phonePasswordLogin(phone: string, password: string): Promise<boolean> {
+      try {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        if (!apiBase) return false;
+
+        const result = await $fetch(`${apiBase}/auth/phone-password`, {
+          method: "POST",
+          body: { phone, password },
+        });
+
+        const data = result?.data ?? result;
+        if (data?.accessToken) {
+          const user: User = {
+            id: data.user.id,
+            email: data.user.email,
+            name: data.user.name,
+            phone: data.user.phone,
+            role: data.user.role,
+            avatar: data.user.avatar,
+          };
+          this.authenticatedUser = user;
+          this.apiToken = data.accessToken;
+          this.useApi = true;
+          persistSession(data.accessToken, user);
+          return true;
+        }
+      } catch (error) {
+        console.warn("[user] Phone password login failed", error);
+      }
+      return false;
+    },
+
     async loginUser(authUser: User): Promise<boolean> {
       const apiResult = await this.loginApi(authUser.email, authUser.password || "");
       if (apiResult) return true;

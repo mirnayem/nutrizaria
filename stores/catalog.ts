@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import type {
+  Brand,
   CartItem,
   Category,
   Faq,
@@ -15,6 +16,7 @@ import type {
 type CatalogSnapshot = {
   products: Product[];
   categories: Category[];
+  brands: Brand[];
   faqs: Faq[];
   orders: OrderRecord[];
   nextProductId: number;
@@ -88,6 +90,7 @@ export const useCatalogStore = defineStore("catalog", {
   state: (): CatalogState => ({
     products: [],
     categories: [],
+    brands: [],
     faqs: [],
     orders: [],
     nextProductId: 1,
@@ -104,6 +107,8 @@ export const useCatalogStore = defineStore("catalog", {
       state.products.find((product) => String(product.id) === slug),
     productsByCategory: (state) => (slug: string) =>
       state.products.filter((product) => product.category === slug),
+    productsByBrand: (state) => (slug: string) =>
+      state.products.filter((product) => product.brand === slug),
     orderStats: (state) => {
       const summary = state.orders.reduce(
         (acc, order) => {
@@ -134,6 +139,7 @@ export const useCatalogStore = defineStore("catalog", {
         const snap = nuxtApp.payload.catalog as CatalogSnapshot;
         this.products = clone(snap.products).map(normalizeProduct);
         this.categories = clone(snap.categories);
+        this.brands = clone(snap.brands || []);
         this.faqs = clone(snap.faqs);
         this.useApi = snap.useApi ?? false;
         this.hydrated = true;
@@ -147,9 +153,10 @@ export const useCatalogStore = defineStore("catalog", {
           const config = useRuntimeConfig();
           const apiBase = config.public.apiBase;
           if (apiBase) {
-            const [productsRes, categoriesRes, faqsRes] = await Promise.allSettled([
+            const [productsRes, categoriesRes, brandsRes, faqsRes] = await Promise.allSettled([
               $fetch(`${apiBase}/products?limit=200`),
               $fetch(`${apiBase}/categories`),
+              $fetch(`${apiBase}/brands`),
               $fetch(`${apiBase}/faqs`),
             ]);
 
@@ -158,7 +165,7 @@ export const useCatalogStore = defineStore("catalog", {
                 id: p.id,
                 slug: p.slug,
                 name: p.name,
-                brand: p.brand || '',
+                brand: p.brand?.slug || p.brand || '',
                 image: p.image ? mapUrl(p.image) : p.image,
                 category: p.category?.slug || p.category,
                 description: p.description,
@@ -200,6 +207,18 @@ export const useCatalogStore = defineStore("catalog", {
               }));
             }
 
+            if (brandsRes.status === "fulfilled" && brandsRes.value?.data) {
+              this.brands = brandsRes.value.data.map((b: any) => ({
+                id: b.id,
+                name: b.name,
+                slug: b.slug,
+                image: b.image ? mapUrl(b.image) : b.image,
+                description: b.description,
+                isActive: b.isActive,
+                sortOrder: b.sortOrder,
+              }));
+            }
+
             if (faqsRes.status === "fulfilled" && faqsRes.value?.data) {
               this.faqs = faqsRes.value.data.map((f: any) => ({
                 id: f.id,
@@ -220,6 +239,7 @@ export const useCatalogStore = defineStore("catalog", {
             nuxtApp.payload.catalog = {
               products: this.products,
               categories: this.categories,
+              brands: this.brands,
               faqs: this.faqs,
               useApi: this.useApi,
             };
@@ -233,6 +253,7 @@ export const useCatalogStore = defineStore("catalog", {
     applySnapshot(snapshot: CatalogSnapshot) {
       this.products = clone(snapshot.products).map(normalizeProduct);
       this.categories = clone(snapshot.categories);
+      this.brands = clone(snapshot.brands || []);
       this.faqs = clone(snapshot.faqs);
       this.orders = clone(snapshot.orders);
       this.nextProductId = snapshot.nextProductId;
@@ -243,6 +264,7 @@ export const useCatalogStore = defineStore("catalog", {
       const snapshot: CatalogSnapshot = {
         products: this.products,
         categories: this.categories,
+        brands: this.brands,
         faqs: this.faqs,
         orders: this.orders,
         nextProductId: this.nextProductId,

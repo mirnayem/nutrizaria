@@ -1,11 +1,11 @@
 <template>
   <div class="space-y-6">
     <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-slate-900">Categories</h2>
-      <button @click="openCreateModal" class="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700">Add Category</button>
+      <h2 class="text-xl font-semibold text-slate-900">Brands</h2>
+      <button @click="openCreateModal" class="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700">Add Brand</button>
     </div>
 
-    <div v-if="loadingCategories" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div v-if="loadingBrands" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       <div v-for="i in 6" :key="i" class="animate-pulse rounded-xl border border-slate-200 bg-white p-4">
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-3">
@@ -25,38 +25,39 @@
     </div>
 
     <div v-else class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <div v-for="cat in categories" :key="cat.id" class="rounded-xl border border-slate-200 bg-white p-4">
+      <div v-for="brand in brands" :key="brand.id" class="rounded-xl border border-slate-200 bg-white p-4">
         <div class="flex items-start justify-between">
           <div class="flex items-center gap-3">
-            <img v-if="cat.image" :src="resolve(cat.image)" :alt="cat.name" class="h-12 w-12 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
+            <img v-if="brand.image" :src="resolve(brand.image)" :alt="brand.name" class="h-12 w-12 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
             <div v-else class="h-12 w-12 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" />
               </svg>
             </div>
             <div>
-              <p class="text-sm font-medium text-slate-900">{{ cat.name }}</p>
-              <p class="text-xs text-slate-500">{{ cat._count?.products || 0 }} products</p>
+              <p class="text-sm font-medium text-slate-900">{{ brand.name }}</p>
+              <p class="text-xs text-slate-500">{{ brand._count?.products || 0 }} products</p>
             </div>
           </div>
-          <span class="rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap" :class="cat.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'">
-            {{ cat.isActive ? 'Active' : 'Inactive' }}
+          <span class="rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap" :class="brand.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'">
+            {{ brand.isActive ? 'Active' : 'Inactive' }}
           </span>
         </div>
         <div class="mt-4 border-t border-slate-100 pt-3 flex justify-end">
           <AdminRowActions
-            :entity="cat.name"
+            :entity="brand.name"
             :actions="[
-              { label: 'Edit', icon: 'edit', handler: () => editCategory(cat) },
-              { label: 'Delete', icon: 'delete', handler: () => confirmDelete(cat), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
+              { label: 'Edit', icon: 'edit', handler: () => editBrand(brand) },
+              { label: 'Delete', icon: 'delete', handler: () => confirmDelete(brand), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
             ]"
           />
         </div>
       </div>
     </div>
 
-    <AppModal :isOpen="showModal" :title="editing ? 'Edit Category' : 'Add Category'" maxWidth="max-w-md" @handleModal="closeModal">
-      <form @submit.prevent="saveCategory" class="space-y-4">
+    <AppModal :isOpen="showModal" :title="editing ? 'Edit Brand' : 'Add Brand'" maxWidth="max-w-md" @handleModal="closeModal">
+      <form @submit.prevent="saveBrand" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
           <input v-model="form.name" type="text" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
@@ -107,8 +108,8 @@ const config = useRuntimeConfig();
 const apiBase = config.public.apiBase;
 const token = useCookie('auth_token');
 const { resolve } = useImageUrl();
-const categories = ref<any[]>([]);
-const loadingCategories = ref(false);
+const brands = ref<any[]>([]);
+const loadingBrands = ref(false);
 const showModal = ref(false);
 const editing = ref<any>(null);
 const saving = ref(false);
@@ -125,13 +126,13 @@ const openCreateModal = () => {
   showModal.value = true;
 };
 
-const editCategory = (cat: any) => {
-  editing.value = cat;
-  form.name = cat.name;
-  form.image = cat.image || '';
-  form.description = cat.description || '';
-  form.sortOrder = cat.sortOrder || 0;
-  form.isActive = cat.isActive;
+const editBrand = (brand: any) => {
+  editing.value = brand;
+  form.name = brand.name;
+  form.image = brand.image || '';
+  form.description = brand.description || '';
+  form.sortOrder = brand.sortOrder || 0;
+  form.isActive = brand.isActive;
   showModal.value = true;
 };
 
@@ -149,29 +150,29 @@ const onImageUpload = (urls: string[]) => {
   form.image = urls[0] || '';
 };
 
-const saveCategory = async () => {
+const saveBrand = async () => {
   saving.value = true;
   try {
-    const endpoint = editing.value ? `${apiBase}/admin/categories/${editing.value.id}` : `${apiBase}/admin/categories`;
+    const endpoint = editing.value ? `${apiBase}/admin/brands/${editing.value.id}` : `${apiBase}/admin/brands`;
     const method = editing.value ? 'PUT' : 'POST';
     await $fetch(endpoint, { method, headers: { Authorization: `Bearer ${token.value}` }, body: form });
     closeModal();
-    await loadCategories();
-  } catch (e) { console.error('Failed to save category', e); }
+    await loadBrands();
+  } catch (e) { console.error('Failed to save brand', e); }
   finally { saving.value = false; }
 };
 
-const confirmDelete = (cat: any) => {
-  confirmModal.title = 'Delete Category';
-  confirmModal.message = `Are you sure you want to delete "${cat.name}"? Products in this category may become uncategorized.`;
+const confirmDelete = (brand: any) => {
+  confirmModal.title = 'Delete Brand';
+  confirmModal.message = `Are you sure you want to delete "${brand.name}"? Products in this brand will have their brand removed.`;
   confirmModal.confirmText = 'Delete';
   confirmModal.isOpen = true;
   confirmModal.resolve = async (confirmed: boolean) => {
     if (!confirmed) return;
     try {
-      await $fetch(`${apiBase}/admin/categories/${cat.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token.value}` } });
-      await loadCategories();
-    } catch (e) { console.error('Failed to delete category', e); }
+      await $fetch(`${apiBase}/admin/brands/${brand.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token.value}` } });
+      await loadBrands();
+    } catch (e) { console.error('Failed to delete brand', e); }
   };
 };
 
@@ -181,21 +182,21 @@ const executeConfirm = () => {
   confirmModal.resolve = null;
 };
 
-const loadCategories = async () => {
-  loadingCategories.value = true;
+const loadBrands = async () => {
+  loadingBrands.value = true;
   try {
-    const res = await $fetch(`${apiBase}/admin/categories`, { headers: { Authorization: `Bearer ${token.value}` } });
+    const res = await $fetch(`${apiBase}/admin/brands`, { headers: { Authorization: `Bearer ${token.value}` } });
     const items: any[] = res?.data || res || [];
-    for (const c of items) {
-      if (c.image) {
-        const s = String(c.image).trim();
-        c.image = /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
+    for (const b of items) {
+      if (b.image) {
+        const s = String(b.image).trim();
+        b.image = /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
       }
     }
-    categories.value = items;
-  } catch (e) { console.error('Failed to load categories', e); }
-  finally { loadingCategories.value = false; }
+    brands.value = items;
+  } catch (e) { console.error('Failed to load brands', e); }
+  finally { loadingBrands.value = false; }
 };
 
-onMounted(() => { loadCategories(); });
+onMounted(() => { loadBrands(); });
 </script>

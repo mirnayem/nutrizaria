@@ -15,7 +15,7 @@
             Eat clean with farm-direct nuts, honey, spices & more.
           </h1>
           <p class="text-base text-white/90 lg:text-lg">
-            Build a cart full of premium pantry staples sourced from Bangladesh and beyond. Every
+            Build a cart full of premium daily essentials sourced from Bangladesh and beyond. Every
             product is lab-tested, vacuum packed, and delivered in under 48 hours.
           </p>
         </div>

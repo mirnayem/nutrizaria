@@ -1,7 +1,8 @@
 <template>
-  <header
-    class="fixed inset-x-0 top-0 z-50 border-b border-white/20 bg-white/70 backdrop-blur-xl"
-  >
+  <div>
+    <header
+      class="fixed inset-x-0 top-0 z-50 border-b border-white/20 bg-white/70 backdrop-blur-xl"
+    >
     <div
       class="container flex items-center justify-between gap-3 py-3 text-sm font-medium text-slate-700"
     >
@@ -130,8 +131,18 @@
 
       <div class="flex items-center gap-3">
         <NuxtLink
+          v-if="isAdmin"
+          to="/admin"
+          class="hidden items-center gap-1.5 rounded-full border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 sm:inline-flex"
+          aria-label="Open admin dashboard"
+        >
+          <Squares2X2Icon class="size-4" />
+          Admin
+        </NuxtLink>
+
+        <NuxtLink
           to="/favorite"
-          class="relative rounded-full bg-white/90 p-2 shadow"
+          class="relative hidden rounded-full bg-white/90 p-2 shadow sm:inline-flex"
           aria-label="View favorites"
         >
           <HeartIcon class="size-5 text-slate-600" />
@@ -162,7 +173,7 @@
           </ClientOnly>
         </button>
 
-        <div class="relative" ref="profileRef">
+        <div class="relative hidden sm:block" ref="profileRef">
           <ClientOnly>
             <button
               v-if="!isAuthenticated"
@@ -238,10 +249,10 @@
                 <NuxtLink
                   v-if="isAdmin"
                   to="/admin"
-                  class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+                  class="mt-1 flex items-center gap-3 rounded-xl border border-violet-100 bg-violet-50 px-3 py-2.5 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
                   @click="isProfileOpen = false"
                 >
-                  <Squares2X2Icon class="size-5 text-slate-400" />
+                  <Squares2X2Icon class="size-5 text-violet-600" />
                   Admin dashboard
                 </NuxtLink>
               </nav>
@@ -287,10 +298,11 @@
         {{ link.label }}
       </NuxtLink>
     </nav> -->
-
-    <ShoppingCart />
-    <SidebarDrawer />
   </header>
+
+  <ShoppingCart />
+  <SidebarDrawer />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -330,6 +342,7 @@ const cartStore = useCartStore();
 const favoriteStore = useFavoriteStore();
 const catalogStore = useCatalogStore();
 const userStore = useUserStore();
+const uiStore = useUIStore();
 const route = useRoute();
 const router = useRouter();
 catalogStore.hydrate();
@@ -347,7 +360,12 @@ if (typeof window !== "undefined") {
 const isAuthenticated = computed(() => !!userStore.authenticatedUser);
 const isAdmin = computed(() => {
   const role = userStore.authenticatedUser?.role;
-  return role === "ADMIN" || role === "SUPER_ADMIN";
+  return (
+    role === "ADMIN" ||
+    role === "SUPER_ADMIN" ||
+    role === "MANAGER" ||
+    role === "STAFF"
+  );
 });
 const initials = computed(() => {
   const name =

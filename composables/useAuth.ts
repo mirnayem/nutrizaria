@@ -126,12 +126,19 @@ export function useAuth() {
   const sendOTP = async (phoneNumber: string, captchaContainerId: string) => {
     const f = await loadFirebaseAuth();
     const appVerifier = new f.RecaptchaVerifier(
+      f.auth,
       captchaContainerId,
-      { size: "invisible" },
-      f.auth
+      { size: "invisible" }
     );
     return await f.signInWithPhoneNumber(f.auth, phoneNumber, appVerifier);
   };
 
-  return { loginWithGoogle, sendOTP };
+  // Phone Login (Step 2: Verify OTP and get the authenticated Firebase user)
+  const verifyOtp = async (confirmationResult: any, otp: string) => {
+    const f = await loadFirebaseAuth();
+    const result = await confirmationResult.confirm(otp);
+    return result.user;
+  };
+
+  return { loginWithGoogle, sendOTP, verifyOtp };
 }

@@ -16,6 +16,10 @@ import {
   RegisterDto,
   LoginDto,
   GoogleLoginDto,
+  PhoneLoginDto,
+  CompleteProfileDto,
+  CheckPhoneDto,
+  PhonePasswordLoginDto,
   UpdateProfileDto,
   ChangePasswordDto,
   CreateAddressDto,
@@ -45,6 +49,30 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   googleLogin(@Body() dto: GoogleLoginDto) {
     return this.authService.googleLogin(dto.token);
+  }
+
+  @Post('phone')
+  @HttpCode(HttpStatus.OK)
+  phoneLogin(@Body() dto: PhoneLoginDto) {
+    return this.authService.phoneLogin(dto.token);
+  }
+
+  @Post('check-phone')
+  @HttpCode(HttpStatus.OK)
+  checkPhone(@Body() dto: CheckPhoneDto) {
+    return this.authService.checkPhone(dto);
+  }
+
+  @Post('phone-password')
+  @HttpCode(HttpStatus.OK)
+  phonePasswordLogin(@Body() dto: PhonePasswordLoginDto) {
+    return this.authService.phonePasswordLogin(dto);
+  }
+
+  @Post('complete-profile')
+  @HttpCode(HttpStatus.OK)
+  completeProfile(@Body() dto: CompleteProfileDto) {
+    return this.authService.completeProfile(dto);
   }
 
   @Get('profile')

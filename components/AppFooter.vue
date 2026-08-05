@@ -11,7 +11,9 @@
             <span class="text-lg font-semibold text-white">NutriZaria</span>
           </div>
           <p class="text-sm text-slate-400 max-w-xs">
-            Authentic Bangladeshi pantry staples — sourced from trusted growers and delivered nationwide.
+            Bangladesh's trusted destination for authentic, farm-fresh daily essentials. Every
+            product is lab-tested, traceable to trusted growers, and delivered to your doorstep
+            nationwide.
           </p>
           <ul class="flex flex-wrap gap-4" aria-label="Social links">
             <li
@@ -66,6 +68,14 @@
                   {{ link.label }}
                 </NuxtLink>
               </li>
+              <li v-if="isAdmin">
+                <NuxtLink to="/admin" class="inline-flex items-center gap-1.5 text-sm font-semibold text-violet-400 transition hover:text-violet-300">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                  </svg>
+                  Admin panel
+                </NuxtLink>
+              </li>
             </ul>
           </nav>
         </section>
@@ -105,6 +115,23 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { useUserStore } from "~/stores/user";
+
+const userStore = useUserStore();
+if (typeof window !== "undefined") {
+  userStore.loadAuthenticatedUser();
+}
+const isAdmin = computed(() => {
+  const role = userStore.authenticatedUser?.role;
+  return (
+    role === "ADMIN" ||
+    role === "SUPER_ADMIN" ||
+    role === "MANAGER" ||
+    role === "STAFF"
+  );
+});
+
 const shopLinks = [
   { label: 'All products', to: '/shop' },
   { label: 'Categories', to: '/categories/vegetables' },

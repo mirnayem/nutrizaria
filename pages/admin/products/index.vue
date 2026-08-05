@@ -3,7 +3,7 @@
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <h2 class="text-xl font-semibold text-slate-900">Products</h2>
-        <p class="text-sm text-slate-500">{{ products.length }} products total</p>
+        <p class="text-sm text-slate-500">{{ meta.total ?? products.length }} products total</p>
       </div>
       <div class="flex gap-2">
         <input
@@ -66,7 +66,7 @@
                       {{ product.name }}
                       <span v-if="product.variants?.length > 0" class="ml-1 rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-700">Variant</span>
                     </p>
-                    <p class="text-xs text-slate-500">{{ product.brand }}{{ product.brand && product.unit ? ' • ' : '' }}{{ product.unit }}</p>
+                    <p class="text-xs text-slate-500">{{ product.brand?.name }}{{ product.brand?.name && product.unit ? ' • ' : '' }}{{ product.unit }}</p>
                   </div>
                 </div>
               </td>
@@ -78,9 +78,14 @@
                   {{ product.isActive ? 'Active' : 'Inactive' }}
                 </span>
               </td>
-              <td class="px-4 py-3 text-right">
-                <button @click="editProduct(product)" class="text-sm text-violet-600 hover:text-violet-700 mr-3">Edit</button>
-                <button @click="confirmDelete(product)" class="text-sm text-red-600 hover:text-red-700">Delete</button>
+              <td class="px-4 py-3">
+                <AdminRowActions
+                  :entity="product.name"
+                  :actions="[
+                    { label: 'Edit', icon: 'edit', handler: () => editProduct(product) },
+                    { label: 'Delete', icon: 'delete', handler: () => confirmDelete(product), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
+                  ]"
+                />
               </td>
             </tr>
             <tr v-if="filteredProducts.length === 0 && !loadingProducts">
@@ -90,6 +95,14 @@
         </table>
       </div>
     </div>
+
+    <AdminPagination
+      :meta="meta"
+      :loading="loadingProducts"
+      :page-size="pageSize"
+      @page="onPageChange"
+      @cursor="onCursorChange"
+    />
 
     <AppModal :isOpen="showModal" :title="editingProduct ? 'Edit Product' : 'Add Product'" maxWidth="max-w-6xl" @handleModal="closeModal">
       <form @submit.prevent="saveProduct" class="space-y-4">
@@ -137,8 +150,10 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Brand <span class="font-normal text-slate-400">(optional)</span></label>
-          <input v-model="form.brand" type="text" placeholder="e.g., NutriZaria, Nestlé, ACI"
-            class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          <select v-model="form.brandSlug" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500">
+            <option value="">No brand</option>
+            <option v-for="b in brands" :key="b.id" :value="b.slug">{{ b.name }}</option>
+          </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
@@ -336,6 +351,7 @@ const token = useCookie('auth_token');
 
 const products = ref<any[]>([]);
 const categories = ref<any[]>([]);
+const brands = ref<any[]>([]);
 const search = ref('');
 const selectedIds = ref<string[]>([]);
 const showModal = ref(false);
@@ -344,11 +360,14 @@ const saving = ref(false);
 const loadingProducts = ref(false);
 const saveError = ref('');
 const productType = ref<'single' | 'variant'>('single');
+const pageSize = 20;
+const meta = ref<any>({});
+let activeCursor: string | null = null;
 
 const form = reactive({
   name: '',
   slug: '',
-  brand: '',
+  brandSlug: '',
   price: 0,
   unit: '',
   categorySlug: '',
@@ -421,7 +440,7 @@ const editProduct = (product: any) => {
   productType.value = (product.variants && product.variants.length > 0) ? 'variant' : 'single';
   form.name = product.name;
   form.slug = product.slug || '';
-  form.brand = product.brand || '';
+  form.brandSlug = product.brand?.slug || '';
   form.price = product.price;
   form.unit = product.unit;
   form.categorySlug = product.category?.slug || product.category;
@@ -471,7 +490,7 @@ const removeVariant = (index: number) => {
 const resetForm = () => {
   form.name = '';
   form.slug = '';
-  form.brand = '';
+  form.brandSlug = '';
   form.price = 0;
   form.unit = '';
   form.categorySlug = '';
@@ -642,10 +661,17 @@ const bulkDeactivate = async () => {
 const loadProducts = async () => {
   loadingProducts.value = true;
   try {
-    const res = await $fetch(`${apiBase}/admin/products?limit=200`, {
+    const params: any = { limit: pageSize };
+    if (activeCursor) params.cursor = activeCursor;
+    else params.page = meta.value.page || 1;
+    if (search.value.trim()) params.search = search.value.trim();
+
+    const res = await $fetch(`${apiBase}/admin/products`, {
+      params,
       headers: { Authorization: `Bearer ${token.value}` },
     });
-    const items: any[] = res?.data?.items || res?.items || [];
+    const data = res?.data || res || {};
+    const items: any[] = data?.items || data || [];
     for (const p of items) {
       if (p.image) {
         const s = String(p.image).trim();
@@ -659,12 +685,32 @@ const loadProducts = async () => {
       }
     }
     products.value = items;
+    meta.value = data.meta || {};
+    selectedIds.value = [];
   } catch (e) {
     console.error('Failed to load products', e);
   } finally {
     loadingProducts.value = false;
   }
 };
+
+const onPageChange = (page: number) => {
+  activeCursor = null;
+  meta.value = { ...meta.value, page };
+  loadProducts();
+};
+
+const onCursorChange = (cursor: string | null) => {
+  activeCursor = cursor;
+  if (!cursor) meta.value = { ...meta.value, page: 1 };
+  loadProducts();
+};
+
+watch(search, () => {
+  activeCursor = null;
+  meta.value = { ...meta.value, page: 1 };
+  loadProducts();
+});
 
 const loadCategories = async () => {
   try {
@@ -675,8 +721,18 @@ const loadCategories = async () => {
   }
 };
 
+const loadBrands = async () => {
+  try {
+    const res = await $fetch(`${apiBase}/brands`);
+    brands.value = res?.data || res || [];
+  } catch (e) {
+    console.error('Failed to load brands', e);
+  }
+};
+
 onMounted(() => {
   loadProducts();
   loadCategories();
+  loadBrands();
 });
 </script>

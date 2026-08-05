@@ -6,6 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import {
@@ -15,6 +16,9 @@ import {
   ChangePasswordDto,
   CreateAddressDto,
   UpdateAddressDto,
+  CompleteProfileDto,
+  CheckPhoneDto,
+  PhonePasswordLoginDto,
 } from './dto';
 
 @Injectable()
@@ -22,6 +26,7 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
+    private config: ConfigService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -137,6 +142,193 @@ export class AuthService {
       if (!info.email || !info.sub) return null;
       return info;
     } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Completes phone-number OTP sign-in. The OTP confirmation happens on the
+   * client via Firebase Auth; here we verify the resulting Firebase ID token
+   * with Firebase's REST API (using the web API key) and find-or-create the user.
+   */
+  async phoneLogin(token: string) {
+    const apiKey = this.config.get<string>('FIREBASE_WEB_API_KEY');
+    if (!apiKey)
+      throw new UnauthorizedException('Phone sign-in is not configured');
+
+    const identity = await this.lookupFirebaseUser(token, apiKey);
+    if (!identity)
+      throw new UnauthorizedException('Invalid or expired verification code');
+
+    const uid = identity.localId;
+    const phone = identity.phoneNumber || undefined;
+    if (!uid) throw new UnauthorizedException('Invalid phone sign-in session');
+
+    // Resolve by firebase uid first, then by phone so an existing account is reused.
+    let user = uid
+      ? await this.prisma.user.findUnique({ where: { firebaseUid: uid } })
+      : null;
+    if (!user && phone) {
+      user = await this.prisma.user.findFirst({ where: { phone } });
+    }
+
+    const data: any = {
+      firebaseUid: uid,
+      ...(phone && { phone }),
+      phoneVerified: true,
+      lastLoginAt: new Date(),
+    };
+    if (identity.email && user && !user.email) {
+      data.email = identity.email;
+    }
+
+    if (user) {
+      user = await this.prisma.user.update({ where: { id: user.id }, data });
+    } else {
+      user = await this.prisma.user.create({
+        data: {
+          firebaseUid: uid,
+          ...(phone && { phone }),
+          phoneVerified: true,
+          name: identity.displayName || null,
+          lastLoginAt: new Date(),
+        },
+      });
+    }
+
+    // Check if user needs to complete profile setup (missing name or password)
+    if (!user.name || !user.password) {
+      const setupToken = this.generateSetupToken(user.id);
+      return {
+        requiresSetup: true,
+        setupToken,
+        phone: user.phone,
+      };
+    }
+
+    return this.generateTokens(user);
+  }
+
+  /**
+   * Completes user profile after phone authentication by setting name and password.
+   */
+  async completeProfile(dto: CompleteProfileDto) {
+    let userId: string;
+    try {
+      const payload = this.jwt.verify(dto.setupToken);
+      if (payload.type !== 'setup') {
+        throw new UnauthorizedException('Invalid setup token');
+      }
+      userId = payload.sub;
+    } catch {
+      throw new UnauthorizedException('Invalid or expired setup token');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: dto.name,
+        password: hashedPassword,
+      },
+    });
+
+    return this.generateTokens(updatedUser);
+  }
+
+  private generateSetupToken(userId: string) {
+    const payload = { sub: userId, type: 'setup' };
+    return this.jwt.sign(payload, { expiresIn: '15m' });
+  }
+
+  /**
+   * Checks if a phone number exists in the database and has a password set.
+   */
+  async checkPhone(dto: CheckPhoneDto) {
+    const user = await this.prisma.user.findFirst({
+      where: { phone: dto.phone },
+      select: { id: true, password: true, name: true },
+    });
+    return {
+      exists: !!user,
+      hasPassword: !!user?.password,
+      name: user?.name || null,
+    };
+  }
+
+  /**
+   * Login with phone number and password (for users who completed profile setup).
+   */
+  async phonePasswordLogin(dto: PhonePasswordLoginDto) {
+    const user = await this.prisma.user.findFirst({
+      where: { phone: dto.phone },
+    });
+    if (!user) throw new UnauthorizedException('Phone number not registered');
+    if (!user.password)
+      throw new UnauthorizedException('No password set for this account');
+
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) throw new UnauthorizedException('Invalid password');
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginAt: new Date() },
+    });
+
+    return this.generateTokens(user);
+  }
+
+  /**
+   * Validates a Firebase ID token against Firebase Auth's REST API and
+   * returns the account's identity record (phone, uid, email, name).
+   */
+  private async lookupFirebaseUser(
+    token: string,
+    apiKey: string,
+  ): Promise<Record<string, any> | null> {
+    try {
+      const res = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(
+          apiKey,
+        )}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken: token }),
+        },
+      );
+      if (!res.ok) {
+        const bodyText = await res.text();
+        // Distinguish a bad/missing API key from a genuinely invalid token.
+        if (/API key|API_KEY_INVALID|REASON_MISMATCH|referrer|key expired/i.test(bodyText)) {
+          throw new UnauthorizedException(
+            'Phone sign-in misconfigured: invalid Firebase web API key',
+          );
+        }
+        console.error('[auth] Firebase lookup failed', res.status, bodyText);
+        return null;
+      }
+      const body: any = await res.json();
+      const user = body?.users?.[0];
+      if (!user) return null;
+      return {
+        localId: user.localId,
+        phoneNumber: user.phoneNumber,
+        email: user.email || undefined,
+        displayName: user.displayName || undefined,
+      };
+    } catch (e: any) {
+      // Surface a Firebase *configuration* problem instead of hiding it as a
+      // generic expired-code message, so it's obvious the API key is wrong.
+      if (
+        e instanceof UnauthorizedException &&
+        /misconfigured/.test(String(e.message))
+      ) {
+        throw e;
+      }
       return null;
     }
   }

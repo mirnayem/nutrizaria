@@ -2,7 +2,7 @@
 useSeo({
   title: "About Us",
   description:
-    "NutriZaria brings authentic Bangladeshi pantry staples to your door — sourced from trusted growers, curated for freshness, and delivered nationwide.",
+    "NutriZaria brings authentic Bangladeshi daily essentials to your door — sourced from trusted growers, curated for freshness, and delivered nationwide.",
   type: "website",
   jsonld: {
     "@context": "https://schema.org",
@@ -10,7 +10,7 @@ useSeo({
     name: "NutriZaria",
     url: "https://nutrizaria.com",
     description:
-      "Authentic Bangladeshi pantry staples — sourced from trusted growers and delivered nationwide.",
+      "Authentic Bangladeshi daily essentials — sourced from trusted growers and delivered nationwide.",
     sameAs: [
       "https://www.facebook.com/nutrizaria/",
       "https://instagram.com/nutrizaria",
@@ -26,7 +26,7 @@ const values = [
   },
   {
     title: "Sourcing",
-    text: "We work directly with trusted growers to bring authentic, local pantry staples to your home.",
+    text: "We work directly with trusted growers to bring authentic, local daily essentials to your home.",
   },
   {
     title: "Convenience",
@@ -50,7 +50,7 @@ const stats = [
         About NutriZaria
       </p>
       <h1 class="mt-3 max-w-2xl text-3xl font-semibold leading-tight sm:text-4xl">
-        Authentic pantry staples, sourced and delivered with care.
+        Authentic daily essentials, sourced and delivered with care.
       </h1>
       <p class="mt-4 max-w-xl text-white/80">
         NutriZaria brings trusted Bangladeshi produce and staples from growers to

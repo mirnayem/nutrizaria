@@ -57,7 +57,7 @@
           Clear
         </button>
       </div>
-      <div class="max-h-80 space-y-1 overflow-y-auto pr-1">
+      <div class="max-h-80 space-y-1 overflow-y-auto pr-1.5 scrollbar-slim">
         <button
           type="button"
           class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition"
@@ -85,6 +85,49 @@
         >
           <span class="truncate">{{ category.name }}</span>
           <span class="text-xs text-slate-500">{{ category.count }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div v-if="brands.length">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="text-sm font-semibold text-slate-700">Brands</h3>
+        <button
+          v-if="selectedBrand !== 'all'"
+          type="button"
+          class="text-xs font-medium text-violet-600 transition hover:text-violet-700"
+          @click="selectedBrand = 'all'"
+        >
+          Clear
+        </button>
+      </div>
+      <div class="max-h-80 space-y-1 overflow-y-auto pr-1.5 scrollbar-slim">
+        <button
+          type="button"
+          class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition"
+          :class="
+            selectedBrand === 'all'
+              ? 'bg-violet-50 font-semibold text-violet-700'
+              : 'text-slate-600 hover:bg-slate-50'
+          "
+          @click="selectedBrand = 'all'"
+        >
+          <span>All brands</span>
+        </button>
+        <button
+          v-for="brand in brands"
+          :key="brand.id"
+          type="button"
+          class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition"
+          :class="
+            selectedBrand === brand.slug
+              ? 'bg-violet-50 font-semibold text-violet-700'
+              : 'text-slate-600 hover:bg-slate-50'
+          "
+          @click="selectedBrand = brand.slug"
+        >
+          <span class="truncate">{{ brand.name }}</span>
+          <span class="text-xs text-slate-500">{{ brand.count }}</span>
         </button>
       </div>
     </div>
@@ -140,12 +183,14 @@
 <script setup lang="ts">
 const searchQuery = defineModel<string>("searchQuery", { default: "" });
 const selectedCategory = defineModel<string>("selectedCategory", { default: "all" });
+const selectedBrand = defineModel<string>("selectedBrand", { default: "all" });
 const priceMin = defineModel<number>("priceMin", { default: 0 });
 const priceMax = defineModel<number>("priceMax", { default: 0 });
 const inStockOnly = defineModel<boolean>("inStockOnly", { default: false });
 
 const props = defineProps<{
   categories: { id: string; name: string; slug: string; count: number }[];
+  brands: { id: string; name: string; slug: string; count: number }[];
   maxPrice: number;
   totalProducts: number;
 }>();

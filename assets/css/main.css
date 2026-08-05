@@ -50,3 +50,26 @@ main {
   width: 16px;
   border-radius: 999px;
 }
+
+/* Print support: only the invoice area is rendered when printing */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #invoice-print-area,
+  #invoice-print-area * {
+    visibility: visible !important;
+  }
+  #invoice-print-area {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

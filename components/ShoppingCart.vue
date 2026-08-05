@@ -55,7 +55,7 @@
               </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto px-6">
+            <div class="flex-1 overflow-y-auto px-6 scrollbar-slim">
               <div v-if="cartStore.items.length" class="divide-y divide-slate-100">
                 <CartItem
                   v-for="cartItem in cartStore.items"

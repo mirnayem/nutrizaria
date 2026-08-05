@@ -133,31 +133,6 @@ const openModal = () => (isModalOpen.value = true);
           Out of stock
         </span>
       </div>
-
-      <span
-        class="absolute inset-x-3 bottom-3 hidden translate-y-2 items-center justify-center gap-1.5 rounded-xl bg-slate-900/85 px-3 py-2 text-xs font-semibold text-white opacity-0 backdrop-blur transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:flex"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="size-3.5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-          />
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M2.458 12C3.732 7.943 7.523 5 12 5s8.268 2.943 9.542 7c-1.274 4.057-5.065 7-9.542 7s-8.268-2.943-9.542-7Z"
-          />
-        </svg>
-        Quick view
-      </span>
     </NuxtLink>
 
     <button
@@ -191,6 +166,9 @@ const openModal = () => (isModalOpen.value = true);
     <div class="flex flex-1 flex-col p-3.5 sm:p-4">
       <span class="text-[10px] font-semibold uppercase tracking-wider text-violet-600 sm:text-[11px]">
         {{ product.category }}
+      </span>
+      <span v-if="product.brand" class="mt-0.5 text-[10px] text-slate-400 sm:text-[11px]">
+        {{ product.brand }}
       </span>
       <NuxtLink
         :to="detailLink"

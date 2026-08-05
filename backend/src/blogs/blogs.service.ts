@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBlogDto, UpdateBlogDto, QueryBlogDto } from './dto';
+import { parsePagination, buildPaginationResult } from '../common/pagination';
 
 const slugify = (value: string): string =>
   String(value || '')
@@ -69,7 +70,8 @@ export class BlogsService {
   }
 
   async findAllAdmin(query: QueryBlogDto) {
-    const { page = 1, limit = 50, search, category, sort = 'newest' } = query;
+    const { search, category, sort = 'newest' } = query;
+    const pagination = parsePagination(query, 50);
 
     const where: any = {};
     if (search) {
@@ -93,22 +95,18 @@ export class BlogsService {
         orderBy.createdAt = 'desc';
     }
 
-    const skip = (page - 1) * limit;
+    const findManyArgs: any = { where, orderBy, take: pagination.take };
+    if (pagination.mode === 'cursor') {
+      findManyArgs.cursor = { id: pagination.cursor };
+      findManyArgs.skip = 1;
+    } else {
+      findManyArgs.skip = pagination.skip;
+    }
 
-    const [items, total] = await Promise.all([
-      this.prisma.blogPost.findMany({ where, orderBy, skip, take: limit }),
-      this.prisma.blogPost.count({ where }),
-    ]);
+    const count = await this.prisma.blogPost.count({ where });
+    const rawItems = await this.prisma.blogPost.findMany(findManyArgs);
 
-    return {
-      items,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+    return buildPaginationResult(rawItems, pagination, count);
   }
 
   async findBySlug(slug: string) {

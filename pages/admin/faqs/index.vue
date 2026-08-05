@@ -16,9 +16,14 @@
             <p class="text-sm font-medium text-slate-900">{{ faq.question }}</p>
             <p class="mt-1 text-sm text-slate-600">{{ faq.answer }}</p>
           </div>
-          <div class="ml-4 flex gap-2">
-            <button @click="editFaq(faq)" class="text-sm text-violet-600 hover:text-violet-700">Edit</button>
-            <button @click="deleteFaq(faq.id)" class="text-sm text-red-600 hover:text-red-700">Delete</button>
+          <div class="ml-4">
+            <AdminRowActions
+              :entity="faq.question"
+              :actions="[
+                { label: 'Edit', icon: 'edit', handler: () => editFaq(faq) },
+                { label: 'Delete', icon: 'delete', handler: () => deleteFaq(faq.id), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
+              ]"
+            />
           </div>
         </div>
       </div>

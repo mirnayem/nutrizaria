@@ -172,12 +172,56 @@
           </template>
 
           <template v-else-if="activeTab === 'orders'">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h1 class="text-2xl font-semibold text-slate-900">My orders</h1>
                 <p class="mt-1 text-sm text-slate-500">
                   Track and review all your purchases in one place.
                 </p>
+              </div>
+              <div v-if="orders.length" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
+                <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Total spent</p>
+                <p class="text-lg font-bold text-slate-900">{{ currencySymbol }}{{ totalSpent.toFixed(2) }}</p>
+              </div>
+            </div>
+
+            <div v-if="orders.length" class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filter orders by status">
+                <button
+                  v-for="option in statusOptions"
+                  :key="option.key"
+                  type="button"
+                  role="tab"
+                  :aria-selected="ordersFilter === option.key"
+                  class="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition"
+                  :class="
+                    ordersFilter === option.key
+                      ? 'border-violet-600 bg-violet-600 text-white shadow-sm'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-violet-300 hover:text-violet-700'
+                  "
+                  @click="ordersFilter = option.key"
+                >
+                  {{ option.label }}
+                  <span
+                    class="rounded-full px-1.5 py-0.5 text-[10px] font-bold"
+                    :class="
+                      ordersFilter === option.key
+                        ? 'bg-white/20 text-white'
+                        : 'bg-slate-100 text-slate-500'
+                    "
+                  >
+                    {{ option.count }}
+                  </span>
+                </button>
+              </div>
+              <div class="relative sm:w-64">
+                <MagnifyingGlassIcon class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  v-model="ordersSearch"
+                  type="search"
+                  placeholder="Search order number…"
+                  class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+                />
               </div>
             </div>
 
@@ -185,36 +229,66 @@
               <div v-for="i in 3" :key="i" class="h-28 animate-pulse rounded-2xl bg-slate-100"></div>
             </div>
 
-            <div v-else-if="orders.length" class="mt-6 space-y-4">
+            <div v-else-if="filteredOrders.length" class="mt-6 space-y-4">
               <article
-                v-for="order in orders"
+                v-for="order in filteredOrders"
                 :key="order.id || order.orderNumber"
-                class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+                class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
               >
                 <button
                   type="button"
-                  class="flex w-full flex-wrap items-center gap-4 px-5 py-4 text-left transition hover:bg-slate-50"
+                  class="flex w-full flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4 text-left transition hover:bg-slate-50"
                   :aria-expanded="expandedOrder === (order.id || order.orderNumber)"
                   @click="toggleOrder(order)"
                 >
+                  <div class="flex items-center gap-4">
+                    <div class="flex -space-x-3">
+                      <div
+                        v-for="item in orderThumbnails(order)"
+                        :key="item.productId || item.id"
+                        class="size-11 overflow-hidden rounded-xl border-2 border-white bg-slate-100 shadow-sm"
+                      >
+                        <img
+                          :src="itemImage(item)"
+                          :alt="item.name"
+                          class="size-full object-cover"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div
+                        v-if="orderItems(order).length > 4"
+                        class="flex size-11 items-center justify-center rounded-xl border-2 border-white bg-slate-100 text-xs font-bold text-slate-500 shadow-sm"
+                      >
+                        +{{ orderItems(order).length - 4 }}
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="min-w-0 flex-1">
-                    <p class="text-sm font-semibold text-slate-900">
+                    <p class="truncate text-sm font-semibold text-slate-900">
                       {{ order.orderNumber || order.id }}
                     </p>
                     <p class="mt-0.5 text-xs text-slate-500">
-                      Placed {{ formatDate(order.createdAt) }} · {{ order.items?.length || 0 }} item{{
-                        (order.items?.length || 0) === 1 ? '' : 's'
-                      }}
+                      Placed {{ formatDate(order.createdAt) }} · {{ itemsText(order) }}
+                    </p>
+                    <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
+                      <span class="size-1.5 rounded-full bg-emerald-500"></span>
+                      {{ paymentLabel(order) }}
+                      <span class="text-slate-300">·</span>
+                      <OrderStatusBadge :status="paymentStatus(order)" />
                     </p>
                   </div>
-                  <OrderStatusBadge :status="order.status" />
-                  <div class="text-right">
-                    <p class="text-sm font-bold text-slate-900">
-                      {{ currencySymbol }}{{ (order.total || 0).toFixed(2) }}
-                    </p>
+
+                  <div class="flex items-center gap-3">
+                    <div class="text-right">
+                      <p class="text-sm font-bold text-slate-900">
+                        {{ currencySymbol }}{{ (order.total || 0).toFixed(2) }}
+                      </p>
+                      <OrderStatusBadge :status="order.status" />
+                    </div>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      class="ml-auto mt-1 size-4 text-slate-400 transition"
+                      class="size-4 text-slate-400 transition-transform"
                       :class="expandedOrder === (order.id || order.orderNumber) ? 'rotate-180' : ''"
                       fill="none"
                       viewBox="0 0 24 24"
@@ -227,54 +301,120 @@
                 </button>
 
                 <div
-                  v-if="expandedOrder === (order.id || order.orderNumber)"
-                  class="border-t border-slate-100"
+                  class="grid transition-[grid-template-rows] duration-300 ease-in-out"
+                  :style="{ gridTemplateRows: expandedOrder === (order.id || order.orderNumber) ? '1fr' : '0fr' }"
                 >
-                  <div class="divide-y divide-slate-100 px-5">
-                    <div
-                      v-for="item in orderItems(order)"
-                      :key="item.productId || item.id"
-                      class="flex items-center gap-4 py-3"
-                    >
-                      <img
-                        :src="itemImage(item)"
-                        :alt="item.name"
-                        class="size-12 rounded-lg object-cover"
-                        loading="lazy"
-                      />
-                      <div class="min-w-0 flex-1">
-                        <p class="truncate text-sm font-medium text-slate-800">{{ item.name }}</p>
-                        <p class="text-xs text-slate-500" v-if="item.variantLabel">{{ item.variantLabel }}</p>
-                        <p class="text-xs text-slate-500">
-                          {{ item.quantity }} × {{ currencySymbol }}{{ item.price }}
+                  <div class="overflow-hidden">
+                    <div class="border-t border-slate-100">
+                      <div v-if="isCancelled(order)" class="bg-rose-50 px-5 py-3">
+                        <p class="text-xs font-medium text-rose-700">
+                          This order was
+                          {{ orderStatusKey(order) === 'REFUNDED' ? 'refunded' : orderStatusKey(order) === 'FAILED' ? 'not paid — payment failed' : 'cancelled' }}.
                         </p>
                       </div>
-                      <div class="text-sm font-semibold text-slate-900">
-                        {{ currencySymbol }}{{ (item.price * item.quantity).toFixed(2) }}
-                      </div>
-                    </div>
-                  </div>
 
-                  <div class="grid gap-4 border-t border-slate-100 px-5 py-4 text-xs text-slate-600 sm:grid-cols-3">
-                    <div>
-                      <p class="font-semibold uppercase tracking-wide text-slate-400">Payment</p>
-                      <p class="mt-1 font-medium text-slate-800">
-                        {{ paymentLabel(order) }}
-                      </p>
-                      <OrderStatusBadge :status="paymentStatus(order)" />
-                    </div>
-                    <div>
-                      <p class="font-semibold uppercase tracking-wide text-slate-400">Delivery to</p>
-                      <p class="mt-1 font-medium text-slate-800">{{ shippingLabel(order) }}</p>
-                    </div>
-                    <div>
-                      <p class="font-semibold uppercase tracking-wide text-slate-400">Summary</p>
-                      <div class="mt-1 space-y-0.5 font-medium text-slate-800">
-                        <p>Subtotal: {{ currencySymbol }}{{ (order.subtotal ?? order.total).toFixed(2) }}</p>
-                        <p v-if="order.shippingCost !== undefined">
-                          Delivery: {{ order.shippingCost === 0 ? 'Free' : currencySymbol + Number(order.shippingCost).toFixed(2) }}
+                      <div v-else class="px-5 py-5">
+                        <p class="mb-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+                          Order progress
                         </p>
-                        <p class="font-bold">Total: {{ currencySymbol }}{{ (order.total || 0).toFixed(2) }}</p>
+                        <ol class="flex items-center gap-0">
+                          <li v-for="(step, i) in timelineSteps(order)" :key="step.label" class="flex flex-1 items-center last:flex-none">
+                            <div class="flex flex-col items-center">
+                              <span
+                                class="flex size-7 items-center justify-center rounded-full text-xs font-bold"
+                                :class="
+                                  step.state === 'done'
+                                    ? 'bg-emerald-500 text-white'
+                                    : step.state === 'active'
+                                      ? 'bg-violet-600 text-white ring-4 ring-violet-100'
+                                      : 'bg-slate-100 text-slate-400'
+                                "
+                              >
+                                <CheckIcon v-if="step.state === 'done'" class="size-4" />
+                                <template v-else>{{ i + 1 }}</template>
+                              </span>
+                              <span
+                                class="mt-1.5 text-[10px] font-medium"
+                                :class="step.state === 'upcoming' ? 'text-slate-400' : 'text-slate-700'"
+                              >
+                                {{ step.label }}
+                              </span>
+                            </div>
+                            <div
+                              v-if="i < 3"
+                              class="mx-1 h-0.5 flex-1 self-start rounded-full"
+                              :class="i < (TRACK_STEPS[orderStatusKey(order)] ?? 0) ? 'bg-emerald-500' : 'bg-slate-200'"
+                              :style="{ marginTop: '14px' }"
+                            ></div>
+                          </li>
+                        </ol>
+                      </div>
+
+                      <div class="divide-y divide-slate-100 px-5">
+                        <div
+                          v-for="item in orderItems(order)"
+                          :key="item.productId || item.id"
+                          class="flex items-center gap-4 py-3"
+                        >
+                          <img
+                            :src="itemImage(item)"
+                            :alt="item.name"
+                            class="size-12 rounded-lg object-cover"
+                            loading="lazy"
+                          />
+                          <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm font-medium text-slate-800">{{ item.name }}</p>
+                            <p class="text-xs text-slate-500" v-if="item.variantLabel">{{ item.variantLabel }}</p>
+                            <p class="text-xs text-slate-500">
+                              {{ item.quantity }} × {{ currencySymbol }}{{ item.price }}
+                            </p>
+                          </div>
+                          <div class="text-sm font-semibold text-slate-900">
+                            {{ currencySymbol }}{{ (item.price * item.quantity).toFixed(2) }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="grid gap-4 border-t border-slate-100 px-5 py-4 text-xs text-slate-600 sm:grid-cols-3">
+                        <div>
+                          <p class="font-semibold uppercase tracking-wide text-slate-400">Payment</p>
+                          <p class="mt-1 font-medium text-slate-800">
+                            {{ paymentLabel(order) }}
+                          </p>
+                          <div class="mt-1"><OrderStatusBadge :status="paymentStatus(order)" /></div>
+                        </div>
+                        <div>
+                          <p class="font-semibold uppercase tracking-wide text-slate-400">Delivery to</p>
+                          <p class="mt-1 font-medium leading-relaxed text-slate-800">{{ shippingLabel(order) }}</p>
+                        </div>
+                        <div>
+                          <p class="font-semibold uppercase tracking-wide text-slate-400">Summary</p>
+                          <div class="mt-1 space-y-0.5 font-medium text-slate-800">
+                            <p>Subtotal: {{ currencySymbol }}{{ (order.subtotal ?? order.total).toFixed(2) }}</p>
+                            <p v-if="order.shippingCost !== undefined">
+                              Delivery: {{ order.shippingCost === 0 ? 'Free' : currencySymbol + Number(order.shippingCost).toFixed(2) }}
+                            </p>
+                            <p class="font-bold">Total: {{ currencySymbol }}{{ (order.total || 0).toFixed(2) }}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="flex flex-wrap items-center gap-3 border-t border-slate-100 bg-slate-50/60 px-5 py-4">
+                        <button
+                          type="button"
+                          class="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500"
+                          @click="buyAgain(order)"
+                        >
+                          <ArrowPathIcon class="size-4" />
+                          Buy again
+                        </button>
+                        <NuxtLink
+                          to="/contact"
+                          class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
+                        >
+                          <ChatBubbleLeftRightIcon class="size-4" />
+                          Need help?
+                        </NuxtLink>
                       </div>
                     </div>
                   </div>
@@ -282,7 +422,7 @@
               </article>
             </div>
 
-            <div v-else class="mt-6 rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
+            <div v-else-if="!ordersSearch && ordersFilter === 'ALL'" class="mt-6 rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
               <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-slate-100">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -309,6 +449,23 @@
               >
                 Start shopping
               </NuxtLink>
+            </div>
+
+            <div v-else class="mt-6 rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
+              <div class="mx-auto flex size-14 items-center justify-center rounded-full bg-slate-100">
+                <MagnifyingGlassIcon class="size-7 text-slate-400" />
+              </div>
+              <p class="mt-4 text-base font-semibold text-slate-800">No matching orders</p>
+              <p class="mx-auto mt-1 max-w-sm text-sm text-slate-500">
+                Try a different search term or clear the active status filter.
+              </p>
+              <button
+                type="button"
+                class="mt-5 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                @click="ordersSearch = ''; ordersFilter = 'ALL'"
+              >
+                Clear filters
+              </button>
             </div>
           </template>
 
@@ -609,10 +766,14 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { storeToRefs } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import {
+  ArrowPathIcon,
   ArrowRightStartOnRectangleIcon,
+  ChatBubbleLeftRightIcon,
+  CheckIcon,
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
   HeartIcon,
+  MagnifyingGlassIcon,
   MapPinIcon,
   Squares2X2Icon,
   UserCircleIcon,
@@ -620,6 +781,7 @@ import {
 import { useUserStore } from "~/stores/user";
 import { useFavoriteStore } from "~/stores/favorite";
 import { useCatalogStore } from "~/stores/catalog";
+import { useCartStore } from "~/stores/cart";
 import { useRuntimeConfig } from "#app";
 import type { Address, AddressInput } from "~/types/account";
 
@@ -635,6 +797,7 @@ const router = useRouter();
 const userStore = useUserStore();
 const favoriteStore = useFavoriteStore();
 const catalogStore = useCatalogStore();
+const cartStore = useCartStore();
 await catalogStore.hydrate();
 
 const currencySymbol = useRuntimeConfig().public.currencySymbol || "Tk";
@@ -720,6 +883,114 @@ const expandedOrder = ref<string>("");
 const toggleOrder = (order: any) => {
   const key = order.id || order.orderNumber;
   expandedOrder.value = expandedOrder.value === key ? "" : key;
+};
+
+const ordersSearch = ref("");
+const ordersFilter = ref("ALL");
+
+const orderStatusKey = (order: any) =>
+  String(order.status || order.order?.status || "PENDING").toUpperCase();
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending",
+  CONFIRMED: "Confirmed",
+  PROCESSING: "Processing",
+  SHIPPED: "Shipped",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+  REFUNDED: "Refunded",
+  FAILED: "Payment failed",
+};
+
+const statusLabel = (key: string) => STATUS_LABELS[key] || key.replace(/_/g, " ");
+
+const statusOptions = computed(() => {
+  const counts = new Map<string, number>();
+  for (const order of orders.value) {
+    const key = orderStatusKey(order);
+    counts.set(key, (counts.get(key) || 0) + 1);
+  }
+  const options = Array.from(counts.entries()).map(([key, count]) => ({
+    key,
+    label: statusLabel(key),
+    count,
+  }));
+  options.sort((a, b) => b.count - a.count);
+  return [
+    { key: "ALL", label: "All", count: orders.value.length },
+    ...options,
+  ];
+});
+
+const filteredOrders = computed(() => {
+  const query = ordersSearch.value.trim().toLowerCase();
+  return orders.value.filter((order) => {
+    const key = orderStatusKey(order);
+    if (ordersFilter.value !== "ALL" && key !== ordersFilter.value) return false;
+    if (query) {
+      const ref = String(order.orderNumber || order.id || "").toLowerCase();
+      if (!ref.includes(query)) return false;
+    }
+    return true;
+  });
+});
+
+const orderThumbnails = (order: any) => {
+  const items = orderItems(order);
+  const seen = new Set<string>();
+  const list: any[] = [];
+  for (const item of items) {
+    if (seen.has(item.productId || item.id)) continue;
+    seen.add(item.productId || item.id);
+    if (list.length >= 4) break;
+    list.push(item);
+  }
+  return list;
+};
+
+const itemsText = (order: any) => {
+  const count = orderItems(order).length;
+  return `${count} item${count === 1 ? "" : "s"}`;
+};
+
+const TRACK_STEPS: Record<string, number> = {
+  PENDING: 0,
+  CONFIRMED: 1,
+  PROCESSING: 1,
+  SHIPPED: 2,
+  DELIVERED: 3,
+};
+
+const timelineSteps = (order: any) => {
+  const key = orderStatusKey(order);
+  const active = TRACK_STEPS[key] ?? 0;
+  return ["Placed", "Confirmed", "Shipped", "Delivered"].map((label, i) => ({
+    label,
+    state: i < active ? "done" : i === active ? "active" : "upcoming",
+  }));
+};
+
+const isCancelled = (order: any) => {
+  const key = orderStatusKey(order);
+  return key === "CANCELLED" || key === "REFUNDED" || key === "FAILED";
+};
+
+const buyAgain = (order: any) => {
+  for (const item of orderItems(order)) {
+    const product = catalogStore.productById(item.productId || item.id);
+    const payload: any = {
+      productId: item.productId || item.id,
+      price: item.price,
+      name: item.name,
+      image: product?.image || item.image || "/nutri.png",
+      unit: item.unit,
+      variantLabel: item.variantLabel,
+      _variant: null,
+    };
+    if (item.variantId) payload.variantId = item.variantId;
+    cartStore.addToCart(payload, item.quantity ?? 1);
+  }
+  cartStore.toggleCart();
 };
 
 const handleLogout = () => {

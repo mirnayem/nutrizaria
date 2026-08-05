@@ -46,7 +46,7 @@ export const useAdminApi = () => {
   const updateFaq = (id: string, data: any) => fetchApi(`/admin/faqs/${id}`, { method: 'PUT', body: data });
   const deleteFaq = (id: string) => fetchApi(`/admin/faqs/${id}`, { method: 'DELETE' });
 
-  const getUsers = (page?: number) => fetchApi(`/admin/users?page=${page || 1}`);
+  const getUsers = (params?: any) => fetchApi('/admin/users', { params });
   const updateUserRole = (id: string, role: string) =>
     fetchApi(`/admin/users/${id}/role`, { method: 'PUT', body: { role } });
 

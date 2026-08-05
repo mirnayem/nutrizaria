@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto, QueryProductDto, CreateProductVariantDto } from './dto';
+import { parsePagination, buildPaginationResult } from '../common/pagination';
 
 @Injectable()
 export class ProductsService {
@@ -11,6 +12,7 @@ export class ProductsService {
       page = 1,
       limit = 12,
       category,
+      brand,
       search,
       sort = 'newest',
       featured,
@@ -24,10 +26,15 @@ export class ProductsService {
       where.category = { slug: category };
     }
 
+    if (brand) {
+      where.brand = { slug: brand };
+    }
+
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { brand: { name: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
@@ -61,7 +68,7 @@ export class ProductsService {
     const [items, total] = await Promise.all([
       this.prisma.product.findMany({
         where,
-        include: { category: true, variants: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } },
+        include: { category: true, brand: true, variants: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } },
         orderBy,
         skip,
         take: limit,
@@ -81,14 +88,17 @@ export class ProductsService {
   }
 
   async findAllAdmin(query: QueryProductDto) {
-    const { page = 1, limit = 20, category, search, sort = 'newest' } = query;
+    const { category, brand, search, sort = 'newest' } = query;
+    const pagination = parsePagination(query, 20);
 
     const where: any = {};
     if (category) where.category = { slug: category };
+    if (brand) where.brand = { slug: brand };
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
         { description: { contains: search, mode: 'insensitive' } },
+        { brand: { name: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
@@ -100,26 +110,31 @@ export class ProductsService {
       default: orderBy.createdAt = 'desc';
     }
 
-    const skip = (page - 1) * limit;
+    const findManyArgs: any = {
+      where,
+      include: { category: true, brand: true, variants: { orderBy: { sortOrder: 'asc' } } },
+      orderBy,
+      take: pagination.take,
+    };
 
-    const [items, total] = await Promise.all([
-      this.prisma.product.findMany({
-        where,
-        include: { category: true, variants: { orderBy: { sortOrder: 'asc' } } },
-        orderBy,
-        skip,
-        take: limit,
-      }),
-      this.prisma.product.count({ where }),
-    ]);
+    if (pagination.mode === 'cursor') {
+      findManyArgs.cursor = { id: pagination.cursor };
+      findManyArgs.skip = 1;
+    } else {
+      findManyArgs.skip = pagination.skip;
+    }
 
-    return { items, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    const count = await this.prisma.product.count({ where });
+
+    const rawItems = await this.prisma.product.findMany(findManyArgs);
+
+    return buildPaginationResult(rawItems, pagination, count);
   }
 
   async findBySlug(slug: string) {
     const product = await this.prisma.product.findUnique({
       where: { slug, isActive: true },
-      include: { category: true, variants: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } },
+      include: { category: true, brand: true, variants: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } },
     });
     if (!product) throw new NotFoundException('Product not found');
     return product;
@@ -128,7 +143,7 @@ export class ProductsService {
   async findById(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-      include: { category: true, variants: { orderBy: { sortOrder: 'asc' } } },
+      include: { category: true, brand: true, variants: { orderBy: { sortOrder: 'asc' } } },
     });
     if (!product) throw new NotFoundException('Product not found');
     return product;
@@ -142,9 +157,10 @@ export class ProductsService {
           { name: { contains: query, mode: 'insensitive' } },
           { description: { contains: query, mode: 'insensitive' } },
           { category: { name: { contains: query, mode: 'insensitive' } } },
+          { brand: { name: { contains: query, mode: 'insensitive' } } },
         ],
       },
-      include: { category: true, variants: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } },
+      include: { category: true, brand: true, variants: { where: { isActive: true }, orderBy: { sortOrder: 'asc' } } },
       take: 20,
     });
   }
@@ -155,11 +171,20 @@ export class ProductsService {
     });
     if (!category) throw new NotFoundException('Category not found');
 
+    let brandId: string | undefined;
+    if (dto.brandSlug) {
+      const brand = await this.prisma.brand.findUnique({
+        where: { slug: dto.brandSlug },
+      });
+      if (!brand) throw new NotFoundException('Brand not found');
+      brandId = brand.id;
+    }
+
     const slug = await this.generateUniqueSlug(
       dto.slug?.trim() || this.slugify(dto.name),
     );
 
-    const { variants, categorySlug, ...productData } = dto;
+    const { variants, categorySlug, brandSlug, ...productData } = dto;
 
     const base = this.resolveBaseFields(productData, variants, null);
 
@@ -169,6 +194,7 @@ export class ProductsService {
         ...base,
         slug,
         categoryId: category.id,
+        brandId,
         variants: variants?.length ? {
           create: variants.map((v, index) => ({
             ...v,
@@ -176,7 +202,7 @@ export class ProductsService {
           })),
         } : undefined,
       },
-      include: { category: true, variants: { orderBy: { sortOrder: 'asc' } } },
+      include: { category: true, brand: true, variants: { orderBy: { sortOrder: 'asc' } } },
     });
   }
 
@@ -185,11 +211,12 @@ export class ProductsService {
     if (!product) throw new NotFoundException('Product not found');
 
     const data: any = { ...dto };
-    const { variants, categorySlug, ...restData } = data;
+    const { variants, categorySlug, brandSlug, ...restData } = data;
     Object.assign(data, restData);
     delete data.slug;
     delete data.variants;
     delete data.categorySlug;
+    delete data.brandSlug;
 
     if (categorySlug) {
       const category = await this.prisma.category.findUnique({
@@ -197,6 +224,18 @@ export class ProductsService {
       });
       if (!category) throw new NotFoundException('Category not found');
       data.categoryId = category.id;
+    }
+
+    if (brandSlug !== undefined) {
+      if (brandSlug === null || brandSlug === '') {
+        data.brandId = null;
+      } else {
+        const brand = await this.prisma.brand.findUnique({
+          where: { slug: brandSlug },
+        });
+        if (!brand) throw new NotFoundException('Brand not found');
+        data.brandId = brand.id;
+      }
     }
     if (dto.slug && dto.slug.trim()) {
       data.slug = await this.generateUniqueSlug(dto.slug.trim(), id);
@@ -223,7 +262,7 @@ export class ProductsService {
     return this.prisma.product.update({
       where: { id },
       data,
-      include: { category: true, variants: { orderBy: { sortOrder: 'asc' } } },
+      include: { category: true, brand: true, variants: { orderBy: { sortOrder: 'asc' } } },
     });
   }
 

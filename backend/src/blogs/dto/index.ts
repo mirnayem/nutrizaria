@@ -37,6 +37,11 @@ export class QueryBlogDto {
   @Min(1)
   limit?: number = 50;
 
+  @ApiPropertyOptional({ description: 'Cursor for cursor-based pagination (takes precedence over page)' })
+  @IsOptional()
+  @IsString()
+  cursor?: string;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()

@@ -507,6 +507,7 @@ const seo = useSeo({
         description: p.description,
         sku: variant?.sku || p.sku || String(p.id),
         category: p.category,
+        ...(p.brand ? { brand: { "@type": "Brand", name: p.brand } } : {}),
         offers: {
           "@type": "Offer",
           url: abs(`/products/${p.slug || p.id}`),

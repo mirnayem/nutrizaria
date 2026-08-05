@@ -5,6 +5,7 @@ import { ActivityLogService } from './services/activity-log.service';
 import { NotificationService } from './services/notification.service';
 import { Permission, UserRole, ActivityAction, NotificationType } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { parsePagination, buildPaginationResult } from '../common/pagination';
 
 @Injectable()
 export class AdminService {
@@ -22,6 +23,7 @@ export class AdminService {
     const now = new Date();
     const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
     const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const [
       totalProducts,
@@ -32,11 +34,15 @@ export class AdminService {
       monthRevenue,
       totalUsers,
       newUsersThisMonth,
+      todayOrderCount,
+      lowStockCount,
+      lowStockProducts,
       totalCategories,
       recentOrders,
       topProducts,
       ordersByStatus,
       ordersByPayment,
+      paymentsToday,
       activityStats,
     ] = await Promise.all([
       this.prisma.product.count(),
@@ -47,6 +53,14 @@ export class AdminService {
       this.prisma.order.aggregate({ _sum: { total: true }, where: { paymentStatus: 'PAID', createdAt: { gte: lastMonth } } }),
       this.prisma.user.count({ where: { role: 'CUSTOMER' } }),
       this.prisma.user.count({ where: { role: 'CUSTOMER', createdAt: { gte: lastMonth } } }),
+      this.prisma.order.count({ where: { createdAt: { gte: todayStart } } }),
+      this.prisma.product.count({ where: { stock: { lte: 5 } } }),
+      this.prisma.product.findMany({
+        where: { stock: { lte: 5 } },
+        select: { id: true, name: true, image: true, price: true, stock: true, isActive: true },
+        orderBy: { stock: 'asc' },
+        take: 5,
+      }),
       this.prisma.category.count({ where: { isActive: true } }),
       this.prisma.order.findMany({
         take: 10,
@@ -65,6 +79,11 @@ export class AdminService {
       }),
       this.prisma.order.groupBy({ by: ['status'], _count: true }),
       this.prisma.order.groupBy({ by: ['paymentMethod'], _count: true }),
+      this.prisma.order.findMany({
+        where: { createdAt: { gte: todayStart } },
+        select: { total: true, paymentStatus: true, status: true },
+        take: 50,
+      }),
       this.activityLog.getStats(7),
     ]);
 
@@ -75,6 +94,11 @@ export class AdminService {
           select: { id: true, name: true, image: true, price: true },
         })
       : [];
+
+    const todayPaidRevenue = paymentsToday
+      .filter((p) => p.paymentStatus === 'PAID')
+      .reduce((sum, p) => sum + (p.total || 0), 0);
+    const todayCompleted = paymentsToday.filter((p) => p.status === 'DELIVERED').length;
 
     return {
       overview: {
@@ -87,6 +111,14 @@ export class AdminService {
         totalUsers,
         newUsersThisMonth,
         totalCategories,
+        todayOrders: todayOrderCount,
+        todayPaidRevenue,
+        todayCompleted,
+        lowStockCount,
+        stockHealth:
+          totalProducts > 0
+            ? Math.round(((activeProducts - lowStockCount) / Math.max(totalProducts, 1)) * 100)
+            : 0,
       },
       recentOrders,
       topProducts: topProducts.map((tp) => ({
@@ -94,6 +126,7 @@ export class AdminService {
         totalSold: tp._sum.quantity || 0,
         orderCount: tp._count,
       })),
+      lowStockProducts,
       ordersByStatus: ordersByStatus.reduce((acc, s) => {
         acc[s.status] = s._count;
         return acc;
@@ -106,11 +139,10 @@ export class AdminService {
     };
   }
 
-  async getUsers(adminUserId: string, page = 1, limit = 20, filters?: { role?: string; search?: string; isActive?: string }) {
+  async getUsers(adminUserId: string, page = 1, limit = 20, cursor?: string, filters?: { role?: string; search?: string; isActive?: string }) {
     const hasPermission = await this.rbac.hasPermission(adminUserId, Permission.MANAGE_USERS);
     if (!hasPermission) throw new ForbiddenException('Insufficient permissions');
 
-    const skip = (page - 1) * limit;
     const where: any = {};
 
     if (filters?.role) where.role = filters.role as UserRole;
@@ -122,32 +154,40 @@ export class AdminService {
       ];
     }
 
-    const [items, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          phone: true,
-          role: true,
-          isActive: true,
-          emailVerified: true,
-          lastLoginAt: true,
-          lastLoginIp: true,
-          loginAttempts: true,
-          lockedUntil: true,
-          createdAt: true,
-          _count: { select: { orders: true, reviews: true } },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: limit,
-      }),
-      this.prisma.user.count({ where }),
-    ]);
+    const pagination = parsePagination({ page, limit, cursor }, 20);
 
-    return { items, meta: { total, page, limit, totalPages: Math.ceil(total / limit) } };
+    const findManyArgs: any = {
+      where,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        isActive: true,
+        emailVerified: true,
+        lastLoginAt: true,
+        lastLoginIp: true,
+        loginAttempts: true,
+        lockedUntil: true,
+        createdAt: true,
+        _count: { select: { orders: true, reviews: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: pagination.take,
+    };
+
+    if (pagination.mode === 'cursor') {
+      findManyArgs.cursor = { id: pagination.cursor };
+      findManyArgs.skip = 1;
+    } else {
+      findManyArgs.skip = pagination.skip;
+    }
+
+    const count = await this.prisma.user.count({ where });
+    const rawItems = await this.prisma.user.findMany(findManyArgs);
+
+    return buildPaginationResult(rawItems, pagination, count);
   }
 
   async updateUser(adminUserId: string, userId: string, data: { role?: UserRole; isActive?: boolean; name?: string }) {
@@ -280,11 +320,11 @@ export class AdminService {
     return { success: true };
   }
 
-  async getActivityLogs(adminUserId: string, page = 1, limit = 50, filters?: any) {
+  async getActivityLogs(adminUserId: string, page = 1, limit = 50, cursor?: string, filters?: any) {
     const hasPermission = await this.rbac.hasPermission(adminUserId, Permission.VIEW_ACTIVITY_LOGS);
     if (!hasPermission) throw new ForbiddenException('Insufficient permissions');
 
-    return this.activityLog.findAll({ ...filters, page, limit });
+    return this.activityLog.findAll({ ...filters, page, limit, cursor });
   }
 
   async getNotifications(adminUserId: string, page = 1, limit = 20, unreadOnly = false) {

@@ -69,6 +69,16 @@ export interface Category {
   sortOrder?: number;
 }
 
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+  description?: string;
+  isActive?: boolean;
+  sortOrder?: number;
+}
+
 export interface Faq {
   id: string;
   question: string;

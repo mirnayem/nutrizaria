@@ -47,6 +47,51 @@ export class GoogleLoginDto {
   token: string;
 }
 
+export class PhoneLoginDto {
+  @ApiProperty({
+    example: 'eyJhbGciOiJSUzI1NiIs...',
+    description:
+      'Firebase ID token obtained after the phone number OTP is confirmed',
+  })
+  @IsString()
+  token: string;
+}
+
+export class CheckPhoneDto {
+  @ApiProperty({ example: '+8801820999820' })
+  @IsString()
+  phone: string;
+}
+
+export class PhonePasswordLoginDto {
+  @ApiProperty({ example: '+8801820999820' })
+  @IsString()
+  phone: string;
+
+  @ApiProperty({ example: 'password123' })
+  @IsString()
+  password: string;
+}
+
+export class CompleteProfileDto {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIs...',
+    description: 'Setup token returned by phone login when profile is incomplete',
+  })
+  @IsString()
+  setupToken: string;
+
+  @ApiProperty({ example: 'John Doe' })
+  @IsString()
+  @MinLength(2)
+  name: string;
+
+  @ApiProperty({ example: 'password123' })
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
+
 export class UpdateProfileDto {
   @ApiPropertyOptional({ example: 'John Doe' })
   @IsOptional()

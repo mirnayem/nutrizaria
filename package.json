@@ -21,6 +21,7 @@
     "firebase": "^12.2.1",
     "leaflet": "^1.9.4",
     "pinia": "^3.0.4",
+    "qrcode": "^1.5.4",
     "quill": "^2.0.2",
     "stripe": "^14.0.0",
     "swiper": "^11.1.14",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@nuxt/schema": "^3.13.2",
     "@nuxt/types": "^2.18.1",
+    "@types/qrcode": "^1.5.6",
     "autoprefixer": "^10.4.20",
     "nuxt": "^3.14.159",
     "postcss": "^8.4.47",

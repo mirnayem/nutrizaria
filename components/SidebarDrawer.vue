@@ -53,8 +53,60 @@
             </button>
           </header>
 
-          <div class="flex-1 overflow-y-auto px-5 py-6">
+          <div class="flex-1 overflow-y-auto px-5 py-6 scrollbar-slim">
             <SearchProduct class="mb-6 w-full" />
+
+            <section
+              v-if="!isAuthenticated"
+              class="mb-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center"
+            >
+              <p class="text-sm font-semibold text-slate-800">Welcome to NutriZaria</p>
+              <p class="mt-1 text-xs text-slate-500">
+                Sign in to track orders, save favorites and check out faster.
+              </p>
+              <div class="mt-4 grid grid-cols-2 gap-3">
+                <NuxtLink
+                  to="/login"
+                  class="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  @click="closeDrawer"
+                >
+                  Sign in
+                </NuxtLink>
+                <NuxtLink
+                  to="/signup"
+                  class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
+                  @click="closeDrawer"
+                >
+                  Create account
+                </NuxtLink>
+              </div>
+            </section>
+
+            <section
+              v-if="isAuthenticated"
+              class="mb-6 flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm"
+            >
+              <span
+                class="flex size-11 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white"
+              >
+                {{ initials }}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-slate-900">{{ displayName }}</p>
+                <p class="truncate text-xs text-slate-500">{{ email }}</p>
+              </div>
+              <button
+                type="button"
+                class="rounded-full p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                aria-label="Sign out"
+                @click="handleLogout"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                </svg>
+              </button>
+            </section>
+
             <section class="space-y-3">
               <p
                 class="text-xs font-semibold uppercase tracking-wide text-slate-500"
@@ -109,6 +161,17 @@
                   @click="closeDrawer"
                 >
                   {{ action.label }}
+                </NuxtLink>
+                <NuxtLink
+                  v-if="isAdmin"
+                  to="/admin"
+                  class="col-span-2 flex items-center justify-center gap-2 rounded-2xl border border-violet-200 bg-violet-50 px-3 py-3 text-center font-semibold text-violet-700 transition hover:bg-violet-100"
+                  @click="closeDrawer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                  </svg>
+                  Admin dashboard
                 </NuxtLink>
               </div>
             </section>
@@ -184,6 +247,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useCatalogStore } from "~/stores/catalog";
 import { useUIStore } from "~/stores/ui";
+import { useUserStore } from "~/stores/user";
 
 const { resolve } = useImageUrl();
 
@@ -210,6 +274,35 @@ const quickActions = [
 const catalogStore = useCatalogStore();
 catalogStore.hydrate();
 const { categories } = storeToRefs(catalogStore);
+
+const userStore = useUserStore();
+if (typeof window !== "undefined") {
+  userStore.loadAuthenticatedUser();
+}
+const isAdmin = computed(() => {
+  const role = userStore.authenticatedUser?.role;
+  return (
+    role === "ADMIN" ||
+    role === "SUPER_ADMIN" ||
+    role === "MANAGER" ||
+    role === "STAFF"
+  );
+});
+
+const isAuthenticated = computed(() => !!userStore.authenticatedUser);
+const displayName = computed(() => userStore.displayName || "My account");
+const email = computed(() => userStore.authenticatedUser?.email || "");
+const initials = computed(() => {
+  const name =
+    userStore.authenticatedUser?.name?.trim() ||
+    (email.value || "").split("@")[0];
+  const parts = name.split(/\s+/).filter(Boolean);
+  return ((parts[0]?.[0] || "") + (parts[1]?.[0] || "")).toUpperCase();
+});
+const handleLogout = () => {
+  userStore.logoutUser();
+  closeDrawer();
+};
 
 const uiStore = useUIStore();
 const { isSidebarOpen } = storeToRefs(uiStore);

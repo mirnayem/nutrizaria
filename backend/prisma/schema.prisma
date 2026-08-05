@@ -82,11 +82,13 @@ enum PaymentStatus {
 
 model User {
   id            String    @id @default(uuid())
-  email         String    @unique
+  email         String?   @unique
   password      String?
   googleId      String?   @unique
+  firebaseUid   String?   @unique
   name          String?
   phone         String?
+  phoneVerified Boolean   @default(false)
   role          UserRole  @default(CUSTOMER)
   avatar        String?
   isActive      Boolean   @default(true)
@@ -147,12 +149,30 @@ model Category {
   @@index([isActive])
 }
 
+model Brand {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  image       String?
+  description String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@index([slug])
+  @@index([isActive])
+}
+
 model Product {
   id              String   @id @default(uuid())
   name            String
   slug            String   @unique
   description     String   @db.Text
-  brand           String?
+  brandId         String?
+  brand           Brand?   @relation(fields: [brandId], references: [id])
   price           Float
   comparePrice    Float?
   unit            String
@@ -177,6 +197,7 @@ model Product {
   variants   ProductVariant[]
 
   @@index([categoryId])
+  @@index([brandId])
   @@index([slug])
   @@index([isActive, isFeatured])
   @@index([price])

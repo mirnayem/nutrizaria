@@ -120,6 +120,71 @@
           </div>
         </div>
       </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-xl border border-slate-200 bg-white p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-slate-900">Orders &amp; New Customers</h2>
+          </div>
+          <div class="relative" style="height: 260px">
+            <Line v-if="activityChartData" :data="activityChartData" :options="activityChartOptions" />
+            <p v-else class="flex h-full items-center justify-center text-sm text-slate-400">No activity data</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 bg-white p-6">
+          <h2 class="text-base font-semibold text-slate-900 mb-4">Low Stock Alerts</h2>
+          <div class="mt-4 space-y-3">
+            <div v-for="product in lowStockProducts" :key="product.id" class="flex items-center gap-3 rounded-lg border border-red-100 bg-red-50/40 p-3">
+              <img :src="resolve(product.image) || '/placeholder.svg'" :alt="product.name" class="h-10 w-10 rounded-lg object-cover" @error="$event.target.src = '/placeholder.svg'" />
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-slate-900 truncate">{{ product.name }}</p>
+                <p class="text-xs text-red-600">{{ product.stock }} left in stock</p>
+              </div>
+              <NuxtLink :to="`/admin/products?search=${encodeURIComponent(product.name)}`" class="shrink-0 rounded-lg bg-white border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50">Restock</NuxtLink>
+            </div>
+            <p v-if="lowStockProducts.length === 0" class="text-sm text-slate-500 text-center py-4">All products are well stocked</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-xl border border-slate-200 bg-white p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-semibold text-slate-900">Recent Activity</h2>
+            <NuxtLink to="/admin/logs" class="text-xs font-medium text-violet-600 hover:text-violet-700">View all</NuxtLink>
+          </div>
+          <div class="mt-4 space-y-1">
+            <div v-for="log in recentActivity" :key="log.id" class="flex items-start gap-3 rounded-lg p-2 hover:bg-slate-50">
+              <span class="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full" :class="actionBadgeClass(log.action)">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="text-sm text-slate-800"><span class="font-medium">{{ log.user?.name || log.user?.email || 'Admin' }}</span> {{ log.details || humanizeAction(log.action) }}</p>
+                <p class="text-xs text-slate-400">{{ formatRelativeTime(log.createdAt) }}</p>
+              </div>
+              <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-slate-400">{{ log.entityType }}</span>
+            </div>
+            <p v-if="recentActivity.length === 0" class="text-sm text-slate-500 text-center py-4">No recent activity</p>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-slate-200 bg-white p-6">
+          <h2 class="text-base font-semibold text-slate-900 mb-4">Top Categories</h2>
+          <div class="mt-4 space-y-4">
+            <div v-for="cat in topCategories" :key="cat.name" class="space-y-1.5">
+              <div class="flex items-center justify-between text-sm">
+                <span class="font-medium text-slate-800 capitalize">{{ cat.name }}</span>
+                <span class="text-xs font-semibold text-slate-600">{{ cat.quantity }} sold</span>
+              </div>
+              <div class="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+                <div class="h-full rounded-full bg-violet-500 transition-all" :style="{ width: cat.pct + '%' }"></div>
+              </div>
+            </div>
+            <p v-if="topCategories.length === 0" class="text-sm text-slate-500 text-center py-4">No category data yet</p>
+          </div>
+        </div>
+      </div>
     </template>
   </div>
 </template>
@@ -152,6 +217,7 @@ const { resolve } = useImageUrl();
 const loading = ref(true);
 const dashboardData = ref<any>(null);
 const analyticsData = ref<any>(null);
+const activityLogs = ref<any[]>([]);
 const revenuePeriod = ref('month');
 
 const stats = computed(() => {
@@ -167,6 +233,7 @@ const stats = computed(() => {
 
 const recentOrders = computed(() => dashboardData.value?.recentOrders || []);
 const topProducts = computed(() => dashboardData.value?.topProducts || []);
+const lowStockProducts = computed(() => dashboardData.value?.lowStockProducts || []);
 const ordersByStatus = computed(() => dashboardData.value?.ordersByStatus || {});
 const ordersByPayment = computed(() => dashboardData.value?.ordersByPayment || {});
 
@@ -242,6 +309,107 @@ const orderLegend = computed(() => {
   }));
 });
 
+const activityChartData = computed(() => {
+  const data = analyticsData.value;
+  if (!data?.ordersByDay?.length && !data?.newUsersByDay?.length) return null;
+  const ordersMap: Record<string, number> = {};
+  const usersMap: Record<string, number> = {};
+  for (const r of (data.ordersByDay || [])) {
+    const key = new Date(r.createdAt).toISOString().slice(0, 10);
+    ordersMap[key] = (ordersMap[key] || 0) + 1;
+  }
+  for (const r of (data.newUsersByDay || [])) {
+    const key = new Date(r.createdAt).toISOString().slice(0, 10);
+    usersMap[key] = (usersMap[key] || 0) + 1;
+  }
+  const allKeys = Array.from(new Set([...Object.keys(ordersMap), ...Object.keys(usersMap)])).sort();
+  if (!allKeys.length) return null;
+  const labels = allKeys.map((k) => new Date(k).toLocaleDateString('en', { month: 'short', day: 'numeric' }));
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Orders',
+        data: allKeys.map((k) => ordersMap[k] || 0),
+        borderColor: '#0ea5e9',
+        backgroundColor: 'rgba(14, 165, 233, 0.1)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointBackgroundColor: '#0ea5e9',
+        borderWidth: 2,
+      },
+      {
+        label: 'New Customers',
+        data: allKeys.map((k) => usersMap[k] || 0),
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 3,
+        pointBackgroundColor: '#10b981',
+        borderWidth: 2,
+      },
+    ],
+  };
+});
+
+const activityChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: { legend: { position: 'top' as const, labels: { usePointStyle: true, pointStyle: 'circle' as const, font: { size: 11 }, color: '#64748b', boxWidth: 6, padding: 16 } }, tooltip: { backgroundColor: '#1e293b', bodyFont: { size: 12 }, padding: 10, cornerRadius: 8 } },
+  scales: { x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#94a3b8' } }, y: { grid: { color: '#f1f5f9' }, ticks: { font: { size: 11 }, color: '#94a3b8', beginAtZero: true } } },
+};
+
+const recentActivity = computed(() => {
+  const logs = activityLogs.value;
+  if (!logs?.length) return [];
+  return logs.slice(0, 6);
+});
+
+const plainActionBadge = (action: string) => {
+  const a = (action || '').toLowerCase();
+  if (a.includes('create') || a.includes('add')) return 'bg-emerald-100 text-emerald-600';
+  if (a.includes('delete') || a.includes('remove')) return 'bg-red-100 text-red-600';
+  if (a.includes('update') || a.includes('edit')) return 'bg-blue-100 text-blue-600';
+  return 'bg-slate-100 text-slate-500';
+};
+const actionBadgeClass = plainActionBadge;
+
+const humanizeAction = (action: string) => {
+  return (action || 'performed an action')
+    .toLowerCase()
+    .replace(/[-_]/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const formatRelativeTime = (value: string) => {
+  if (!value) return '—';
+  const seconds = Math.floor((Date.now() - new Date(value).getTime()) / 1000);
+  if (seconds < 60) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(value).toLocaleDateString('en', { month: 'short', day: 'numeric' });
+};
+
+const topCategories = computed(() => {
+  const data = analyticsData.value?.topProducts;
+  if (!data?.length) return [];
+  const map: Record<string, { name: string; quantity: number }> = {};
+  for (const p of data) {
+    const name = p.category?.name || 'Other';
+    if (!map[name]) map[name] = { name, quantity: 0 };
+    map[name].quantity += p.totalSold || 0;
+  }
+  const rows = Object.values(map).sort((a, b) => b.quantity - a.quantity);
+  const max = Math.max(...rows.map((r) => r.quantity), 1);
+  return rows.map((r) => ({ ...r, pct: Math.round((r.quantity / max) * 100) }));
+});
+
 const statusClass = (status: string) => {
   const classes: Record<string, string> = {
     PENDING: 'bg-amber-100 text-amber-700',
@@ -266,12 +434,25 @@ const loadAnalytics = async () => {
   }
 };
 
+const loadActivity = async () => {
+  try {
+    const res = await $fetch(`${apiBase}/admin/activity-logs?limit=10`, {
+      headers: { Authorization: `Bearer ${token.value}` },
+    });
+    const data = res?.data?.items || res?.items || res?.data || [];
+    activityLogs.value = Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error('Failed to load activity', e);
+  }
+};
+
 onMounted(async () => {
   try {
     if (apiBase && token.value) {
-      const [dashRes, analyticsRes] = await Promise.all([
+      const [dashRes, analyticsRes, activityRes] = await Promise.all([
         $fetch(`${apiBase}/admin/dashboard`, { headers: { Authorization: `Bearer ${token.value}` } }),
         $fetch(`${apiBase}/admin/analytics?period=month`, { headers: { Authorization: `Bearer ${token.value}` } }),
+        $fetch(`${apiBase}/admin/activity-logs?limit=10`, { headers: { Authorization: `Bearer ${token.value}` } }),
       ]);
       const data: any = dashRes?.data || dashRes;
       if (data?.topProducts) {
@@ -282,8 +463,18 @@ onMounted(async () => {
           }
         }
       }
+      if (data?.lowStockProducts) {
+        for (const p of data.lowStockProducts) {
+          if (p.image) {
+            const s = String(p.image).trim();
+            p.image = /^https?:\/\/localhost:\d+\//.test(s) ? new URL(s).pathname : s;
+          }
+        }
+      }
       dashboardData.value = data;
       analyticsData.value = analyticsRes?.data || analyticsRes;
+      const activityData = activityRes?.data?.items || activityRes?.items || activityRes?.data || [];
+      activityLogs.value = Array.isArray(activityData) ? activityData : [];
     }
   } catch (e) {
     console.error('Failed to load dashboard', e);

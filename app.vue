@@ -23,7 +23,7 @@ useHead({
         url: base,
         logo: `${base}/nutri.png`,
         description:
-          "Authentic, pure food resources for Bangladeshi kitchens — fresh produce, pantry staples and more.",
+          "Authentic, pure food resources for Bangladeshi kitchens — fresh produce, daily essentials and more.",
         email: "nutrizaria@gmail.com",
         telephone: "+8801820999820",
         sameAs: [],
