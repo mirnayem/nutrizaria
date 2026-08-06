@@ -29,11 +29,13 @@ export class OrdersService {
       select: { email: true },
     });
 
+    const productIds = [...new Set(dto.items.map((i) => i.productId))];
+
     const products = await this.prisma.product.findMany({
-      where: { id: { in: dto.items.map((i) => i.productId) } },
+      where: { id: { in: productIds } },
     });
 
-    if (products.length !== dto.items.length) {
+    if (products.length !== productIds.length) {
       throw new BadRequestException('One or more products not found');
     }
 

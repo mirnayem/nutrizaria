@@ -132,7 +132,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from "~/stores/user";
 import { useAuth } from "~/composables/useAuth";
 
-definePageMeta({ layout: false });
+definePageMeta({ layout: false, middleware: "guest" });
 
 const router = useRouter();
 const route = useRoute();
