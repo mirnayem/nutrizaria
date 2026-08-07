@@ -312,8 +312,8 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
         </aside>
 
         <section>
-          <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div class="flex items-center gap-2">
+          <div class="mb-4 flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-2">
               <button
                 type="button"
                 class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-violet-300 hover:text-violet-700 lg:hidden"
@@ -517,14 +517,8 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
         v-if="showFilterPanel"
         class="fixed inset-0 z-40 flex bg-slate-950/40 backdrop-blur-sm lg:hidden"
       >
-        <button
-          type="button"
-          class="flex-1"
-          @click="closeFilterPanel"
-          aria-label="Close filters"
-        ></button>
         <div
-          class="flex h-full w-[85%] max-w-sm flex-col rounded-l-3xl border border-white/10 bg-white shadow-2xl"
+          class="flex h-full w-[85%] max-w-sm flex-col rounded-r-3xl border border-white/10 bg-white shadow-2xl"
         >
           <div class="flex items-center justify-between border-b border-slate-100 px-5 py-4">
             <h2 class="text-lg font-semibold text-slate-900">Filters</h2>
@@ -577,6 +571,12 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
             </button>
           </div>
         </div>
+        <button
+          type="button"
+          class="flex-1"
+          @click="closeFilterPanel"
+          aria-label="Close filters"
+        ></button>
       </div>
     </Transition>
   </main>

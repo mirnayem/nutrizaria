@@ -8,9 +8,50 @@
       <div
         class="mx-auto flex w-full max-w-[1600px] items-center gap-4 px-4 py-3 sm:py-4"
       >
+        <div class="flex shrink-0 items-center gap-1 lg:hidden">
+          <button
+            type="button"
+            class="inline-flex size-10 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
+            @click="uiStore.toggleSidebar(true)"
+            aria-label="Open menu"
+          >
+            <Bars3Icon class="size-6" aria-hidden="true" />
+          </button>
+        </div>
+
+        <form
+          class="relative flex-1 lg:hidden"
+          role="search"
+          @submit.prevent="submitSearch"
+        >
+          <label for="mobile-search" class="sr-only">Search products</label>
+          <input
+            id="mobile-search"
+            v-model="headerSearch"
+            type="search"
+            placeholder="Search products..."
+            class="w-full rounded-full border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-500 focus:border-violet-500 focus:bg-white focus:ring-2 focus:ring-violet-500/30"
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+            />
+          </svg>
+        </form>
+
         <NuxtLink
           to="/"
-          class="flex shrink-0 items-center gap-2.5 text-lg font-bold text-slate-900 transition"
+          class="hidden shrink-0 items-center gap-2.5 text-lg font-bold text-slate-900 transition sm:flex"
           aria-label="NutriZaria home"
         >
           <img
@@ -20,7 +61,7 @@
             height="40"
             class="h-10 w-10 rounded-full object-cover"
           />
-          <span class="hidden sm:inline">NutriZaria</span>
+          <span class="hidden lg:inline">NutriZaria</span>
         </NuxtLink>
 
         <div class="hidden flex-1 justify-center px-2 lg:flex">
@@ -76,9 +117,9 @@
         </div>
 
         <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
-          <NuxtLink
+<NuxtLink
             to="/favorite"
-            class="relative inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+            class="relative hidden inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 sm:flex"
             aria-label="View favorites"
           >
             <HeartIcon class="size-5" aria-hidden="true" />
@@ -94,7 +135,7 @@
 
           <button
             type="button"
-            class="relative inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+            class="relative hidden size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2 sm:inline-flex"
             @click="cartStore.toggleCart()"
             aria-label="Open shopping cart"
           >
@@ -109,7 +150,7 @@
             </ClientOnly>
           </button>
 
-          <div class="relative" ref="profileRef">
+          <div class="relative hidden sm:block" ref="profileRef">
             <ClientOnly>
               <button
                 v-if="!isAuthenticated"
@@ -204,7 +245,7 @@
     </div>
 
     <!-- Nav bar -->
-    <nav class="border-t border-slate-100 bg-white" aria-label="Main">
+    <nav class="hidden border-t border-slate-100 bg-white lg:block" aria-label="Main">
       <div
         class="mx-auto flex w-full max-w-[1600px] items-center gap-1 px-4 py-1.5"
       >
@@ -310,57 +351,8 @@
             FAQ
           </NuxtLink>
         </div>
-
-        <div class="ml-auto flex items-center gap-2 lg:hidden">
-          <button
-            type="button"
-            class="inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-            @click="uiStore.toggleSidebar(true)"
-            aria-label="Open menu"
-          >
-            <Bars3Icon class="size-5" />
-          </button>
-        </div>
       </div>
     </nav>
-
-    <!-- Mobile search -->
-    <div class="border-b border-slate-100 bg-white lg:hidden">
-      <div class="mx-auto w-full max-w-[1600px] px-4 py-2">
-      <form
-        class="relative"
-        role="search"
-        @submit.prevent="submitSearch"
-      >
-        <input
-          v-model="headerSearch"
-          type="search"
-          placeholder="Search for products.."
-          class="w-full rounded-md border border-slate-200 bg-slate-50 px-4 py-2 pr-10 text-sm text-slate-700 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-1 focus:ring-violet-400"
-        />
-        <button
-          type="submit"
-          aria-label="Search"
-          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 transition hover:text-violet-600"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="2"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-            />
-          </svg>
-        </button>
-      </form>
-      </div>
-    </div>
   </header>
 
   <ShoppingCart />

@@ -37,7 +37,7 @@ const getCategoryCount = (category: Category) => {
 <template>
   <aside class="w-64 shrink-0 border-r border-slate-200 bg-white">
     <nav
-      class="sticky top-[120px] max-h-[calc(100vh-140px)] overflow-y-auto p-3 scrollbar-slim"
+      class="sticky top-[105px] max-h-[calc(100vh-125px)] overflow-y-auto p-3 scrollbar-slim"
       aria-label="Shop by category"
     >
       <p class="px-3 pb-2 pt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">

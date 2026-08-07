@@ -17,20 +17,15 @@
           v-if="isSidebarOpen"
           ref="panelRef"
           tabindex="-1"
-          class="relative ml-auto flex h-full w-full max-w-sm flex-col overflow-hidden bg-white shadow-2xl focus:outline-none"
+          class="relative flex h-full w-full max-w-sm flex-col overflow-hidden bg-white shadow-2xl focus:outline-none"
           :style="safeAreaStyle"
         >
           <header
-            class="flex items-center justify-between border-b border-slate-100 px-5 pb-4"
+            class="flex items-center justify-between border-b border-slate-100 px-4 py-3"
           >
-            <div class="flex items-center gap-3">
-              <img src="/nutri.png" alt="NutriZaria Logo" class="h-8 w-8" />
-              <div>
-                <p class="text-base font-semibold text-slate-900">NutriZaria</p>
-                <p class="text-xs text-slate-500">
-                  Authentic pure food resources
-                </p>
-              </div>
+            <div class="flex items-center gap-2.5">
+              <img src="/nutri.png" alt="NutriZaria" class="h-8 w-8" />
+              <p class="text-base font-semibold text-slate-900">NutriZaria</p>
             </div>
             <button
               type="button"
@@ -53,28 +48,28 @@
             </button>
           </header>
 
-          <div class="flex-1 overflow-y-auto px-5 py-6 scrollbar-slim">
-            <SearchProduct class="mb-6 w-full" />
+          <div class="flex-1 overflow-y-auto px-4 py-4 scrollbar-slim">
+            <SearchProduct class="mb-4 w-full" />
 
             <section
               v-if="!isAuthenticated"
-              class="mb-6 rounded-2xl border border-slate-100 bg-slate-50 p-4 text-center"
+              class="mb-4 rounded-xl border border-slate-100 bg-slate-50 p-3.5 text-center"
             >
               <p class="text-sm font-semibold text-slate-800">Welcome to NutriZaria</p>
-              <p class="mt-1 text-xs text-slate-500">
+              <p class="mt-0.5 text-xs text-slate-500">
                 Sign in to track orders, save favorites and check out faster.
               </p>
-              <div class="mt-4 grid grid-cols-2 gap-3">
+              <div class="mt-3 grid grid-cols-2 gap-2.5">
                 <NuxtLink
                   to="/login"
-                  class="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  class="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500"
                   @click="closeDrawer"
                 >
                   Sign in
                 </NuxtLink>
                 <NuxtLink
                   to="/signup"
-                  class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
+                  class="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
                   @click="closeDrawer"
                 >
                   Create account
@@ -84,7 +79,7 @@
 
             <section
               v-if="isAuthenticated"
-              class="mb-6 flex items-center gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm"
+              class="mb-4 flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-3 shadow-sm"
             >
               <span
                 class="flex size-11 items-center justify-center rounded-full bg-violet-600 text-sm font-bold text-white"
@@ -107,23 +102,23 @@
               </button>
             </section>
 
-            <section class="space-y-3">
+            <section class="space-y-2.5">
               <p
                 class="text-xs font-semibold uppercase tracking-wide text-slate-500"
               >
                 Navigate
               </p>
-              <nav class="space-y-2">
+              <nav class="space-y-1.5">
                 <NuxtLink
                   v-for="link in navLinks"
                   :key="link.to"
                   :to="link.to"
                   :aria-current="isActive(link) ? 'page' : undefined"
-                  class="flex items-center justify-between rounded-2xl border px-3 py-3 text-sm font-medium transition"
+                  class="flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium transition"
                   :class="
                     isActive(link)
-                      ? 'border-violet-100 bg-violet-50 text-violet-700'
-                      : 'border-slate-100 text-slate-700 hover:border-violet-100 hover:bg-violet-50 hover:text-violet-700'
+                      ? 'text-violet-700'
+                      : 'text-slate-700 hover:bg-slate-50 hover:text-violet-700'
                   "
                   @click="closeDrawer"
                 >
@@ -134,7 +129,7 @@
                     fill="none"
                     stroke="currentColor"
                     stroke-width="1.5"
-                    class="size-4"
+                    class="size-4 text-slate-300"
                   >
                     <path
                       stroke-linecap="round"
@@ -146,92 +141,81 @@
               </nav>
             </section>
 
-            <section class="mt-8">
-              <p
-                class="text-xs font-semibold uppercase tracking-wide text-slate-500"
-              >
-                Quick access
-              </p>
-              <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
-                <NuxtLink
-                  v-for="action in quickActions"
-                  :key="action.to"
-                  :to="action.to"
-                  class="rounded-2xl border border-slate-200 bg-white px-3 py-3 text-center font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
-                  @click="closeDrawer"
-                >
-                  {{ action.label }}
-                </NuxtLink>
-                <NuxtLink
-                  v-if="isAdmin"
-                  to="/admin"
-                  class="col-span-2 flex items-center justify-center gap-2 rounded-2xl border border-violet-200 bg-violet-50 px-3 py-3 text-center font-semibold text-violet-700 transition hover:bg-violet-100"
-                  @click="closeDrawer"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
-                  </svg>
-                  Admin dashboard
-                </NuxtLink>
-              </div>
-            </section>
-
-            <section class="mt-8">
+            <section class="mt-6">
               <p
                 class="text-xs font-semibold uppercase tracking-wide text-slate-500"
               >
                 Popular categories
               </p>
-              <div class="mt-3 grid grid-cols-2 gap-3">
+              <div class="mt-2 grid grid-cols-2 gap-2.5">
                 <NuxtLink
                   v-for="category in featuredCategories"
                   :key="category.id"
                   :to="`/categories/${category.slug}`"
-                  class="flex items-center gap-3 rounded-2xl border border-slate-100 p-2 text-sm text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
+                  class="flex items-center gap-2.5 rounded-xl border border-slate-100 bg-white p-2 text-sm text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
                   @click="closeDrawer"
                 >
                   <img
                     :src="resolve(category.image)"
                     :alt="category.name"
-                    class="h-10 w-10 rounded-lg object-cover"
+                    class="h-8 w-8 rounded-lg object-cover"
                     loading="lazy"
                   />
                   <span>{{ category.name }}</span>
                 </NuxtLink>
               </div>
             </section>
-          </div>
 
-          <footer class="border-t border-slate-100 px-5 pt-5">
-            <div
-              class="space-y-3 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600"
-            >
+            <section class="mt-6">
               <p
                 class="text-xs font-semibold uppercase tracking-wide text-slate-500"
               >
                 Need help?
               </p>
-              <div class="flex items-center justify-between text-slate-700">
-                <div>
-                  <p class="font-medium text-slate-900">Live concierge</p>
-                  <p>WhatsApp: +880 1820999820</p>
+              <div class="mt-2.5 space-y-2.5 rounded-xl bg-slate-50 p-3.5 text-sm text-slate-600">
+                <div class="flex items-center justify-between text-slate-700">
+                  <div>
+                    <p class="font-medium text-slate-900">Live concierge</p>
+                    <p>WhatsApp: +880 1820999820</p>
+                  </div>
+                  <span
+                    class="rounded-full bg-white px-2.5 py-0.5 text-xs font-semibold text-violet-700"
+                  >
+                    24/7
+                  </span>
                 </div>
-                <span
-                  class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-violet-700"
+                <NuxtLink
+                  to="/contact"
+                  class="inline-flex w-full items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
+                  @click="closeDrawer"
                 >
-                  24/7
-                </span>
+                  Contact support
+                </NuxtLink>
               </div>
-              <div>
-                <p class="font-medium text-slate-900">Order hotline</p>
-                <p>Sat - Thu, 9am – 10pm</p>
-              </div>
+            </section>
+          </div>
+
+          <footer class="px-4 py-3">
+            <div class="grid grid-cols-2 gap-2.5 text-sm">
               <NuxtLink
-                to="/contact"
-                class="inline-flex w-full items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
+                v-for="action in quickActions"
+                :key="action.to"
+                :to="action.to"
+                class="rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-center font-semibold text-slate-700 transition hover:border-violet-200 hover:text-violet-700"
                 @click="closeDrawer"
               >
-                Contact support
+                {{ action.label }}
+              </NuxtLink>
+              <NuxtLink
+                v-if="isAdmin"
+                to="/admin"
+                class="col-span-2 flex items-center justify-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2.5 text-center font-semibold text-violet-700 transition hover:bg-violet-100"
+                @click="closeDrawer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="size-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+                </svg>
+                Admin dashboard
               </NuxtLink>
             </div>
           </footer>
@@ -309,7 +293,9 @@ const { isSidebarOpen } = storeToRefs(uiStore);
 const closeDrawer = () => uiStore.closeSidebar();
 const panelRef = ref<HTMLElement | null>(null);
 
-const featuredCategories = computed(() => categories.value.slice(0, 6));
+const featuredCategories = computed(() =>
+  categories.value.filter((c) => !c.parentId).slice(0, 6)
+);
 
 const route = useRoute();
 const safeAreaStyle = computed(() => ({
@@ -379,6 +365,6 @@ onBeforeUnmount(() => {
 }
 .drawer-slide-enter-from,
 .drawer-slide-leave-to {
-  transform: translateX(100%);
+  transform: translateX(-100%);
 }
 </style>

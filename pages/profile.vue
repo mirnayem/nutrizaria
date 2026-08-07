@@ -1,6 +1,6 @@
 <template>
   <ClientOnly>
-    <main class="py-6 sm:py-10">
+    <main class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 sm:py-10">
       <div class="mb-6 flex flex-wrap items-center gap-2 text-sm text-slate-500">
         <NuxtLink to="/" class="transition hover:text-violet-600">Home</NuxtLink>
         <svg
@@ -16,7 +16,7 @@
         <span class="font-medium text-slate-700">My account</span>
       </div>
 
-      <div class="grid gap-8 lg:grid-cols-[250px_minmax(0,1fr)]">
+      <div class="grid grid-cols-1 gap-8 lg:grid-cols-[250px_minmax(0,1fr)]">
         <aside class="lg:sticky lg:top-24 lg:h-fit">
           <div class="mb-5 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <span
@@ -62,7 +62,7 @@
 
             <button
               type="button"
-              class="mt-1 flex flex-shrink-0 items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+              class="flex flex-shrink-0 items-center gap-3 rounded-xl border border-rose-100 bg-rose-50/60 px-4 py-2.5 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
               @click="handleLogout"
             >
               <ArrowRightStartOnRectangleIcon class="size-5" />
@@ -84,30 +84,30 @@
               </div>
               <NuxtLink
                 to="/shop"
-                class="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500 sm:w-auto"
               >
                 Continue shopping
               </NuxtLink>
             </div>
 
-            <div class="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <div class="mt-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
               <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-xs font-medium text-slate-500">Total orders</p>
-                <p class="mt-1 text-2xl font-bold text-slate-900">{{ orders.length }}</p>
+                <p class="truncate text-xs font-medium text-slate-500">Total orders</p>
+                <p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{{ orders.length }}</p>
               </div>
               <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-xs font-medium text-slate-500">Total spent</p>
-                <p class="mt-1 text-2xl font-bold text-slate-900">
+                <p class="truncate text-xs font-medium text-slate-500">Total spent</p>
+                <p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">
                   {{ currencySymbol }}{{ totalSpent.toFixed(2) }}
                 </p>
               </div>
               <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-xs font-medium text-slate-500">Favorites</p>
-                <p class="mt-1 text-2xl font-bold text-slate-900">{{ favoriteStore.items.length }}</p>
+                <p class="truncate text-xs font-medium text-slate-500">Favorites</p>
+                <p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{{ favoriteStore.items.length }}</p>
               </div>
               <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                <p class="text-xs font-medium text-slate-500">Addresses</p>
-                <p class="mt-1 text-2xl font-bold text-slate-900">{{ addresses.length }}</p>
+                <p class="truncate text-xs font-medium text-slate-500">Addresses</p>
+                <p class="mt-1 text-xl font-bold text-slate-900 sm:text-2xl">{{ addresses.length }}</p>
               </div>
             </div>
 
@@ -179,14 +179,14 @@
                   Track and review all your purchases in one place.
                 </p>
               </div>
-              <div v-if="orders.length" class="rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
-                <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400">Total spent</p>
+              <div v-if="orders.length" class="flex w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm sm:w-auto sm:flex-col sm:items-end sm:px-5 sm:py-3">
+                <p class="text-[11px] font-medium uppercase tracking-wide text-slate-400 sm:block">Total spent</p>
                 <p class="text-lg font-bold text-slate-900">{{ currencySymbol }}{{ totalSpent.toFixed(2) }}</p>
               </div>
             </div>
 
             <div v-if="orders.length" class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div class="flex flex-wrap gap-2" role="tablist" aria-label="Filter orders by status">
+              <div class="flex flex-nowrap gap-2 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible sm:pb-0" role="tablist" aria-label="Filter orders by status">
                 <button
                   v-for="option in statusOptions"
                   :key="option.key"
@@ -237,30 +237,28 @@
               >
                 <button
                   type="button"
-                  class="flex w-full flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4 text-left transition hover:bg-slate-50"
+                  class="flex w-full items-center gap-3 px-4 py-4 text-left transition hover:bg-slate-50 sm:px-5"
                   :aria-expanded="expandedOrder === (order.id || order.orderNumber)"
                   @click="toggleOrder(order)"
                 >
-                  <div class="flex items-center gap-4">
-                    <div class="flex -space-x-3">
-                      <div
-                        v-for="item in orderThumbnails(order)"
-                        :key="item.productId || item.id"
-                        class="size-11 overflow-hidden rounded-xl border-2 border-white bg-slate-100 shadow-sm"
-                      >
-                        <img
-                          :src="itemImage(item)"
-                          :alt="item.name"
-                          class="size-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div
-                        v-if="orderItems(order).length > 4"
-                        class="flex size-11 items-center justify-center rounded-xl border-2 border-white bg-slate-100 text-xs font-bold text-slate-500 shadow-sm"
-                      >
-                        +{{ orderItems(order).length - 4 }}
-                      </div>
+                  <div class="flex shrink-0 -space-x-3">
+                    <div
+                      v-for="item in orderThumbnails(order)"
+                      :key="item.productId || item.id"
+                      class="size-10 overflow-hidden rounded-lg border-2 border-white bg-slate-100 shadow-sm sm:size-11 sm:rounded-xl"
+                    >
+                      <img
+                        :src="itemImage(item)"
+                        :alt="item.name"
+                        class="size-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div
+                      v-if="orderItems(order).length > 4"
+                      class="flex size-10 items-center justify-center rounded-lg border-2 border-white bg-slate-100 text-xs font-bold text-slate-500 shadow-sm sm:size-11 sm:rounded-xl"
+                    >
+                      +{{ orderItems(order).length - 4 }}
                     </div>
                   </div>
 
@@ -268,36 +266,32 @@
                     <p class="truncate text-sm font-semibold text-slate-900">
                       {{ order.orderNumber || order.id }}
                     </p>
-                    <p class="mt-0.5 text-xs text-slate-500">
-                      Placed {{ formatDate(order.createdAt) }} · {{ itemsText(order) }}
+                    <p class="mt-0.5 truncate text-xs text-slate-500">
+                      {{ formatDate(order.createdAt) }} · {{ itemsText(order) }}
                     </p>
                     <p class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-slate-500">
                       <span class="size-1.5 rounded-full bg-emerald-500"></span>
                       {{ paymentLabel(order) }}
-                      <span class="text-slate-300">·</span>
-                      <OrderStatusBadge :status="paymentStatus(order)" />
                     </p>
                   </div>
 
-                  <div class="flex items-center gap-3">
-                    <div class="text-right">
-                      <p class="text-sm font-bold text-slate-900">
-                        {{ currencySymbol }}{{ (order.total || 0).toFixed(2) }}
-                      </p>
-                      <OrderStatusBadge :status="order.status" />
-                    </div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      class="size-4 text-slate-400 transition-transform"
-                      :class="expandedOrder === (order.id || order.orderNumber) ? 'rotate-180' : ''"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                    >
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
+                  <div class="flex shrink-0 flex-col items-end gap-1.5">
+                    <p class="text-sm font-bold text-slate-900">
+                      {{ currencySymbol }}{{ (order.total || 0).toFixed(2) }}
+                    </p>
+                    <OrderStatusBadge :status="order.status" />
                   </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="size-4 shrink-0 text-slate-400 transition-transform"
+                    :class="expandedOrder === (order.id || order.orderNumber) ? 'rotate-180' : ''"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                  </svg>
                 </button>
 
                 <div
@@ -313,41 +307,43 @@
                         </p>
                       </div>
 
-                      <div v-else class="px-5 py-5">
+                      <div v-else class="px-4 py-5 sm:px-5">
                         <p class="mb-4 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
                           Order progress
                         </p>
-                        <ol class="flex items-center gap-0">
-                          <li v-for="(step, i) in timelineSteps(order)" :key="step.label" class="flex flex-1 items-center last:flex-none">
-                            <div class="flex flex-col items-center">
-                              <span
-                                class="flex size-7 items-center justify-center rounded-full text-xs font-bold"
-                                :class="
-                                  step.state === 'done'
-                                    ? 'bg-emerald-500 text-white'
-                                    : step.state === 'active'
-                                      ? 'bg-violet-600 text-white ring-4 ring-violet-100'
-                                      : 'bg-slate-100 text-slate-400'
-                                "
-                              >
-                                <CheckIcon v-if="step.state === 'done'" class="size-4" />
-                                <template v-else>{{ i + 1 }}</template>
-                              </span>
-                              <span
-                                class="mt-1.5 text-[10px] font-medium"
-                                :class="step.state === 'upcoming' ? 'text-slate-400' : 'text-slate-700'"
-                              >
-                                {{ step.label }}
-                              </span>
-                            </div>
-                            <div
-                              v-if="i < 3"
-                              class="mx-1 h-0.5 flex-1 self-start rounded-full"
-                              :class="i < (TRACK_STEPS[orderStatusKey(order)] ?? 0) ? 'bg-emerald-500' : 'bg-slate-200'"
-                              :style="{ marginTop: '14px' }"
-                            ></div>
-                          </li>
-                        </ol>
+                        <div class="overflow-x-auto scrollbar-slim">
+                          <ol class="flex min-w-[320px] items-center gap-0">
+                            <li v-for="(step, i) in timelineSteps(order)" :key="step.label" class="flex flex-1 items-center last:flex-none">
+                              <div class="flex flex-col items-center">
+                                <span
+                                  class="flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold"
+                                  :class="
+                                    step.state === 'done'
+                                      ? 'bg-emerald-500 text-white'
+                                      : step.state === 'active'
+                                        ? 'bg-violet-600 text-white ring-4 ring-violet-100'
+                                        : 'bg-slate-100 text-slate-400'
+                                  "
+                                >
+                                  <CheckIcon v-if="step.state === 'done'" class="size-4" />
+                                  <template v-else>{{ i + 1 }}</template>
+                                </span>
+                                <span
+                                  class="mt-1.5 text-[10px] font-medium"
+                                  :class="step.state === 'upcoming' ? 'text-slate-400' : 'text-slate-700'"
+                                >
+                                  {{ step.label }}
+                                </span>
+                              </div>
+                              <div
+                                v-if="i < 3"
+                                class="mx-1 h-0.5 flex-1 self-start rounded-full"
+                                :class="i < (TRACK_STEPS[orderStatusKey(order)] ?? 0) ? 'bg-emerald-500' : 'bg-slate-200'"
+                                :style="{ marginTop: '14px' }"
+                              ></div>
+                            </li>
+                          </ol>
+                        </div>
                       </div>
 
                       <div class="divide-y divide-slate-100 px-5">
@@ -470,7 +466,7 @@
           </template>
 
           <template v-else-if="activeTab === 'addresses'">
-            <div class="flex items-center justify-between gap-4">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1 class="text-2xl font-semibold text-slate-900">Saved addresses</h1>
                 <p class="mt-1 text-sm text-slate-500">
@@ -479,7 +475,7 @@
               </div>
               <button
                 type="button"
-                class="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-violet-500 sm:w-auto"
                 @click="openAddressModal()"
               >
                 <svg
@@ -712,7 +708,7 @@
               class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm text-slate-900 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
             />
           </div>
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid gap-3 sm:grid-cols-2">
             <div>
               <label class="mb-1.5 block text-sm font-medium text-slate-700">City</label>
               <input
@@ -1181,3 +1177,17 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+.scrollbar-slim {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+.scrollbar-slim::-webkit-scrollbar {
+  height: 6px;
+}
+.scrollbar-slim::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background-color: rgb(203 213 225);
+}
+</style>

@@ -99,7 +99,7 @@ const openModal = () => (isModalOpen.value = true);
 
 <template>
   <article
-    class="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:shadow-md"
+    class="group relative flex h-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:shadow-md"
   >
     <NuxtLink
       :to="detailLink"
