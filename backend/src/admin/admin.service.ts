@@ -202,6 +202,18 @@ export class AdminService {
       throw new ForbiddenException('Only super admins can assign super admin role');
     }
 
+    const isSystemAdmin = (user.email || '').toLowerCase().includes('nutrizaria.com');
+    if (isSystemAdmin && data.role && data.role !== user.role) {
+      throw new ForbiddenException(
+        'System administrator accounts cannot have their role changed',
+      );
+    }
+    if (isSystemAdmin && data.isActive === false) {
+      throw new ForbiddenException(
+        'System administrator accounts cannot be deactivated',
+      );
+    }
+
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data,
@@ -253,10 +265,16 @@ export class AdminService {
     const hasPermission = await this.rbac.hasPermission(adminUserId, Permission.MANAGE_USERS);
     if (!hasPermission) throw new ForbiddenException('Insufficient permissions');
 
-    if (adminUserId === userId) throw new BadRequestException('Cannot delete yourself');
-
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
+
+    if ((user.email || '').toLowerCase().includes('nutrizaria.com')) {
+      throw new ForbiddenException(
+        'System administrator accounts cannot be deleted',
+      );
+    }
+
+    if (adminUserId === userId) throw new BadRequestException('Cannot delete yourself');
 
     if (user.role === UserRole.SUPER_ADMIN) {
       const superAdminCount = await this.prisma.user.count({ where: { role: UserRole.SUPER_ADMIN } });

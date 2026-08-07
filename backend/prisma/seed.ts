@@ -14,15 +14,20 @@ const slugify = (str: string): string =>
 async function main() {
   console.log('Seeding database...');
 
-  const adminPassword = await bcrypt.hash(
-    process.env.ADMIN_PASSWORD || 'AdminPass123!',
-    10,
-  );
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPasswordRaw = process.env.ADMIN_PASSWORD;
+  if (!adminEmail || !adminPasswordRaw) {
+    throw new Error(
+      'ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required to seed the admin user',
+    );
+  }
+
+  const adminPassword = await bcrypt.hash(adminPasswordRaw, 10);
   await prisma.user.upsert({
-    where: { email: process.env.ADMIN_EMAIL || 'admin@nutrizaria.com' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: process.env.ADMIN_EMAIL || 'admin@nutrizaria.com',
+      email: adminEmail,
       password: adminPassword,
       name: 'Admin',
       role: UserRole.SUPER_ADMIN,

@@ -186,8 +186,8 @@ NODE_ENV=development
 FRONTEND_URL=http://localhost:3001
 
 # Admin
-ADMIN_EMAIL=admin@nutrizaria.com
-ADMIN_PASSWORD=AdminPass123!
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change-me
 ```
 
 ---
@@ -512,12 +512,12 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Create admin user
-  const adminPassword = await bcrypt.hash('AdminPass123!', 10);
+  const adminPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || 'change-me', 10);
   await prisma.user.upsert({
-    where: { email: 'admin@nutrizaria.com' },
+    where: { email: process.env.ADMIN_EMAIL || 'admin@example.com' },
     update: {},
     create: {
-      email: 'admin@nutrizaria.com',
+      email: process.env.ADMIN_EMAIL || 'admin@example.com',
       password: adminPassword,
       name: 'Admin',
       role: UserRole.SUPER_ADMIN,
@@ -1811,7 +1811,7 @@ npm run dev
 
 # 6. Access admin panel
 # http://localhost:3001/admin
-# Login: admin@nutrizaria.com / AdminPass123!
+# Login: <ADMIN_EMAIL> / <ADMIN_PASSWORD set in .env>
 ```
 
 ---

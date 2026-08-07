@@ -120,6 +120,33 @@ export class ChangePasswordDto {
   newPassword: string;
 }
 
+export class SetPasswordDto {
+  @ApiProperty({ example: 'newPassword123' })
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
+
+export class ForgotPasswordDto {
+  @ApiProperty({ example: 'user@example.com' })
+  @IsEmail()
+  email: string;
+}
+
+export class ResetPasswordDto {
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIs...',
+    description: 'Password reset token sent to the user by email',
+  })
+  @IsString()
+  token: string;
+
+  @ApiProperty({ example: 'newPassword123' })
+  @IsString()
+  @MinLength(6)
+  newPassword: string;
+}
+
 export class CreateAddressDto {
   @ApiProperty({ example: 'Sadia Rahman' })
   @IsString()

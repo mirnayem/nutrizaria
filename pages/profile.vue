@@ -550,7 +550,7 @@
 
             <div v-else class="mt-6 rounded-2xl border border-slate-200 bg-white px-6 py-16 text-center shadow-sm">
               <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-slate-100">
-                <MapPinIcon class="size-8 text-slate-400" />
+                <HomeModernIcon class="size-8 text-slate-400" />
               </div>
               <p class="mt-4 text-lg font-semibold text-slate-800">No saved addresses</p>
               <p class="mx-auto mt-1 max-w-sm text-sm text-slate-500">
@@ -619,13 +619,20 @@
               </section>
 
               <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 class="text-base font-semibold text-slate-900">Change password</h2>
+                <h2 class="text-base font-semibold text-slate-900">
+                  {{ userStore.authenticatedUser?.hasPassword === false ? 'Set a password' : 'Change password' }}
+                </h2>
                 <p class="mt-1 text-xs text-slate-500">
-                  Choose a strong password you don't use elsewhere.
+                  <template v-if="userStore.authenticatedUser?.hasPassword === false">
+                    Your account was created with Google or a phone number and doesn't have a password yet. Set one now to enable password login.
+                  </template>
+                  <template v-else>
+                    Choose a strong password you don't use elsewhere.
+                  </template>
                 </p>
 
                 <form class="mt-5 space-y-4" @submit.prevent="savePassword">
-                  <div>
+                  <div v-if="userStore.authenticatedUser?.hasPassword !== false">
                     <label class="mb-1.5 block text-sm font-medium text-slate-700">Current password</label>
                     <input
                       v-model="passwordForm.current"
@@ -660,7 +667,7 @@
                     class="w-full rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-50"
                     :disabled="passwordSaving"
                   >
-                    {{ passwordSaving ? 'Updating...' : 'Update password' }}
+                    {{ passwordSaving ? 'Saving...' : userStore.authenticatedUser?.hasPassword === false ? 'Set password' : 'Update password' }}
                   </button>
                 </form>
               </section>
@@ -773,11 +780,12 @@ import {
   ClipboardDocumentListIcon,
   Cog6ToothIcon,
   HeartIcon,
+  HomeModernIcon,
   MagnifyingGlassIcon,
-  MapPinIcon,
   Squares2X2Icon,
   UserCircleIcon,
 } from "@heroicons/vue/24/outline";
+import MapPinIcon from "@heroicons/vue/24/outline/esm/MapPinIcon.js";
 import { useUserStore } from "~/stores/user";
 import { useFavoriteStore } from "~/stores/favorite";
 import { useCatalogStore } from "~/stores/catalog";
@@ -1027,7 +1035,8 @@ const passwordError = ref(false);
 const savePassword = async () => {
   passwordMessage.value = "";
   passwordError.value = false;
-  if (!passwordForm.current) {
+  const isSetting = userStore.authenticatedUser?.hasPassword === false;
+  if (!isSetting && !passwordForm.current) {
     passwordError.value = true;
     passwordMessage.value = "Enter your current password.";
     return;
@@ -1044,11 +1053,16 @@ const savePassword = async () => {
   }
   passwordSaving.value = true;
   try {
-    await userStore.changePassword({
-      currentPassword: passwordForm.current,
-      newPassword: passwordForm.next,
-    });
-    passwordMessage.value = "Password updated successfully.";
+    if (isSetting) {
+      await userStore.setPassword(passwordForm.next);
+      passwordMessage.value = "Password set successfully. You can now sign in with email and password.";
+    } else {
+      await userStore.changePassword({
+        currentPassword: passwordForm.current,
+        newPassword: passwordForm.next,
+      });
+      passwordMessage.value = "Password updated successfully.";
+    }
     passwordForm.current = "";
     passwordForm.next = "";
     passwordForm.confirm = "";

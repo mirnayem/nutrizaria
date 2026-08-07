@@ -449,6 +449,7 @@ export const useUserStore = defineStore("user", {
             role: profile.role,
             avatar: profile.avatar,
             createdAt: profile.createdAt,
+            hasPassword: profile.hasPassword,
           };
           if (Array.isArray(profile.addresses)) {
             this.addresses = profile.addresses;
@@ -518,6 +519,9 @@ export const useUserStore = defineStore("user", {
           headers: authHeaders(this.apiToken),
           body: input,
         });
+        if (this.authenticatedUser) {
+          this.authenticatedUser.hasPassword = true;
+        }
         return result?.data ?? result;
       }
 
@@ -531,11 +535,47 @@ export const useUserStore = defineStore("user", {
           }
           users[index].password = input.newPassword;
           localStorage.setItem("users", JSON.stringify(users));
+          this.authenticatedUser.hasPassword = true;
           return { message: "Password updated successfully" };
         }
         throw new Error("No local account found for this email");
       }
       throw new Error("Password change failed");
+    },
+
+    async setPassword(password: string) {
+      if (this.useApi && this.apiToken) {
+        const config = useRuntimeConfig();
+        const apiBase = config.public.apiBase;
+        const result = await $fetch(`${apiBase}/auth/set-password`, {
+          method: "POST",
+          headers: authHeaders(this.apiToken),
+          body: { password },
+        });
+        if (this.authenticatedUser) {
+          this.authenticatedUser.hasPassword = true;
+        }
+        return result?.data ?? result;
+      }
+      throw new Error("Password setup failed");
+    },
+
+    async forgotPassword(email: string) {
+      const config = useRuntimeConfig();
+      const apiBase = config.public.apiBase;
+      return $fetch(`${apiBase}/auth/forgot-password`, {
+        method: "POST",
+        body: { email },
+      });
+    },
+
+    async resetPassword(token: string, newPassword: string) {
+      const config = useRuntimeConfig();
+      const apiBase = config.public.apiBase;
+      return $fetch(`${apiBase}/auth/reset-password`, {
+        method: "POST",
+        body: { token, newPassword },
+      });
     },
 
     async fetchOrders() {

@@ -350,6 +350,12 @@
             <p v-if="errors.password" class="mt-1 text-xs text-red-600">{{ errors.password }}</p>
           </div>
 
+          <div class="flex items-center justify-end">
+            <NuxtLink to="/forgot-password" class="text-xs font-medium text-violet-600 hover:text-violet-700">
+              Forgot password?
+            </NuxtLink>
+          </div>
+
           <div v-if="errorMessage" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
             {{ errorMessage }}
           </div>

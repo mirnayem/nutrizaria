@@ -23,6 +23,16 @@ logs
 .env.*
 !.env.example
 
+# Sensitive data files
+CREDENTIALS.md
+credentials.md
+credentials.*
+secret*
+*secret*
+*.pem
+*.key
+!*.key.template
+
 # Backend
 backend/dist
 backend/node_modules

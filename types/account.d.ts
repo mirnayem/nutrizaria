@@ -8,6 +8,7 @@ export interface UserAccount {
   googleId?: string;
   firebaseUid?: string;
   createdAt?: string;
+  hasPassword?: boolean;
 }
 
 export interface Address {

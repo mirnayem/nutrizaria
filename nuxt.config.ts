@@ -53,7 +53,7 @@ export default defineNuxtConfig({
     },
     optimizeDeps: {
       exclude: ['nuxt'],
-      include: [],
+      include: ['@heroicons/vue/24/outline', '@heroicons/vue/24/solid', '@heroicons/vue/20/solid'],
     },
   },
 

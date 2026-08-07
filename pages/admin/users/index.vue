@@ -77,9 +77,10 @@
             <td class="px-4 py-3">
               <select
                 :value="user.role"
-                :title="`Change role for ${user.name || user.email}`"
-                class="cursor-pointer rounded-full border-0 px-2.5 py-1 text-xs font-medium outline-none transition focus:ring-2 focus:ring-violet-200"
-                :class="roleClass(user.role)"
+                :disabled="isSystemAdmin(user.email)"
+                :title="isSystemAdmin(user.email) ? 'System administrator accounts cannot have their role changed' : `Change role for ${user.name || user.email}`"
+                class="rounded-full border-0 px-2.5 py-1 text-xs font-medium outline-none transition focus:ring-2 focus:ring-violet-200"
+                :class="[roleClass(user.role), { 'cursor-not-allowed opacity-70': isSystemAdmin(user.email), 'cursor-pointer': !isSystemAdmin(user.email) }]"
                 @change="updateUserRole(user.id, ($event.target as HTMLSelectElement).value)"
               >
                 <option v-for="r in roles" :key="r" :value="r">{{ r }}</option>
@@ -105,10 +106,10 @@
               <AdminRowActions
                 :entity="user.email"
                 :actions="[
-                  { label: user.isActive ? 'Deactivate' : 'Activate', icon: user.isActive ? 'deactivate' : 'activate', handler: () => toggleActive(user), className: user.isActive ? 'hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600' : 'hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600' },
+                  { label: user.isActive ? 'Deactivate' : 'Activate', icon: user.isActive ? 'deactivate' : 'activate', handler: () => toggleActive(user), show: !isSystemAdmin(user.email), className: user.isActive ? 'hover:border-amber-300 hover:bg-amber-50 hover:text-amber-600' : 'hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-600' },
                   { label: 'Reset password', icon: 'key', handler: () => resetPassword(user.id), show: true },
                   { label: 'Unlock', icon: 'unlock', handler: () => unlockUser(user.id), show: !!user.lockedUntil, className: 'hover:border-blue-300 hover:bg-blue-50 hover:text-blue-600' },
-                  { label: 'Delete', icon: 'delete', handler: () => deleteUser(user.id), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
+                  { label: 'Delete', icon: 'delete', handler: () => deleteUser(user.id), show: !isSystemAdmin(user.email), className: 'hover:border-red-300 hover:bg-red-50 hover:text-red-600' },
                 ]"
               />
             </td>
@@ -184,6 +185,8 @@ const form = reactive({ name: '', email: '', password: '', role: 'CUSTOMER' });
 const filteredUsers = computed(() => users.value);
 
 const { resolve } = useImageUrl();
+
+const isSystemAdmin = (email: string) => (email || '').toLowerCase().includes('nutrizaria.com');
 
 const initials = (user: any) => {
   const source = user.name || user.email || '?';

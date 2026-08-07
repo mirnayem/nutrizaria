@@ -8,6 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { MailService } from '../mail/mail.service';
 import * as bcrypt from 'bcrypt';
 import {
   RegisterDto,
@@ -27,6 +28,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private mail: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -334,7 +336,7 @@ export class AuthService {
   }
 
   async getProfile(userId: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
         id: true,
@@ -344,11 +346,15 @@ export class AuthService {
         role: true,
         avatar: true,
         createdAt: true,
+        password: true,
         addresses: {
           orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
         },
       },
     });
+    if (!user) throw new NotFoundException('User not found');
+    const { password, ...rest } = user;
+    return { ...rest, hasPassword: !!password };
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
@@ -390,6 +396,86 @@ export class AuthService {
       data: { password: hashedPassword },
     });
     return { message: 'Password updated successfully' };
+  }
+
+  async setPassword(userId: string, newPassword: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+    if (user.password)
+      throw new BadRequestException(
+        'This account already has a password set. Use change password instead.',
+      );
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { password: hashedPassword },
+    });
+    return { message: 'Password set successfully' };
+  }
+
+  async forgotPassword(dto: { email: string }) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    // Always return the same message to avoid leaking which emails are registered.
+    // Also skip accounts without a password (Google / phone-only users).
+    if (!user || !user.password) {
+      return {
+        message:
+          'If an account exists for that email, a password reset link has been sent.',
+      };
+    }
+
+    const token = this.jwt.sign(
+      { sub: user.id, type: 'reset' },
+      { expiresIn: '15m' },
+    );
+    const frontendUrl = (
+      this.config.get('FRONTEND_URL', 'http://localhost:3000') || ''
+    ).replace(/\/+$/, '');
+    const resetUrl = `${frontendUrl}/reset-password?token=${encodeURIComponent(token)}`;
+
+    await this.mail.sendPasswordResetEmail(
+      user.email!,
+      user.name ?? null,
+      resetUrl,
+    );
+
+    return {
+      message:
+        'If an account exists for that email, a password reset link has been sent.',
+    };
+  }
+
+  async resetPassword(dto: { token: string; newPassword: string }) {
+    let payload: any;
+    try {
+      payload = this.jwt.verify(dto.token);
+    } catch {
+      throw new BadRequestException(
+        'This reset link is invalid or has expired. Please request a new one.',
+      );
+    }
+
+    if (!payload || payload.type !== 'reset' || !payload.sub) {
+      throw new BadRequestException(
+        'This reset link is invalid or has expired. Please request a new one.',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+    });
+    if (!user) throw new NotFoundException('User not found');
+
+    const hashedPassword = await bcrypt.hash(dto.newPassword, 10);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword },
+    });
+    return { message: 'Your password has been reset. You can now sign in.' };
   }
 
   async findAddresses(userId: string) {

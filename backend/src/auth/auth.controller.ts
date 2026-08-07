@@ -22,6 +22,9 @@ import {
   PhonePasswordLoginDto,
   UpdateProfileDto,
   ChangePasswordDto,
+  SetPasswordDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
   CreateAddressDto,
   UpdateAddressDto,
 } from './dto';
@@ -95,6 +98,26 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   changePassword(@CurrentUser('id') userId: string, @Body() dto: ChangePasswordDto) {
     return this.authService.changePassword(userId, dto);
+  }
+
+  @Post('set-password')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  setPassword(@CurrentUser('id') userId: string, @Body() dto: SetPasswordDto) {
+    return this.authService.setPassword(userId, dto.password);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() dto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
   }
 
   @Get('addresses')

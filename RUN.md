@@ -77,7 +77,7 @@ Frontend runs on: **http://localhost:3000**
 DATABASE_URL="postgresql://postgres:password@localhost:5433/nutrizaria?schema=public"
 
 # JWT
-JWT_SECRET=nutrizaria-dev-jwt-secret-key-2024
+JWT_SECRET=<generate-a-strong-random-secret>
 JWT_EXPIRES_IN=7d
 
 # Stripe (use test keys for development)
@@ -96,8 +96,8 @@ NODE_ENV=development
 FRONTEND_URL=http://localhost:3000
 
 # Admin seed credentials
-ADMIN_EMAIL=admin@nutrizaria.com
-ADMIN_PASSWORD=AdminPass123!
+ADMIN_EMAIL=<your-admin-email>
+ADMIN_PASSWORD=<set-a-strong-password>
 ```
 
 ### Frontend Environment Variables (`.env`)
@@ -166,7 +166,7 @@ ADMIN_PASSPHRASE=
    JWT_EXPIRES_IN=7d
    NODE_ENV=production
    FRONTEND_URL=    ← your Vercel URL (e.g. https://nutrizaria.vercel.app)
-   ADMIN_EMAIL=admin@nutrizaria.com
+   ADMIN_EMAIL=   ← your admin email
    ADMIN_PASSWORD=  ← set a strong password
 
    # REQUIRED for uploaded images to survive redeploys.
@@ -243,7 +243,7 @@ The repo includes GitHub Actions workflows:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Super Admin | admin@nutrizaria.com | AdminPass123! |
+| Super Admin | <your-admin-email> | <set-during-seed>
 
 ---
 
@@ -299,7 +299,7 @@ The repo includes GitHub Actions workflows:
 # Login via API
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "admin@nutrizaria.com", "password": "AdminPass123!"}'
+  -d '{"email": "<your-admin-email>", "password": "<your-password>"}'
 
 # Response includes accessToken - use in Authorization header:
 # Authorization: Bearer <accessToken>
@@ -436,7 +436,7 @@ docker compose up -d --build
 ## Admin Panel Access
 
 1. Go to **http://localhost:3000/admin**
-2. Login with: **admin@nutrizaria.com** / **AdminPass123!**
+2. Login with: **<your-admin-email>** / password set during seeding
 3. Features available:
    - Dashboard with stats
    - Products management (CRUD, bulk actions)
