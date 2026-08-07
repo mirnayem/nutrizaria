@@ -253,22 +253,36 @@ const categoryBreakpoints = {
       <!-- Best Selling Items -->
       <section
         v-if="bestSelling.length"
-        class="hidden space-y-4 rounded-xl border border-slate-100 bg-white px-4 py-5 shadow-sm sm:block"
+        class="space-y-4 rounded-xl border border-slate-100 bg-white px-4 py-5 shadow-sm"
       >
-        <div class="flex items-center justify-between">
-          <h2 class="text-lg font-bold text-slate-900 sm:text-xl">
-            <span class="mr-1">🔥</span> Best Selling Items
-          </h2>
-        </div>
-        <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-          <div
-            v-for="product in bestSelling"
-            :key="product.id"
-            class="w-44 shrink-0 sm:w-48"
+        <h2 class="text-lg font-bold text-slate-900 sm:text-xl">
+          <span class="mr-1">🔥</span> Best Selling Items
+        </h2>
+        <ClientOnly>
+          <Swiper
+            :modules="productModules"
+            :breakpoints="productBreakpoints"
+            :space-between="12"
+            :pagination="{ clickable: true }"
+            class="!pb-6 product-swiper"
           >
-            <SingleProduct :product="product" />
-          </div>
-        </div>
+            <SwiperSlide
+              v-for="product in bestSelling"
+              :key="product.id"
+            >
+              <SingleProduct :product="product" />
+            </SwiperSlide>
+          </Swiper>
+          <template #fallback>
+            <div class="flex gap-3 overflow-hidden">
+              <div
+                v-for="j in 5"
+                :key="j"
+                class="h-64 w-44 shrink-0 animate-pulse rounded-xl bg-slate-100"
+              ></div>
+            </div>
+          </template>
+        </ClientOnly>
       </section>
 
       <!-- Explore Categories -->

@@ -242,7 +242,7 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
 
 <template>
   <main class="min-h-screen bg-slate-50 py-6 sm:py-10">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+    <div class="mx-auto max-w-[1600px] px-4 sm:px-6">
       <nav class="mb-5 flex items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
         <NuxtLink to="/" class="transition hover:text-violet-600">Home</NuxtLink>
         <svg
@@ -257,19 +257,6 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
         </svg>
         <span class="font-medium text-slate-700">Shop</span>
       </nav>
-
-      <header class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 class="text-2xl font-semibold text-slate-900 sm:text-3xl">Shop</h1>
-          <p class="mt-1 text-sm text-slate-500">
-            Fresh, authentic essentials — curated for Bangladeshi kitchens.
-          </p>
-        </div>
-        <p class="text-sm text-slate-500">
-          {{ filteredProducts.length }}
-          <span class="text-slate-500">of {{ totalProducts }} products</span>
-        </p>
-      </header>
 
       <div class="grid gap-8 lg:grid-cols-[260px,minmax(0,1fr)]">
         <aside class="hidden lg:block">
