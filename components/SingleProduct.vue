@@ -99,11 +99,11 @@ const openModal = () => (isModalOpen.value = true);
 
 <template>
   <article
-    class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+    class="group relative flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white transition duration-200 hover:shadow-md"
   >
     <NuxtLink
       :to="detailLink"
-      class="relative block aspect-square overflow-hidden bg-slate-100"
+      class="relative block aspect-square overflow-hidden bg-slate-50"
       :aria-label="`View ${product.name}`"
     >
       <img
@@ -111,24 +111,24 @@ const openModal = () => (isModalOpen.value = true);
         :alt="product.name"
         :loading="priority ? 'eager' : 'lazy'"
         :fetchpriority="priority ? 'high' : 'auto'"
-        width="600"
-        height="600"
-        class="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+        width="400"
+        height="400"
+        class="h-full w-full object-contain p-2 transition duration-300 group-hover:scale-105"
       />
 
       <span
         v-if="discountPercent > 0"
-        class="absolute left-3 top-3 rounded-full bg-rose-600 px-2.5 py-1 text-[11px] font-bold text-white shadow-sm"
+        class="absolute left-2 top-2 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white"
       >
-        -{{ discountPercent }}%
+        {{ discountPercent }}% OFF
       </span>
 
       <div
         v-if="isOutOfStock"
-        class="absolute inset-0 flex items-center justify-center bg-white/70 backdrop-blur-[2px]"
+        class="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-[1px]"
       >
         <span
-          class="rounded-full bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white"
+          class="rounded bg-slate-800 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wide text-white"
         >
           Out of stock
         </span>
@@ -137,15 +137,34 @@ const openModal = () => (isModalOpen.value = true);
 
     <button
       type="button"
-      class="absolute right-3 top-3 rounded-full p-2 shadow-sm transition"
+      class="absolute bottom-2 right-2 flex size-8 items-center justify-center rounded-full bg-violet-600 text-white shadow-md transition hover:bg-violet-700 hover:shadow-lg disabled:cursor-not-allowed disabled:bg-slate-300"
+      :disabled="isOutOfStock"
+      :aria-label="`Add ${product.name} to cart`"
+      @click.prevent="handleQuickAdd"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2.5"
+        stroke="currentColor"
+        class="size-5"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="absolute right-2 top-2 rounded-full p-1.5 transition"
       :class="
         isFavorite
-          ? 'bg-violet-600 text-white'
-          : 'bg-white/90 text-slate-500 hover:text-violet-600'
+          ? 'bg-red-50 text-red-500'
+          : 'bg-white/80 text-slate-400 opacity-0 hover:text-red-500 group-hover:opacity-100'
       "
       :aria-pressed="isFavorite"
       aria-label="Toggle favorite"
-      @click="toggleFavorite"
+      @click.stop="toggleFavorite"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -153,7 +172,7 @@ const openModal = () => (isModalOpen.value = true);
         stroke-width="1.5"
         stroke="currentColor"
         :fill="isFavorite ? 'currentColor' : 'none'"
-        class="size-5"
+        class="size-4"
       >
         <path
           stroke-linecap="round"
@@ -163,23 +182,17 @@ const openModal = () => (isModalOpen.value = true);
       </svg>
     </button>
 
-    <div class="flex flex-1 flex-col p-3.5 sm:p-4">
-      <span class="text-[10px] font-semibold uppercase tracking-wider text-violet-600 sm:text-[11px]">
-        {{ product.category }}
-      </span>
-      <span v-if="product.brand" class="mt-0.5 text-[10px] text-slate-400 sm:text-[11px]">
-        {{ product.brand }}
-      </span>
+    <div class="flex flex-1 flex-col p-3">
       <NuxtLink
         :to="detailLink"
-        class="mt-1 line-clamp-2 text-sm font-semibold text-slate-800 transition hover:text-violet-700 sm:text-[15px]"
+        class="line-clamp-2 text-sm font-medium text-slate-800 transition hover:text-violet-700"
       >
         {{ product.name }}
       </NuxtLink>
 
       <div
         v-if="isOutOfStock"
-        class="mt-1.5 flex items-center gap-1 text-[11px] text-rose-500"
+        class="mt-1 flex items-center gap-1 text-[10px] text-rose-500"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -198,9 +211,21 @@ const openModal = () => (isModalOpen.value = true);
         <span>Out of stock</span>
       </div>
 
+      <div class="mt-auto pt-2">
+        <p class="text-base font-bold text-slate-900">
+          {{ currencySymbol }}{{ displayPrice.toFixed(0) }}
+        </p>
+        <p
+          v-if="displayComparePrice > displayPrice"
+          class="text-[11px] font-medium text-slate-400 line-through"
+        >
+          {{ currencySymbol }}{{ displayComparePrice.toFixed(0) }}
+        </p>
+      </div>
+
       <div
         v-if="hasVariants"
-        class="mt-2.5 flex flex-wrap gap-1.5"
+        class="mt-2 flex flex-wrap gap-1"
         role="radiogroup"
         aria-label="Select size"
       >
@@ -211,53 +236,15 @@ const openModal = () => (isModalOpen.value = true);
           role="radio"
           :aria-checked="activeVariant?.id === v.id"
           :disabled="v.stock === 0"
-          class="rounded-full border px-2.5 py-1 text-[11px] font-medium transition disabled:cursor-not-allowed"
+          class="rounded border px-2 py-0.5 text-[10px] font-medium transition disabled:cursor-not-allowed"
           :class="v.stock === 0
             ? 'border-slate-200 text-slate-300 line-through'
             : activeVariant?.id === v.id
-              ? 'border-violet-600 bg-violet-600 text-white shadow-sm'
-              : 'border-slate-200 text-slate-600 hover:border-violet-400 hover:text-violet-600'"
+              ? 'border-violet-600 bg-violet-600 text-white'
+              : 'border-slate-300 text-slate-600 hover:border-violet-400'"
           @click="selectVariant(v)"
         >
           {{ variantSizeLabel(v) }}
-        </button>
-      </div>
-
-      <div class="mt-auto flex items-end justify-between gap-2 pt-3">
-        <div class="min-w-0">
-          <p class="text-base font-bold text-slate-900 sm:text-lg">
-            {{ currencySymbol }}{{ displayPrice.toFixed(2) }}
-          </p>
-          <p
-            v-if="displayComparePrice > displayPrice"
-            class="text-xs font-medium text-slate-500 line-through"
-          >
-            {{ currencySymbol }}{{ displayComparePrice.toFixed(2) }}
-          </p>
-        </div>
-        <button
-          type="button"
-          class="inline-flex items-center gap-1.5 rounded-full bg-violet-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 sm:text-sm"
-          :disabled="isOutOfStock"
-          :aria-label="`Add ${product.name} to cart`"
-          @click="handleQuickAdd"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="size-4"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-            />
-          </svg>
-          <span class="hidden sm:inline">Add</span>
-          <span class="sm:hidden">+</span>
         </button>
       </div>
     </div>
@@ -308,7 +295,7 @@ const openModal = () => (isModalOpen.value = true);
           <div class="flex flex-col gap-2 sm:flex-row">
             <button
               type="button"
-              class="flex-1 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-200"
+              class="flex-1 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:bg-slate-200"
               :disabled="isOutOfStock"
               @click="handleQuickAdd"
             >
