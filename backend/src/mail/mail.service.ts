@@ -13,22 +13,36 @@ interface MailOptions {
 export class MailService {
   private readonly logger = new Logger(MailService.name);
   private transporter: Transporter | null = null;
+  private smtpConfigured = false;
 
   constructor(private config: ConfigService) {
-    const host = this.config.get('SMTP_HOST');
-    if (host) {
-      this.transporter = nodemailer.createTransport({
-        host,
-        port: Number(this.config.get('SMTP_PORT', 587)),
-        secure: this.config.get('SMTP_SECURE') === 'true',
-        auth: this.config.get('SMTP_USER')
-          ? {
-              user: this.config.get('SMTP_USER') as string,
-              pass: this.config.get('SMTP_PASS') as string,
-            }
-          : undefined,
-      });
+    this.smtpConfigured = Boolean(this.config.get('SMTP_HOST'));
+    if (this.smtpConfigured) {
+      this.buildTransporter();
+      this.logger.log(
+        `SMTP configured (host=${this.config.get(
+          'SMTP_HOST',
+        )}, port=${this.config.get('SMTP_PORT', 587)}, from=${this.from})`,
+      );
+    } else {
+      this.logger.warn(
+        'SMTP_HOST not set at construction. No mail will be sent until a transporter exists.',
+      );
     }
+  }
+
+  private buildTransporter() {
+    this.transporter = nodemailer.createTransport({
+      host: this.config.get('SMTP_HOST'),
+      port: Number(this.config.get('SMTP_PORT', 587)),
+      secure: this.config.get('SMTP_SECURE') === 'true',
+      auth: this.config.get('SMTP_USER')
+        ? {
+            user: this.config.get('SMTP_USER') as string,
+            pass: this.config.get('SMTP_PASS') as string,
+          }
+        : undefined,
+    });
   }
 
   private get from(): string {
@@ -125,14 +139,26 @@ export class MailService {
   }
 
   private async sendViaSmtp(options: MailOptions) {
-    const info = await this.transporter!.sendMail({
-      from: this.from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-    });
-
-    this.logger.log(`Email sent to ${options.to}: ${info.messageId}`);
-    return { sent: true, messageId: info.messageId };
+    if (!this.transporter && this.smtpConfigured) {
+      this.buildTransporter();
+    }
+    if (!this.transporter) {
+      throw new Error(
+        'SMTP not configured: SMTP_HOST is missing from the running process environment.',
+      );
+    }
+    try {
+      const info = await this.transporter.sendMail({
+        from: this.from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      });
+      this.logger.log(`Email sent to ${options.to}: ${info.messageId}`);
+      return { sent: true, messageId: info.messageId };
+    } catch (err) {
+      this.logger.error(`SMTP send failed for ${options.to}: ${err}`);
+      throw err;
+    }
   }
 }
