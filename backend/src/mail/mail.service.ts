@@ -32,7 +32,13 @@ export class MailService {
   }
 
   private get from(): string {
-    return this.config.get('MAIL_FROM', 'no-reply@nutrizaria.com');
+    return (
+      this.config.get('MAIL_FROM') ||
+      // Gmail SMTP only allows sending from the authenticated account (or a
+      // verified alias), so fall back to SMTP_USER when MAIL_FROM is unset.
+      this.config.get('SMTP_USER') ||
+      'no-reply@nutrizaria.com'
+    );
   }
 
   async sendPasswordResetEmail(
