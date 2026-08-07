@@ -1,6 +1,11 @@
 <template>
-  <main class="min-h-screen bg-slate-50 py-6 sm:py-10" :key="route.fullPath">
-    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+  <div class="flex">
+    <!-- Sidebar -->
+    <CategorySidebar class="hidden lg:block" />
+
+    <!-- Main Content -->
+    <main class="flex-1 min-h-screen bg-slate-50 py-6 sm:py-10" :key="route.fullPath">
+      <div class="px-4 sm:px-6">
       <nav class="mb-5 flex items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
         <NuxtLink to="/" class="transition hover:text-violet-600">Home</NuxtLink>
         <svg
@@ -78,7 +83,7 @@
           </div>
         </section>
 
-        <div class="mt-8 flex gap-2 overflow-x-auto pb-2" aria-label="Browse categories">
+        <div class="mt-8 flex flex-wrap gap-2" aria-label="Browse categories">
           <NuxtLink
             to="/shop"
             class="flex-shrink-0 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-medium text-slate-600 transition hover:border-violet-300 hover:text-violet-700"
@@ -86,13 +91,33 @@
             All products
           </NuxtLink>
           <NuxtLink
-            v-for="category in categories"
+            v-for="category in parentCategories"
             :key="category.id"
             :to="`/categories/${category.slug}`"
             class="flex-shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition"
             :class="chipClass(category.slug)"
           >
             {{ category.name }}
+          </NuxtLink>
+        </div>
+
+        <!-- Sub-category chips -->
+        <div
+          v-if="currentCategory?.children?.length"
+          class="mt-4 flex flex-wrap gap-2"
+          aria-label="Sub-categories"
+        >
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 self-center mr-2">
+            Sub-categories:
+          </span>
+          <NuxtLink
+            v-for="child in currentCategory.children"
+            :key="child.id"
+            :to="`/categories/${child.slug}`"
+            class="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700 transition hover:bg-violet-100"
+          >
+            {{ child.name }}
+            <span class="ml-1 text-violet-400">({{ child.productCount ?? 0 }})</span>
           </NuxtLink>
         </div>
 
@@ -204,8 +229,9 @@
           Back to shop
         </NuxtLink>
       </div>
-    </div>
-  </main>
+      </div>
+    </main>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -244,8 +270,10 @@ const currentCategory = computed(() => {
 const categoryProducts = computed<Product[]>(() => {
   if (!currentCategory.value) return [];
   const slug = currentCategory.value.slug;
-  return (products.value ?? []).filter(
-    (product) => String(product.category).toLowerCase() === String(slug).toLowerCase()
+  const childSlugs = (currentCategory.value.children || []).map((c) => c.slug);
+  const allSlugs = [slug, ...childSlugs];
+  return (products.value ?? []).filter((product) =>
+    allSlugs.some((s) => String(product.category).toLowerCase() === String(s).toLowerCase())
   );
 });
 
@@ -276,6 +304,10 @@ const sortedProducts = computed<Product[]>(() => {
 const productCount = computed(() => categoryProducts.value.length);
 
 const isLoading = computed(() => catalog.loading && !catalog.hydrated);
+
+const parentCategories = computed(() =>
+  (categories.value ?? []).filter((c) => !c.parentId)
+);
 
 const sortLabel = computed(() =>
   sortOption.value === "priceLow"

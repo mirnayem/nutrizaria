@@ -196,15 +196,35 @@ export const useCatalogStore = defineStore("catalog", {
             }
 
             if (categoriesRes.status === "fulfilled" && categoriesRes.value?.data) {
-              this.categories = categoriesRes.value.data.map((c: any) => ({
-                id: c.id,
-                name: c.name,
-                slug: c.slug,
-                image: c.image ? mapUrl(c.image) : c.image,
-                description: c.description,
-                isActive: c.isActive,
-                sortOrder: c.sortOrder,
-              }));
+              this.categories = categoriesRes.value.data.map((c: any) => {
+                const ownCount = c._count?.products ?? 0;
+                const childrenCount = (c.children || []).reduce(
+                  (sum: number, ch: any) => sum + (ch._count?.products ?? 0),
+                  0
+                );
+                return {
+                  id: c.id,
+                  name: c.name,
+                  slug: c.slug,
+                  image: c.image ? mapUrl(c.image) : c.image,
+                  description: c.description,
+                  isActive: c.isActive,
+                  sortOrder: c.sortOrder,
+                  parentId: c.parentId,
+                  productCount: c.totalProductCount ?? ownCount + childrenCount,
+                  children: (c.children || []).map((ch: any) => ({
+                    id: ch.id,
+                    name: ch.name,
+                    slug: ch.slug,
+                    image: ch.image ? mapUrl(ch.image) : ch.image,
+                    description: ch.description,
+                    isActive: ch.isActive,
+                    sortOrder: ch.sortOrder,
+                    parentId: ch.parentId,
+                    productCount: ch._count?.products ?? 0,
+                  })),
+                };
+              });
             }
 
             if (brandsRes.status === "fulfilled" && brandsRes.value?.data) {

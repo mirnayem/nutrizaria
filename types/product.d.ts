@@ -67,6 +67,9 @@ export interface Category {
   description?: string;
   isActive?: boolean;
   sortOrder?: number;
+  parentId?: string;
+  children?: Category[];
+  productCount?: number;
 }
 
 export interface Brand {

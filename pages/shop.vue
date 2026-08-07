@@ -61,12 +61,26 @@ const categoryStats = computed(() => {
     },
     {}
   );
-  return (categories.value ?? []).map((category) => ({
-    id: category.id,
-    name: category.name,
-    slug: category.slug,
-    count: counts[category.slug] ?? 0,
-  })).filter((c) => c.count > 0);
+  return (categories.value ?? [])
+    .filter((c) => !c.parentId)
+    .map((category) => {
+      const children = (category.children || []).map((child) => ({
+        id: child.id,
+        name: child.name,
+        slug: child.slug,
+        count: counts[child.slug] ?? 0,
+      }));
+      const ownCount = counts[category.slug] ?? 0;
+      const childrenCount = children.reduce((sum, ch) => sum + ch.count, 0);
+      return {
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        count: ownCount + childrenCount,
+        children,
+      };
+    })
+    .filter((c) => c.count > 0 || c.children?.some((ch) => ch.count > 0));
 });
 
 const brandStats = computed(() => {
@@ -91,7 +105,12 @@ const filteredProducts = computed<Product[]>(() => {
   let list = [...(products.value ?? [])];
 
   if (selectedCategory.value !== "all") {
-    list = list.filter((product) => product.category === selectedCategory.value);
+    const cat = categories.value.find((c) => c.slug === selectedCategory.value);
+    const allSlugs = [selectedCategory.value];
+    if (cat?.children?.length) {
+      allSlugs.push(...cat.children.map((ch) => ch.slug));
+    }
+    list = list.filter((product) => allSlugs.includes(product.category));
   }
 
   if (selectedBrand.value !== "all") {

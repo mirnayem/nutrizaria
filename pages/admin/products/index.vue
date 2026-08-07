@@ -157,10 +157,23 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Category</label>
-          <select v-model="form.categorySlug" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500">
-            <option value="">Select category</option>
-            <option v-for="cat in categories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
-          </select>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Parent Category</label>
+              <select v-model="selectedParentCategory" @change="onParentCategoryChange" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500">
+                <option value="">Select parent</option>
+                <option v-for="cat in parentCategories" :key="cat.id" :value="cat.slug">{{ cat.name }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-500 mb-1">Subcategory (optional)</label>
+              <select v-model="form.categorySlug" :disabled="!selectedParentCategory" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500 disabled:bg-slate-50 disabled:text-slate-400">
+                <option value="">{{ selectedParentCategory ? 'Select subcategory' : 'Select parent first' }}</option>
+                <option v-for="sub in availableSubcategories" :key="sub.id" :value="sub.slug">{{ sub.name }}</option>
+              </select>
+            </div>
+          </div>
+          <p class="mt-1 text-xs text-slate-500">Choose a parent category, then optionally select a subcategory. If no subcategory, the product goes to the parent.</p>
         </div>
         <template v-if="productType === 'single'">
         <div class="grid grid-cols-2 gap-4">
@@ -362,6 +375,7 @@ const saveError = ref('');
 const productType = ref<'single' | 'variant'>('single');
 const pageSize = 20;
 const meta = ref<any>({});
+const selectedParentCategory = ref('');
 let activeCursor: string | null = null;
 
 const form = reactive({
@@ -403,6 +417,23 @@ watch(
   }
 );
 
+const parentCategories = computed(() => categories.value.filter((c: any) => !c.parentId));
+
+const availableSubcategories = computed(() => {
+  if (!selectedParentCategory.value) return [];
+  const parent = categories.value.find((c: any) => c.slug === selectedParentCategory.value);
+  return parent?.children || [];
+});
+
+const onParentCategoryChange = () => {
+  form.categorySlug = '';
+  if (!selectedParentCategory.value) return;
+  const parent = categories.value.find((c: any) => c.slug === selectedParentCategory.value);
+  if (parent && !parent.children?.length) {
+    form.categorySlug = parent.slug;
+  }
+};
+
 const filteredProducts = computed(() => {
   if (!search.value) return products.value;
   const q = search.value.toLowerCase();
@@ -432,6 +463,7 @@ const openCreateModal = () => {
   editingProduct.value = null;
   productType.value = 'single';
   resetForm();
+  selectedParentCategory.value = '';
   showModal.value = true;
 };
 
@@ -443,7 +475,16 @@ const editProduct = (product: any) => {
   form.brandSlug = product.brand?.slug || '';
   form.price = product.price;
   form.unit = product.unit;
-  form.categorySlug = product.category?.slug || product.category;
+  const catSlug = product.category?.slug || product.category;
+  const cat = categories.value.find((c: any) => c.slug === catSlug);
+  if (cat?.parentId) {
+    const parent = categories.value.find((c: any) => c.id === cat.parentId);
+    selectedParentCategory.value = parent?.slug || '';
+    form.categorySlug = catSlug;
+  } else {
+    selectedParentCategory.value = catSlug;
+    form.categorySlug = cat?.children?.length ? '' : catSlug;
+  }
   form.image = product.image || '';
   form.images = product.images || [];
   form.description = product.description || '';
@@ -500,6 +541,7 @@ const resetForm = () => {
   form.stock = 100;
   form.isActive = true;
   form.variants = [];
+  selectedParentCategory.value = '';
 };
 
 const closeModal = () => {

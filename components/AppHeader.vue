@@ -1,34 +1,41 @@
 <template>
   <div>
     <header
-      class="fixed inset-x-0 top-0 z-50 bg-white shadow-sm"
+      class="fixed inset-x-0 top-0 z-50 border-b border-slate-200 bg-white"
     >
-    <!-- Top bar: violet -->
-    <div class="bg-violet-700">
+    <!-- Top row -->
+    <div class="bg-white">
       <div
-        class="container flex items-center justify-between gap-3 py-2.5 text-sm text-white"
+        class="mx-auto flex w-full max-w-[1600px] items-center gap-4 px-4 py-3 sm:py-4"
       >
         <NuxtLink
           to="/"
-          class="flex items-center gap-2 text-lg font-bold text-white"
+          class="flex shrink-0 items-center gap-2.5 text-lg font-bold text-slate-900 transition"
+          aria-label="NutriZaria home"
         >
           <img
             src="/nutri.png"
-            alt="NutriZaria Logo"
-            width="36"
-            height="36"
-            class="h-9 w-9 rounded-full bg-white/20 p-0.5"
+            alt=""
+            width="40"
+            height="40"
+            class="h-10 w-10 rounded-full object-cover"
           />
-          NutriZaria
+          <span class="hidden sm:inline">NutriZaria</span>
         </NuxtLink>
 
-        <div class="hidden flex-1 justify-center px-6 lg:flex">
-          <div class="relative w-full max-w-xl">
+        <div class="hidden flex-1 justify-center px-2 lg:flex">
+          <form
+            class="relative w-full max-w-xl"
+            role="search"
+            @submit.prevent="submitSearch"
+          >
+            <label for="desktop-search" class="sr-only">Search products</label>
             <input
-              type="text"
-              placeholder="Search for products.."
-              class="w-full rounded-md border-0 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-violet-400"
-              @focus="router.push('/shop')"
+              id="desktop-search"
+              v-model="headerSearch"
+              type="search"
+              placeholder="Search for products..."
+              class="w-full rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-11 pr-4 text-sm text-slate-800 shadow-sm outline-none transition placeholder:text-slate-500 focus:border-violet-500 focus:bg-white focus:ring-2 focus:ring-violet-500/30"
             />
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -36,7 +43,8 @@
               viewBox="0 0 24 24"
               stroke-width="2"
               stroke="currentColor"
-              class="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+              class="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -44,20 +52,40 @@
                 d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
               />
             </svg>
-          </div>
+            <button
+              type="submit"
+              class="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-slate-800 p-2 text-white transition hover:bg-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
+              aria-label="Search"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                class="size-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+            </button>
+          </form>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="ml-auto flex shrink-0 items-center gap-0.5 sm:gap-1">
           <NuxtLink
             to="/favorite"
-            class="relative hidden rounded p-1.5 transition hover:bg-white/10 sm:inline-flex"
+            class="relative inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
             aria-label="View favorites"
           >
-            <HeartIcon class="size-5 text-white" />
+            <HeartIcon class="size-5" aria-hidden="true" />
             <ClientOnly>
               <span
                 v-if="favoriteItems.length"
-                class="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white"
+                class="absolute right-0.5 top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold text-white"
               >
                 {{ favoriteItems.length }}
               </span>
@@ -66,45 +94,45 @@
 
           <button
             type="button"
-            class="relative rounded p-1.5 transition hover:bg-white/10"
+            class="relative inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-2"
             @click="cartStore.toggleCart()"
             aria-label="Open shopping cart"
           >
-            <ShoppingBagIcon class="size-5 text-white" />
+            <ShoppingBagIcon class="size-5" aria-hidden="true" />
             <ClientOnly>
               <span
                 v-if="cartTotalItems"
-                class="absolute -right-1 -top-1 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white"
+                class="absolute right-0.5 top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-violet-600 px-1 text-[10px] font-bold text-white"
               >
                 {{ cartTotalItems }}
               </span>
             </ClientOnly>
           </button>
 
-          <div class="relative hidden sm:block" ref="profileRef">
+          <div class="relative" ref="profileRef">
             <ClientOnly>
               <button
                 v-if="!isAuthenticated"
                 type="button"
-                class="flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium transition hover:bg-white/10"
+                class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 sm:px-3"
                 @click="router.push('/login')"
                 aria-label="Sign in to your account"
               >
-                <UserIcon class="size-4 text-white" />
-                <span class="text-white">Sign In</span>
+                <UserIcon class="size-5 text-slate-500" aria-hidden="true" />
+                <span class="hidden sm:inline">Sign In</span>
               </button>
 
               <button
                 v-else
                 type="button"
-                class="flex items-center gap-1.5 rounded px-2 py-1 text-sm font-medium transition hover:bg-white/10"
+                class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 sm:px-3"
                 @click="toggleProfile()"
                 :aria-expanded="isProfileOpen"
                 aria-haspopup="true"
                 aria-label="Account menu"
               >
-                <UserIcon class="size-4 text-white" />
-                <span class="text-white">{{ userStore.displayName?.split(' ')[0] || 'Account' }}</span>
+                <UserIcon class="size-5 text-slate-500" aria-hidden="true" />
+                <span class="hidden max-w-24 truncate sm:inline">{{ userStore.displayName?.split(' ')[0] || 'Account' }}</span>
               </button>
             </ClientOnly>
 
@@ -118,7 +146,7 @@
             >
               <div
                 v-if="isProfileOpen && isAuthenticated"
-                class="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl"
+                class="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
               >
                 <div class="border-b border-slate-100 px-4 py-3">
                   <div class="flex items-center gap-3">
@@ -142,29 +170,29 @@
                     v-for="link in profileLinks"
                     :key="link.label"
                     :to="link.to"
-                    class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+                    class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-violet-50 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                     @click="isProfileOpen = false"
                   >
-                    <component :is="link.icon" class="size-4 text-slate-400" />
+                    <component :is="link.icon" class="size-4 text-slate-400" aria-hidden="true" />
                     {{ link.label }}
                   </NuxtLink>
                   <NuxtLink
                     v-if="isAdmin"
                     to="/admin"
-                    class="mt-1 flex items-center gap-3 rounded-lg border border-violet-100 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-100"
+                    class="mt-1 flex items-center gap-3 rounded-lg border border-violet-100 bg-violet-50 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
                     @click="isProfileOpen = false"
                   >
-                    <Squares2X2Icon class="size-4 text-violet-600" />
+                    <Squares2X2Icon class="size-4 text-violet-600" aria-hidden="true" />
                     Admin dashboard
                   </NuxtLink>
                 </nav>
                 <div class="border-t border-slate-100 p-1.5">
                   <button
                     type="button"
-                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50"
+                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition hover:bg-rose-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose-500"
                     @click="handleLogout"
                   >
-                    <ArrowRightStartOnRectangleIcon class="size-4" />
+                    <ArrowRightStartOnRectangleIcon class="size-4" aria-hidden="true" />
                     Sign out
                   </button>
                 </div>
@@ -176,12 +204,14 @@
     </div>
 
     <!-- Nav bar -->
-    <div class="border-b border-slate-200 bg-white">
-      <div class="container flex items-center gap-4 py-2">
+    <nav class="border-t border-slate-100 bg-white" aria-label="Main">
+      <div
+        class="mx-auto flex w-full max-w-[1600px] items-center gap-1 px-4 py-1.5"
+      >
         <div class="relative" ref="categoriesRef">
           <button
             type="button"
-            class="inline-flex items-center gap-2 rounded px-3 py-1.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             @click="toggleCategories()"
             :aria-expanded="isCategoriesOpen"
             aria-haspopup="true"
@@ -192,7 +222,8 @@
               viewBox="0 0 24 24"
               stroke-width="2"
               stroke="currentColor"
-              class="size-4"
+              class="size-4 text-violet-600"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -200,14 +231,16 @@
                 d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
               />
             </svg>
-            SHOP BY CATEGORY
+            Shop by category
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               stroke-width="2"
               stroke="currentColor"
-              class="size-3"
+              class="size-3 text-slate-400"
+              :class="isCategoriesOpen ? 'rotate-180' : ''"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -218,13 +251,13 @@
           </button>
           <div
             v-if="isCategoriesOpen"
-            class="absolute left-0 top-full z-50 mt-1 w-64 rounded-lg border border-slate-200 bg-white py-2 shadow-xl"
+            class="absolute left-0 top-full z-50 mt-1 w-64 rounded-xl border border-slate-200 bg-white py-2 shadow-xl"
           >
             <NuxtLink
               v-for="category in featuredCategories"
               :key="category.id"
               :to="`/categories/${category.slug}`"
-              class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 transition hover:bg-violet-50 hover:text-violet-700"
+              class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 transition hover:bg-violet-50 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               @click="isCategoriesOpen = false"
             >
               <img
@@ -239,7 +272,7 @@
             </NuxtLink>
             <NuxtLink
               to="/shop"
-              class="mt-1 block border-t border-slate-100 px-4 py-2.5 text-sm font-semibold text-violet-600 transition hover:bg-violet-50"
+              class="mt-1 flex items-center justify-between border-t border-slate-100 px-4 py-2.5 text-sm font-semibold text-violet-600 transition hover:bg-violet-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
               @click="isCategoriesOpen = false"
             >
               View all categories
@@ -247,41 +280,41 @@
           </div>
         </div>
 
-        <nav class="hidden items-center gap-1 lg:flex">
+        <div class="hidden items-center gap-1 lg:flex">
           <NuxtLink
             to="/shop"
-            class="rounded px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             active-class="text-violet-700 bg-violet-50"
           >
             Shop
           </NuxtLink>
           <NuxtLink
             to="/categories"
-            class="rounded px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             active-class="text-violet-700 bg-violet-50"
           >
             Categories
           </NuxtLink>
           <NuxtLink
             to="/blog"
-            class="rounded px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             active-class="text-violet-700 bg-violet-50"
           >
             Blog
           </NuxtLink>
           <NuxtLink
             to="/faq"
-            class="rounded px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             active-class="text-violet-700 bg-violet-50"
           >
             FAQ
           </NuxtLink>
-        </nav>
+        </div>
 
         <div class="ml-auto flex items-center gap-2 lg:hidden">
           <button
             type="button"
-            class="inline-flex rounded p-2 text-slate-700 transition hover:bg-slate-100"
+            class="inline-flex size-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             @click="uiStore.toggleSidebar(true)"
             aria-label="Open menu"
           >
@@ -289,31 +322,43 @@
           </button>
         </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Mobile search -->
-    <div class="border-b border-slate-100 bg-white px-4 py-2 lg:hidden">
-      <div class="relative">
+    <div class="border-b border-slate-100 bg-white lg:hidden">
+      <div class="mx-auto w-full max-w-[1600px] px-4 py-2">
+      <form
+        class="relative"
+        role="search"
+        @submit.prevent="submitSearch"
+      >
         <input
-          type="text"
+          v-model="headerSearch"
+          type="search"
           placeholder="Search for products.."
-          class="w-full rounded-md border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-700 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-1 focus:ring-violet-400"
-          @focus="router.push('/shop')"
+          class="w-full rounded-md border border-slate-200 bg-slate-50 px-4 py-2 pr-10 text-sm text-slate-700 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:ring-1 focus:ring-violet-400"
         />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="2"
-          stroke="currentColor"
-          class="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+        <button
+          type="submit"
+          aria-label="Search"
+          class="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-slate-400 transition hover:text-violet-600"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-          />
-        </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+            stroke="currentColor"
+            class="size-4"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+            />
+          </svg>
+        </button>
+      </form>
       </div>
     </div>
   </header>
@@ -357,6 +402,8 @@ const route = useRoute();
 const router = useRouter();
 catalogStore.hydrate();
 
+const headerSearch = ref("");
+
 const { items: favoriteItems } = storeToRefs(favoriteStore);
 const { totalItems: cartTotalItems } = storeToRefs(cartStore);
 const { categories } = storeToRefs(catalogStore);
@@ -396,6 +443,12 @@ const profileLinks = computed(() => [
 ]);
 
 const featuredCategories = computed(() => categories.value.slice(0, 8));
+
+const submitSearch = () => {
+  const term = headerSearch.value.trim();
+  if (!term) return;
+  router.push(`/search/${encodeURIComponent(term)}`);
+};
 
 const isCategoriesOpen = ref(false);
 const categoriesRef = ref<HTMLElement | null>(null);

@@ -7,28 +7,59 @@ export class CategoriesService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.category.findMany({
+    const categories = await this.prisma.category.findMany({
       where: { isActive: true },
       orderBy: { sortOrder: 'asc' },
-      include: { _count: { select: { products: { where: { isActive: true } } } } },
+      include: {
+        _count: { select: { products: { where: { isActive: true } } } },
+        children: {
+          where: { isActive: true },
+          orderBy: { sortOrder: 'asc' },
+          include: {
+            _count: { select: { products: { where: { isActive: true } } } },
+          },
+        },
+      },
     });
+
+    return categories.map((cat) => ({
+      ...cat,
+      totalProductCount: cat._count.products + cat.children.reduce((sum, child) => sum + child._count.products, 0),
+    }));
   }
 
   async findAllAdmin() {
-    return this.prisma.category.findMany({
+    const categories = await this.prisma.category.findMany({
       orderBy: { sortOrder: 'asc' },
       include: {
         _count: { select: { products: true } },
         parent: true,
-        children: true,
+        children: {
+          include: {
+            _count: { select: { products: true } },
+          },
+        },
       },
     });
+
+    return categories.map((cat) => ({
+      ...cat,
+      totalProductCount: cat._count.products + cat.children.reduce((sum, child) => sum + child._count.products, 0),
+    }));
   }
 
   async findBySlug(slug: string) {
     const category = await this.prisma.category.findUnique({
       where: { slug },
-      include: { products: { where: { isActive: true }, include: { category: true } } },
+      include: {
+        products: { where: { isActive: true }, include: { category: true } },
+        children: {
+          where: { isActive: true },
+          include: {
+            products: { where: { isActive: true }, include: { category: true } },
+          },
+        },
+      },
     });
     if (!category) throw new NotFoundException('Category not found');
     return category;
