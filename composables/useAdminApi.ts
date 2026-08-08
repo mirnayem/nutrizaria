@@ -54,6 +54,12 @@ export const useAdminApi = () => {
   const updateSetting = (key: string, value: string, type?: string) =>
     fetchApi('/admin/settings', { method: 'PUT', body: { key, value, type } });
 
+  const getCoupons = (params?: any) => fetchApi('/admin/coupons', { params });
+  const createCoupon = (data: any) => fetchApi('/admin/coupons', { method: 'POST', body: data });
+  const updateCoupon = (id: string, data: any) =>
+    fetchApi(`/admin/coupons/${id}`, { method: 'PUT', body: data });
+  const deleteCoupon = (id: string) => fetchApi(`/admin/coupons/${id}`, { method: 'DELETE' });
+
   const uploadImage = (file: File) => {
     const formData = new FormData();
     formData.append('file', file);
@@ -73,6 +79,7 @@ export const useAdminApi = () => {
     getFaqs, createFaq, updateFaq, deleteFaq,
     getUsers, updateUserRole,
     getSettings, updateSetting,
+    getCoupons, createCoupon, updateCoupon, deleteCoupon,
     uploadImage,
   };
 };

@@ -94,6 +94,35 @@ export interface Faq {
   isActive?: boolean;
 }
 
+export type CouponType = "FIXED" | "PERCENTAGE";
+
+export interface Coupon {
+  id: string;
+  code: string;
+  type: CouponType;
+  value: number;
+  description?: string;
+  minSubtotal?: number;
+  validFrom?: string;
+  validUntil?: string;
+  maxUses?: number;
+  usageCount: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CouponValidationResult {
+  valid: boolean;
+  code: string;
+  type: CouponType;
+  value: number;
+  description?: string;
+  discount: number;
+  subtotal: number;
+  totalAfterDiscount: number;
+}
+
 export type PaymentMethod = "bkash" | "sslcommerz" | "cod";
 
 export type OrderStatus = "pending" | "paid" | "fulfilled" | "cancelled";

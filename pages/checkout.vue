@@ -70,6 +70,10 @@
               <span>Subtotal</span>
               <span>{{ currencySymbol }}{{ placedOrder.subtotal.toFixed(2) }}</span>
             </div>
+            <div v-if="(placedOrder.discount ?? 0) > 0" class="flex justify-between text-emerald-600">
+              <span>Discount ({{ placedOrder.couponCode }})</span>
+              <span>-{{ currencySymbol }}{{ placedOrder.discount.toFixed(2) }}</span>
+            </div>
             <div class="flex justify-between">
               <span>Delivery</span>
               <span>
@@ -267,10 +271,48 @@
               </li>
             </ul>
 
+            <div class="mt-6 border-t border-slate-100 pt-4">
+              <p class="text-sm font-medium text-slate-700">Promo code</p>
+              <div v-if="!appliedCoupon" class="mt-2 flex gap-2">
+                <input
+                  v-model="couponInput"
+                  type="text"
+                  class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm uppercase text-slate-700 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200"
+                  placeholder="Enter coupon code"
+                  :disabled="applyingCoupon"
+                  @keyup.enter="applyCoupon"
+                />
+                <button
+                  class="shrink-0 rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  :disabled="applyingCoupon || !couponInput.trim()"
+                  @click="applyCoupon"
+                >
+                  {{ applyingCoupon ? "..." : "Apply" }}
+                </button>
+              </div>
+              <div
+                v-else
+                class="mt-2 flex items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2"
+              >
+                <span class="truncate text-sm font-semibold text-emerald-700">
+                  {{ appliedCoupon.code }}
+                  <span class="font-normal">applied</span>
+                </span>
+                <button class="shrink-0 text-xs font-medium text-rose-600 hover:underline" @click="removeCoupon">
+                  Remove
+                </button>
+              </div>
+              <p v-if="couponError" class="mt-2 text-xs text-rose-600">{{ couponError }}</p>
+            </div>
+
             <div class="mt-6 space-y-3 text-sm text-slate-600">
               <div class="flex justify-between">
                 <span>Subtotal</span>
                 <span>{{ currencySymbol }}{{ totals.subtotal.toFixed(2) }}</span>
+              </div>
+              <div v-if="totals.discount > 0" class="flex justify-between text-emerald-600">
+                <span>Discount ({{ appliedCoupon?.code }})</span>
+                <span>-{{ currencySymbol }}{{ totals.discount.toFixed(2) }}</span>
               </div>
               <div class="flex justify-between">
                 <span>Delivery</span>
@@ -306,13 +348,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import PaymentMethod from "~/components/PaymentMethod.vue";
 import { useCartStore } from "~/stores/cart";
 import { useCatalogStore } from "~/stores/catalog";
 import { useUserStore } from "~/stores/user";
-import type { PaymentSummary } from "~/types/product";
+import type { PaymentSummary, Coupon } from "~/types/product";
 import { useRuntimeConfig } from "#app";
 
 definePageMeta({ middleware: "auth" });
@@ -361,8 +403,65 @@ const totals = computed(() => {
   const area = shipping.value.area === "outside" ? "outsideDhakaFee" : "insideDhakaFee";
   const { freeDeliveryThreshold } = deliveryConfig.value;
   const delivery = subtotal >= freeDeliveryThreshold ? 0 : deliveryConfig.value[area];
-  return { subtotal, delivery, grandTotal: subtotal + delivery };
+  const discount = appliedDiscount.value;
+  const grandTotal = Math.max(0, subtotal - discount) + delivery;
+  return { subtotal, delivery, discount, grandTotal };
 });
+
+const couponInput = ref("");
+const applyingCoupon = ref(false);
+const couponError = ref("");
+const appliedCoupon = ref<Coupon | null>(null);
+const appliedDiscount = ref(0);
+
+const computeCouponDiscount = (coupon: Coupon, subtotal: number) => {
+  const raw = coupon.type === "PERCENTAGE" ? (subtotal * coupon.value) / 100 : coupon.value;
+  return Math.min(Math.round(raw * 100) / 100, subtotal);
+};
+
+const applyCoupon = async () => {
+  couponError.value = "";
+  const code = couponInput.value.trim();
+  if (!code) {
+    couponError.value = "Please enter a coupon code.";
+    return;
+  }
+  applyingCoupon.value = true;
+  try {
+    const api = useApi();
+    const result = await api.validateCoupon(code, cartStore.totalPrice);
+    const data = result?.data ?? result;
+    if (!data?.valid) throw new Error("Invalid coupon code.");
+    appliedCoupon.value = data;
+    appliedDiscount.value = computeCouponDiscount(data, cartStore.totalPrice);
+    couponInput.value = "";
+  } catch (error: any) {
+    appliedCoupon.value = null;
+    appliedDiscount.value = 0;
+    couponError.value = error?.data?.message || error?.message || "Invalid coupon code.";
+  } finally {
+    applyingCoupon.value = false;
+  }
+};
+
+const removeCoupon = () => {
+  appliedCoupon.value = null;
+  appliedDiscount.value = 0;
+  couponError.value = "";
+};
+
+watch(
+  () => cartStore.totalPrice,
+  (subtotal) => {
+    if (!appliedCoupon.value) return;
+    if (appliedCoupon.value.minSubtotal && subtotal < appliedCoupon.value.minSubtotal) {
+      removeCoupon();
+      couponError.value = "Cart subtotal no longer meets this coupon's minimum, so the coupon was removed.";
+    } else {
+      appliedDiscount.value = computeCouponDiscount(appliedCoupon.value, subtotal);
+    }
+  },
+);
 
 const onPaymentStatus = (_summary: PaymentSummary) => {};
 
@@ -381,6 +480,8 @@ type PlacedOrder = {
   items: any[];
   subtotal: number;
   delivery: number;
+  discount: number;
+  couponCode?: string;
   total: number;
   shipping: { fullName: string; address: string; phone: string };
   paymentMethod: string;
@@ -476,6 +577,7 @@ const placeOrder = async () => {
         shippingCity: "",
         shippingCountry: "Bangladesh",
         deliveryArea: shipping.value.area,
+        couponCode: appliedCoupon.value?.code,
         items: cartStore.items.map((item: any) => ({
           productId: item.productId || item.id,
           variantId: item.variantId,
@@ -507,6 +609,7 @@ const placeOrder = async () => {
         paymentMethod: summary.method.toUpperCase(),
         paymentRef: summary.reference,
         notes: summary.notes,
+        couponCode: appliedCoupon.value?.code,
         items: cartStore.items.map((item: any) => ({
           productId: item.productId || item.id,
           variantId: item.variantId,
@@ -521,6 +624,8 @@ const placeOrder = async () => {
         items: order.items?.length ? order.items : purchasedItems,
         subtotal: order.subtotal ?? totals.value.subtotal,
         delivery: order.shippingCost ?? totals.value.delivery,
+        discount: order.discount ?? totals.value.discount,
+        couponCode: order.couponCode || appliedCoupon.value?.code,
         total: order.total ?? purchaseTotal,
         shipping: {
           fullName: order.shippingName || shipping.value.fullName,
@@ -550,6 +655,8 @@ const placeOrder = async () => {
         items: order.items,
         subtotal: totals.value.subtotal,
         delivery: totals.value.delivery,
+        discount: appliedCoupon.value ? totals.value.discount : 0,
+        couponCode: appliedCoupon.value?.code,
         total: order.total,
         shipping: {
           fullName: shipping.value.fullName,
@@ -613,6 +720,8 @@ const handleSslReturn = async () => {
         items: order.items?.length ? order.items : purchasedItems,
         subtotal: order.subtotal ?? totals.value.subtotal,
         delivery: order.shippingCost ?? totals.value.delivery,
+        discount: order.discount ?? totals.value.discount,
+        couponCode: order.couponCode || appliedCoupon.value?.code,
         total: order.total ?? purchaseTotal,
         shipping: {
           fullName: order.shippingName || shipping.value.fullName,

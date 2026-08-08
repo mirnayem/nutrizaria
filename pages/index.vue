@@ -10,7 +10,7 @@ import { Navigation, Pagination } from "swiper/modules";
 
 const modules = [Navigation];
 const heroModules = [Pagination];
-const catModules = [Pagination];
+const catModules = [Navigation, Pagination];
 const productModules = [Pagination];
 
 const productBreakpoints = {
@@ -101,22 +101,17 @@ const bannerSlides = [
 ];
 
 const categoryColumns = computed(() => {
-  // Split categories into columns of 2 (two rows), so each swiper slide
-  // holds a pair of vertically stacked cards that form a 2-row band.
-  const list = parentCategories.value;
-  const columns: Array<typeof list> = [];
-  for (let i = 0; i < list.length; i += 2) {
-    columns.push(list.slice(i, i + 2));
-  }
-  return columns;
+  // One category per slide: the slider shows as many items as fit the screen,
+  // while navigation (pagination dots) steps 4 slides at a time.
+  return parentCategories.value.map((c) => [c]);
 });
 
 const categoryBreakpoints = {
-  0: { slidesPerView: 4.15, spaceBetween: 8 },
-  480: { slidesPerView: 4.5, spaceBetween: 10 },
-  768: { slidesPerView: 5.5, spaceBetween: 12 },
-  1024: { slidesPerView: 6.5, spaceBetween: 14 },
-  1280: { slidesPerView: 8.5, spaceBetween: 16 },
+  0: { slidesPerView: 4, spaceBetween: 10, slidesPerGroup: 4 },
+  480: { slidesPerView: 4.5, spaceBetween: 10, slidesPerGroup: 4 },
+  768: { slidesPerView: 6, spaceBetween: 12, slidesPerGroup: 4 },
+  1024: { slidesPerView: 7.5, spaceBetween: 14, slidesPerGroup: 4 },
+  1280: { slidesPerView: 9, spaceBetween: 14, slidesPerGroup: 4 },
 };
 </script>
 
@@ -343,7 +338,7 @@ const categoryBreakpoints = {
           <Swiper
             :modules="catModules"
             :breakpoints="categoryBreakpoints"
-            :space-between="0"
+            :space-between="12"
             :pagination="{ clickable: true }"
             class="!overflow-hidden !pb-6 cat-swiper"
           >
@@ -352,28 +347,26 @@ const categoryBreakpoints = {
               :key="`${colIdx}-${column[0]?.id}`"
               class="!h-auto"
             >
-              <div class="grid grid-cols-1 gap-2">
-                <NuxtLink
-                  v-for="category in column"
-                  :key="category.id"
-                  :to="`/categories/${category.slug}`"
-                  class="group flex flex-col items-center gap-1.5 rounded-lg border border-slate-100 bg-slate-50/60 p-1.5 transition hover:border-violet-200 hover:bg-white hover:shadow-md"
+              <NuxtLink
+                v-for="category in column"
+                :key="category.id"
+                :to="`/categories/${category.slug}`"
+                class="group flex flex-col items-center gap-1 rounded-lg border border-slate-100 bg-slate-50/60 p-1 transition hover:border-violet-200 hover:bg-white hover:shadow-md"
+              >
+                <div class="aspect-square w-full overflow-hidden rounded-md bg-slate-100">
+                  <img
+                    :src="resolve(category.image)"
+                    :alt="category.name"
+                    loading="lazy"
+                    class="h-full w-full object-cover transition duration-300 group-hover:scale-110"
+                  />
+                </div>
+                <p
+                  class="w-full truncate px-0.5 text-center text-[10px] font-semibold leading-tight text-slate-700 transition group-hover:text-violet-700 sm:text-[11px]"
                 >
-                  <div class="aspect-square w-full overflow-hidden rounded-md bg-slate-100">
-                    <img
-                      :src="resolve(category.image)"
-                      :alt="category.name"
-                      loading="lazy"
-                      class="h-full w-full object-cover transition duration-300 group-hover:scale-110"
-                    />
-                  </div>
-                  <p
-                    class="w-full truncate px-0.5 text-center text-[11px] font-semibold text-slate-700 transition group-hover:text-violet-700"
-                  >
-                    {{ category.name }}
-                  </p>
-                </NuxtLink>
-              </div>
+                  {{ category.name }}
+                </p>
+              </NuxtLink>
             </SwiperSlide>
           </Swiper>
           <template #fallback>

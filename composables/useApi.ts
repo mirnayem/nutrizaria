@@ -60,6 +60,8 @@ export const useApi = () => {
     fetchApi(`/favorites/${productId}`, { method: 'POST' });
 
   const createOrder = (data: any) => fetchApi('/orders', { method: 'POST', body: data });
+  const validateCoupon = (code: string, subtotal: number) =>
+    fetchApi('/coupons/validate', { method: 'POST', body: { code, subtotal } });
   const getOrders = (page?: number) => fetchApi(`/orders?page=${page || 1}`);
   const getOrder = (id: string) => fetchApi(`/orders/${id}`);
   const getOrderByNumber = (orderNumber: string) =>
@@ -96,6 +98,7 @@ export const useApi = () => {
     getFavorites,
     toggleFavorite,
     createOrder,
+    validateCoupon,
     getOrders,
     getOrder,
     getOrderByNumber,

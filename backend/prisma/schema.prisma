@@ -80,6 +80,11 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum CouponType {
+  FIXED
+  PERCENTAGE
+}
+
 model User {
   id            String    @id @default(uuid())
   email         String?   @unique
@@ -277,6 +282,9 @@ model Order {
   shippingCountry  String        @default("Bangladesh")
   shippingPostal   String?
   deliveryArea     String        @default("inside")
+  couponId   String?
+  coupon     Coupon?        @relation(fields: [couponId], references: [id])
+  couponCode String?
   paymentMethod    PaymentMethod
   paymentStatus    PaymentStatus @default(PENDING)
   paymentRef       String?
@@ -302,6 +310,28 @@ model Order {
   @@index([status])
   @@index([orderNumber])
   @@index([createdAt])
+  @@index([couponId])
+}
+
+model Coupon {
+  id          String     @id @default(uuid())
+  code        String     @unique
+  type        CouponType
+  value       Float
+  description String?
+  minSubtotal Float?
+  validFrom   DateTime?
+  validUntil  DateTime?
+  maxUses     Int?
+  usageCount  Int        @default(0)
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  orders Order[]
+
+  @@index([isActive])
+  @@index([validFrom, validUntil])
 }
 
 model OrderItem {

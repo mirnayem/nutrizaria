@@ -70,6 +70,11 @@ export class CreateOrderDto {
   @IsString()
   notes?: string;
 
+  @ApiPropertyOptional({ description: 'Coupon/promo code to apply to this order.' })
+  @IsOptional()
+  @IsString()
+  couponCode?: string;
+
   @ApiProperty({ type: [CreateOrderItemDto] })
   @IsArray()
   @ValidateNested({ each: true })

@@ -119,6 +119,7 @@ export class PaymentsService {
       shippingCountry: dto.shippingCountry,
       deliveryArea: dto.deliveryArea,
       paymentMethod: 'SSLCOMMERZ',
+      couponCode: dto.couponCode,
       items: dto.items,
     });
 
@@ -315,6 +316,7 @@ export class PaymentsService {
       shippingCountry: dto.shippingCountry,
       deliveryArea: dto.deliveryArea,
       paymentMethod: 'BKASH',
+      couponCode: dto.couponCode,
       items: dto.items,
     });
 

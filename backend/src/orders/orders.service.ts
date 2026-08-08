@@ -3,10 +3,14 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto, UpdateOrderStatusDto, UpdatePaymentStatusDto, QueryOrderDto } from './dto';
 import { OrderStatus, PaymentStatus } from '@prisma/client';
 import { parsePagination, buildPaginationResult } from '../common/pagination';
+import { CouponsService } from '../coupons/coupons.service';
 
 @Injectable()
 export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private couponsService: CouponsService,
+  ) {}
 
   private async getSetting(key: string, fallback: number): Promise<number> {
     const row = await this.prisma.setting.findUnique({ where: { key } });
@@ -104,7 +108,18 @@ export class OrdersService {
     });
 
     const shippingCost = await this.computeShippingCost(dto.deliveryArea, subtotal);
-    const total = subtotal + shippingCost;
+
+    let discount = 0;
+    let couponId: string | undefined;
+    let couponCode: string | undefined;
+    if (dto.couponCode) {
+      const coupon = await this.couponsService.validateOrThrow(dto.couponCode, subtotal);
+      discount = this.couponsService.computeDiscount(coupon, subtotal);
+      couponId = coupon.id;
+      couponCode = coupon.code;
+    }
+
+    const total = Math.max(0, subtotal - discount) + shippingCost;
 
     const orderNumber = `NZR-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1e6).toString(36).toUpperCase()}`;
 
@@ -123,6 +138,9 @@ export class OrdersService {
         paymentMethod: dto.paymentMethod,
         paymentRef: dto.paymentRef,
         subtotal,
+        discount,
+        couponId,
+        couponCode,
         shippingCost,
         total,
         notes: dto.notes,
@@ -130,6 +148,13 @@ export class OrdersService {
       },
       include: { items: true },
     });
+
+    if (couponId) {
+      await this.prisma.coupon.update({
+        where: { id: couponId },
+        data: { usageCount: { increment: 1 } },
+      });
+    }
 
     return order;
   }
