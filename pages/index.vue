@@ -431,7 +431,7 @@ const categoryBreakpoints = {
                 :to="`/categories/${category.slug}`"
                 class="group flex flex-col items-center gap-1 rounded-lg border border-slate-100 bg-slate-50/60 p-1 transition hover:border-violet-200 hover:bg-white hover:shadow-md"
               >
-                <div class="aspect-square w-full overflow-hidden rounded-md bg-slate-100">
+                <div class="h-20 w-20 shrink-0 overflow-hidden rounded-full bg-slate-100 sm:h-24 sm:w-24">
                   <img
                     :src="resolve(category.image)"
                     :alt="category.name"
