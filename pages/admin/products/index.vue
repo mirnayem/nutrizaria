@@ -182,8 +182,22 @@
             <input v-model.number="form.price" type="number" min="0" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
           </div>
           <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Sale Price <span class="font-normal text-slate-400">(optional)</span></label>
+            <input v-model.number="form.salePrice" type="number" min="0" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" placeholder="e.g., 350" />
+          </div>
+          <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Unit</label>
             <input v-model="form.unit" type="text" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Sale Start</label>
+              <input v-model="form.saleStartAt" type="datetime-local" @change="handleSaleStartChange" class="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none focus:border-violet-500" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1">Sale End</label>
+              <input v-model="form.saleEndAt" type="datetime-local" class="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm outline-none focus:border-violet-500" />
+            </div>
           </div>
         </div>
         <div>
@@ -212,7 +226,18 @@
           </div>
         </div>
 
-        <div v-if="productType === 'variant'" class="border-t border-slate-200 pt-4">
+        <div v-if="productType === 'variant'" class="grid-cols-2 gap-4 grid mt-2 border-t border-slate-200 pt-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Sale Start <span class="font-normal text-slate-400">(product-wide)</span></label>
+            <input v-model="form.saleStartAt" type="datetime-local" @change="handleSaleStartChange" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Sale End <span class="font-normal text-slate-400">(product-wide)</span></label>
+            <input v-model="form.saleEndAt" type="datetime-local" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          </div>
+        </div>
+
+        <div v-if="productType === 'variant'" class="border-t border-slate-200 pt-4 mt-4">
           <div class="flex items-center justify-between mb-4">
             <div>
               <h3 class="text-lg font-medium text-slate-900">Product Variants</h3>
@@ -254,6 +279,7 @@
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Unit *</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Price *</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Compare Price</th>
+                    <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Sale Price</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Stock</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">SKU</th>
                     <th class="px-3 py-2 text-left font-medium text-slate-500 uppercase tracking-wider">Sort Order</th>
@@ -287,6 +313,9 @@
                     </td>
                     <td class="px-3 py-2">
                       <input v-model.number="variant.comparePrice" type="number" min="0" step="0.01" class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" placeholder="Optional" />
+                    </td>
+                    <td class="px-3 py-2">
+                      <input v-model.number="variant.salePrice" type="number" min="0" step="0.01" class="w-28 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" placeholder="Optional" />
                     </td>
                     <td class="px-3 py-2">
                       <input v-model.number="variant.stock" type="number" min="0" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500" />
@@ -390,6 +419,9 @@ const form = reactive({
   description: '',
   stock: 100,
   isActive: true,
+  salePrice: null as number | null,
+  saleStartAt: '',
+  saleEndAt: '',
   variants: [] as any[],
 });
 
@@ -490,6 +522,9 @@ const editProduct = (product: any) => {
   form.description = product.description || '';
   form.stock = product.stock ?? 100;
   form.isActive = product.isActive ?? true;
+  form.salePrice = product.salePrice ?? null;
+  form.saleStartAt = product.saleStartAt ? toLocalInput(String(product.saleStartAt)) : '';
+  form.saleEndAt = product.saleEndAt ? toLocalInput(String(product.saleEndAt)) : '';
   form.variants = (product.variants || []).map((v: any) => ({
     id: v.id,
     label: v.label,
@@ -497,6 +532,7 @@ const editProduct = (product: any) => {
     unit: v.unit,
     price: v.price,
     comparePrice: v.comparePrice,
+    salePrice: v.salePrice,
     stock: v.stock,
     sku: v.sku,
     image: v.image,
@@ -513,6 +549,7 @@ const addVariant = () => {
     unit: 'g',
     price: 0,
     comparePrice: undefined,
+    salePrice: undefined,
     stock: 0,
     sku: '',
     image: '',
@@ -540,6 +577,9 @@ const resetForm = () => {
   form.description = '';
   form.stock = 100;
   form.isActive = true;
+  form.salePrice = null;
+  form.saleStartAt = '';
+  form.saleEndAt = '';
   form.variants = [];
   selectedParentCategory.value = '';
 };
@@ -552,6 +592,37 @@ const closeModal = () => {
 
 const onMainImageUpload = (urls: string[]) => {
   form.image = urls[0] || '';
+};
+
+// Format an ISO date-time into a "datetime-local" input value using the
+// browser's local timezone so it round-trips through the form correctly.
+const toLocalInput = (iso: string): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+// Minimum sale window: 60 days / 2 months from the sale start date.
+const SALE_MIN_GAP_MS = 60 * 24 * 60 * 60 * 1000;
+
+// When the admin picks a sale start, default the end to start + 60 days
+// unless an end is already set that is later than that minimum.
+const handleSaleStartChange = () => {
+  const start = form.saleStartAt;
+  if (!start) return;
+  const startDate = new Date(start);
+  if (Number.isNaN(startDate.getTime())) return;
+  const minEnd = new Date(startDate.getTime() + SALE_MIN_GAP_MS);
+  const currentEnd = form.saleEndAt ? new Date(form.saleEndAt) : null;
+  if (
+    !currentEnd ||
+    Number.isNaN(currentEnd.getTime()) ||
+    currentEnd.getTime() < minEnd.getTime()
+  ) {
+    form.saleEndAt = toLocalInput(minEnd.toISOString());
+  }
 };
 
 const onAdditionalImagesUpload = (urls: string[]) => {
@@ -571,6 +642,7 @@ const saveProduct = async () => {
         unit: v.unit,
         price: v.price,
         comparePrice: v.comparePrice && v.comparePrice > 0 ? v.comparePrice : undefined,
+        salePrice: v.salePrice && v.salePrice > 0 ? v.salePrice : undefined,
         stock: v.stock || 0,
         sku: v.sku?.trim() || undefined,
         image: v.image?.trim() || undefined,
@@ -578,6 +650,20 @@ const saveProduct = async () => {
       }));
 
     const payload: any = JSON.parse(JSON.stringify({ ...form }));
+    // Convert datetime-local values (YYYY-MM-DDTHH:mm) to full ISO-8601
+    // DateTimes that Prisma can store. Empty strings become null/undefined.
+    payload.saleStartAt = form.saleStartAt ? new Date(form.saleStartAt).toISOString() : null;
+    // Enforce a minimum 60-day window: clamp the end so it's never earlier
+    // than 60 days after the sale start.
+    if (form.saleStartAt && form.saleEndAt) {
+      const startMs = new Date(form.saleStartAt).getTime();
+      const minEndMs = startMs + SALE_MIN_GAP_MS;
+      payload.saleEndAt = new Date(
+        Math.max(new Date(form.saleEndAt).getTime(), minEndMs)
+      ).toISOString();
+    } else {
+      payload.saleEndAt = form.saleEndAt ? new Date(form.saleEndAt).toISOString() : null;
+    }
 
     if (productType.value === 'variant') {
       if (validVariants.length === 0) {

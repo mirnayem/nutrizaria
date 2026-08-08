@@ -21,6 +21,9 @@ export interface Product {
   benefits: string[];
   price: number;
   comparePrice?: number;
+  salePrice?: number;
+  saleStartAt?: string;
+  saleEndAt?: string;
   unit: string;
   isActive?: boolean;
   isFeatured?: boolean;
@@ -38,6 +41,7 @@ export interface ProductVariant {
   unit: string;
   price: number;
   comparePrice?: number;
+  salePrice?: number;
   stock: number;
   sku?: string;
   image?: string;

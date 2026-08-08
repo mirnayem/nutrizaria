@@ -167,28 +167,31 @@ model Brand {
 }
 
 model Product {
-  id              String   @id @default(uuid())
+  id              String     @id @default(uuid())
   name            String
-  slug            String   @unique
-  description     String   @db.Text
+  slug            String     @unique
+  description     String     @db.Text
   brandId         String?
-  brand           Brand?   @relation(fields: [brandId], references: [id])
+  brand           Brand?     @relation(fields: [brandId], references: [id])
   price           Float
   comparePrice    Float?
+  salePrice       Float?
+  saleStartAt     DateTime?
+  saleEndAt       DateTime?
   unit            String
   image           String
   images          String[]
   categoryId      String
-  category        Category @relation(fields: [categoryId], references: [id])
+  category        Category   @relation(fields: [categoryId], references: [id])
   benefits        String[]
-  isActive        Boolean  @default(true)
-  isFeatured      Boolean  @default(false)
-  stock           Int      @default(100)
-  sku             String?  @unique
+  isActive        Boolean    @default(true)
+  isFeatured      Boolean    @default(false)
+  stock           Int        @default(100)
+  sku             String?    @unique
   metaTitle       String?
-  metaDescription String?  @db.Text
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  metaDescription String?    @db.Text
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   orderItems OrderItem[]
   favorites  Favorite[]
@@ -201,17 +204,20 @@ model Product {
   @@index([slug])
   @@index([isActive, isFeatured])
   @@index([price])
+  @@index([salePrice])
+  @@index([saleStartAt, saleEndAt])
 }
 
 model ProductVariant {
   id           String   @id @default(uuid())
   productId    String
   product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  label        String? // optional; storefront falls back to weight + unit
-  weight       Float // numeric value for sorting (e.g., 250, 500, 1000)
-  unit         String // "g", "kg", "ml", "l", "pcs"
+  label        String?  // optional; storefront falls back to weight + unit
+  weight       Float    // numeric value for sorting (e.g., 250, 500, 1000)
+  unit         String   // "g", "kg", "ml", "l", "pcs"
   price        Float
   comparePrice Float?
+  salePrice    Float?
   stock        Int      @default(0)
   sku          String?  @unique
   image        String?

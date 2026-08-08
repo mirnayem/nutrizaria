@@ -1,6 +1,15 @@
-import { IsString, IsNumber, IsOptional, IsArray, IsBoolean, Min, ValidateNested } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsArray, IsBoolean, Min, ValidateNested, IsDateString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
+
+// Convert a datetime string (e.g. "2026-08-08T06:37") plus any valid input
+// into a full ISO-8601 DateTime that Prisma can store. Nulls pass through.
+const toIsoDateTime = ({ value }: { value: unknown }) => {
+  if (value == null || value === '') return value as string | undefined;
+  const d = new Date(value as string);
+  const iso = d.toISOString();
+  return Number.isNaN(d.getTime()) ? (value as string) : iso;
+};
 
 export class CreateProductVariantDto {
   @ApiPropertyOptional({
@@ -28,6 +37,12 @@ export class CreateProductVariantDto {
   @IsOptional()
   @IsNumber()
   comparePrice?: number;
+
+  @ApiPropertyOptional({ description: 'Sale price for this variant (optional)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  salePrice?: number;
 
   @ApiPropertyOptional({ default: 0 })
   @IsOptional()
@@ -79,6 +94,12 @@ export class UpdateProductVariantDto {
   @IsNumber()
   comparePrice?: number;
 
+  @ApiPropertyOptional({ description: 'Sale price for this variant (optional)' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  salePrice?: number;
+
   @ApiPropertyOptional()
   @IsOptional()
   @IsNumber()
@@ -129,6 +150,24 @@ export class CreateProductDto {
   @IsOptional()
   @IsNumber()
   comparePrice?: number;
+
+  @ApiPropertyOptional({ description: 'Sale price (optional). When set with valid dates, the product appears in the sale section.' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  salePrice?: number;
+
+  @ApiPropertyOptional({ description: 'Sale start date-time (ISO 8601). Product is on sale from this moment.' })
+  @IsOptional()
+  @IsDateString()
+  @Transform(toIsoDateTime)
+  saleStartAt?: string;
+
+  @ApiPropertyOptional({ description: 'Sale end date-time (ISO 8601). Product stops being on sale after this moment.' })
+  @IsOptional()
+  @IsDateString()
+  @Transform(toIsoDateTime)
+  saleEndAt?: string;
 
   @ApiPropertyOptional({
     description: 'Required for non-variant products; auto-derived from variants for variant products.',
@@ -218,6 +257,24 @@ export class UpdateProductDto {
   @IsOptional()
   @IsNumber()
   comparePrice?: number;
+
+  @ApiPropertyOptional({ description: 'Sale price (optional). When set with valid dates, the product appears in the sale section.' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  salePrice?: number;
+
+  @ApiPropertyOptional({ description: 'Sale start date-time (ISO 8601). Product is on sale from this moment.' })
+  @IsOptional()
+  @IsDateString()
+  @Transform(toIsoDateTime)
+  saleStartAt?: string;
+
+  @ApiPropertyOptional({ description: 'Sale end date-time (ISO 8601). Product stops being on sale after this moment.' })
+  @IsOptional()
+  @IsDateString()
+  @Transform(toIsoDateTime)
+  saleEndAt?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -327,4 +384,9 @@ export class QueryProductDto {
   @IsOptional()
   @IsString()
   maxPrice?: string;
+
+  @ApiPropertyOptional({ description: 'Filter products currently on sale (true/false)' })
+  @IsOptional()
+  @IsString()
+  sale?: string;
 }

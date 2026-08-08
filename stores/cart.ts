@@ -38,6 +38,16 @@ export const useCartStore = defineStore('cart', {
         ? item.variantLabel
         : (_variant && _variant.weight > 0 && _variant.unit ? `${_variant.weight}${_variant.unit}` : _variant?.label);
       const variantPrice = 'variantId' in item ? item.price : _variant?.price;
+      const itemSale = (item as any).salePrice;
+      const variantSale = 'variantId' in item ? itemSale : (_variant?.salePrice ?? itemSale);
+      const now = Date.now();
+      const saleActive =
+        variantSale != null &&
+        variantSale > 0 &&
+        variantSale < (variantPrice ?? item.price) &&
+        (!(item as any).saleStartAt || new Date((item as any).saleStartAt).getTime() <= now) &&
+        (!(item as any).saleEndAt || new Date((item as any).saleEndAt).getTime() >= now);
+      const price = saleActive ? variantSale : (variantPrice ?? item.price);
       
       const cartItem: CartItem = {
         id: variantId ? `${productId}-${variantId}` : productId,
@@ -45,7 +55,7 @@ export const useCartStore = defineStore('cart', {
         variantId,
         name: item.name,
         image: variantId ? (item as any)._variant?.image || item.image : item.image,
-        price: variantPrice ?? item.price,
+        price,
         quantity: qty,
         unit: variantId ? (item as any)._variant?.unit || item.unit : item.unit,
         variantLabel,

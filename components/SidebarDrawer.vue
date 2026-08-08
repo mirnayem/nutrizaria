@@ -243,6 +243,7 @@ type NavLink = {
 
 const navLinks: NavLink[] = [
   { label: "Shop", to: "/shop" },
+  { label: "Sale", to: "/sale", match: "/sale" },
   { label: "Categories", to: "/categories/vegetables", match: "/categories" },
   { label: "Favorite", to: "/favorite" },
   { label: "My account", to: "/profile" },

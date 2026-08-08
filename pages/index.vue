@@ -64,6 +64,8 @@ const bestSelling = computed(() => {
     .slice(0, 10);
 });
 
+const saleProducts = computed(() => catalog.saleProducts.slice(0, 10));
+
 const parentCategories = computed(() =>
   (categories.value ?? []).filter((c) => !c.parentId)
 );
@@ -112,9 +114,9 @@ const categoryColumns = computed(() => {
 const categoryBreakpoints = {
   0: { slidesPerView: 4.15, spaceBetween: 8 },
   480: { slidesPerView: 4.5, spaceBetween: 10 },
-  768: { slidesPerView: 4.5, spaceBetween: 12 },
-  1024: { slidesPerView: 4.5, spaceBetween: 14 },
-  1280: { slidesPerView: 4.5, spaceBetween: 16 },
+  768: { slidesPerView: 5.5, spaceBetween: 12 },
+  1024: { slidesPerView: 6.5, spaceBetween: 14 },
+  1280: { slidesPerView: 8.5, spaceBetween: 16 },
 };
 </script>
 
@@ -268,6 +270,49 @@ const categoryBreakpoints = {
           >
             <SwiperSlide
               v-for="product in bestSelling"
+              :key="product.id"
+            >
+              <SingleProduct :product="product" />
+            </SwiperSlide>
+          </Swiper>
+          <template #fallback>
+            <div class="flex gap-3 overflow-hidden">
+              <div
+                v-for="j in 5"
+                :key="j"
+                class="h-64 w-44 shrink-0 animate-pulse rounded-xl bg-slate-100"
+              ></div>
+            </div>
+          </template>
+        </ClientOnly>
+      </section>
+
+      <!-- Sale & Offers -->
+      <section
+        v-if="saleProducts.length"
+        class="space-y-4 rounded-xl border border-red-100 bg-red-50/50 px-4 py-5 shadow-sm"
+      >
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900 sm:text-xl">
+            <span class="mr-1 text-red-600">%</span> Sale & Offers
+          </h2>
+          <NuxtLink
+            to="/sale"
+            class="hidden text-sm font-medium text-red-600 transition hover:text-red-700 sm:inline-block"
+          >
+            See All
+          </NuxtLink>
+        </div>
+        <ClientOnly>
+          <Swiper
+            :modules="productModules"
+            :breakpoints="productBreakpoints"
+            :space-between="12"
+            :pagination="{ clickable: true }"
+            class="!pb-6 product-swiper"
+          >
+            <SwiperSlide
+              v-for="product in saleProducts"
               :key="product.id"
             >
               <SingleProduct :product="product" />

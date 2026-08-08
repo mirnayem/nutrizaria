@@ -18,6 +18,7 @@ export class ProductsService {
       featured,
       minPrice,
       maxPrice,
+      sale,
     } = query;
 
     const where: any = { isActive: true };
@@ -46,6 +47,27 @@ export class ProductsService {
       where.price = {};
       if (minPrice) where.price.gte = parseFloat(minPrice);
       if (maxPrice) where.price.lte = parseFloat(maxPrice);
+    }
+
+    if (sale !== undefined) {
+      const now = new Date();
+      if (sale === 'true') {
+        where.AND = [
+          { salePrice: { not: null } },
+          { OR: [{ saleStartAt: null }, { saleStartAt: { lte: now } }] },
+          { OR: [{ saleEndAt: null }, { saleEndAt: { gte: now } }] },
+        ];
+      } else {
+        where.AND = [
+          {
+            OR: [
+              { salePrice: null },
+              { saleStartAt: { gt: now } },
+              { saleEndAt: { lt: now } },
+            ],
+          },
+        ];
+      }
     }
 
     const orderBy: any = {};

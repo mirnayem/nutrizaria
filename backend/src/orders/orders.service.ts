@@ -14,6 +14,22 @@ export class OrdersService {
     return Number.isFinite(val) ? val : fallback;
   }
 
+  /**
+   * Resolves the effective selling price for an order line, applying the
+   * sale price when it is set and currently active (within start/end window).
+   * Mirrors the storefront logic so checkout totals match what the customer saw.
+   */
+  private resolvePrice(product: any, price: number, salePrice: number | null | undefined): number {
+    const sale = salePrice ?? null;
+    if (sale != null && sale > 0 && sale < price) {
+      const now = new Date();
+      if (product.saleStartAt && new Date(product.saleStartAt) > now) return price;
+      if (product.saleEndAt && new Date(product.saleEndAt) < now) return price;
+      return sale;
+    }
+    return price;
+  }
+
   async computeShippingCost(deliveryArea?: string, subtotal = 0): Promise<number> {
     const freeThreshold = await this.getSetting('free_delivery_threshold', 2000);
     if (subtotal >= freeThreshold) return 0;
@@ -60,12 +76,18 @@ export class OrdersService {
         if (!variant || variant.productId !== product.id) {
           throw new BadRequestException(`Variant not found for product ${product.name}`);
         }
-        price = variant.price;
+        price = this.resolvePrice(
+          product,
+          variant.price,
+          variant.salePrice ?? product.salePrice,
+        );
         unit = variant.unit;
         variantId = variant.id;
         variantLabel =
           variant.label ||
           (variant.weight > 0 ? `${variant.weight}${variant.unit}` : variant.unit);
+      } else {
+        price = this.resolvePrice(product, product.price, product.salePrice);
       }
 
       const lineTotal = price * item.quantity;

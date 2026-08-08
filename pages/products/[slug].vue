@@ -155,25 +155,20 @@
 
           <!-- Price Display -->
           <div class="mt-4 flex flex-wrap items-end gap-x-4 gap-y-2">
-            <div v-if="selectedVariant" class="flex items-baseline gap-2">
+            <div class="flex items-baseline gap-2">
               <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
-                {{ currencySymbol }}{{ activeProduct?.price.toFixed(2) }}
+                {{ currencySymbol }}{{ effectivePrice.toFixed(0) }}
               </span>
               <span
-                v-if="activeProduct?.comparePrice && activeProduct.comparePrice > activeProduct.price"
-                class="pb-1 text-lg font-medium text-slate-400 line-through"
+                v-if="isOnSale"
+                class="rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white"
               >
-                {{ currencySymbol }}{{ activeProduct.comparePrice.toFixed(2) }}
+                SALE
               </span>
-            </div>
-            <div v-else class="flex items-baseline gap-2">
-              <span class="text-3xl font-bold text-slate-900 sm:text-4xl">
-                {{ currencySymbol }}{{ product.price.toFixed(2) }}
+              <span v-if="strikePrice !== null" class="pb-1 text-lg font-medium text-slate-400 line-through">
+                {{ currencySymbol }}{{ strikePrice.toFixed(0) }}
               </span>
-              <span v-if="product.comparePrice" class="pb-1 text-lg font-medium text-slate-500 line-through">
-                {{ currencySymbol }}{{ product.comparePrice.toFixed(2) }}
-              </span>
-              <span class="text-sm text-slate-500">{{ product.unit }}</span>
+              <span v-if="!selectedVariant" class="text-sm text-slate-500">{{ product.unit }}</span>
             </div>
           </div>
 
@@ -408,6 +403,7 @@ const activeProduct = computed(() => {
       ...p,
       price: selectedVariant.value.price,
       comparePrice: selectedVariant.value.comparePrice,
+      salePrice: selectedVariant.value.salePrice ?? p.salePrice,
       stock: selectedVariant.value.stock,
       unit: selectedVariant.value.unit,
       sku: selectedVariant.value.sku,
@@ -417,6 +413,18 @@ const activeProduct = computed(() => {
   }
   return p;
 });
+
+const isOnSale = computed(() => {
+  const ap = activeProduct.value;
+  if (!ap?.salePrice || ap.salePrice <= 0 || ap.salePrice >= ap.price) return false;
+  const now = Date.now();
+  if (ap.saleStartAt && new Date(ap.saleStartAt).getTime() > now) return false;
+  if (ap.saleEndAt && new Date(ap.saleEndAt).getTime() < now) return false;
+  return true;
+});
+const effectivePrice = computed(() =>
+  isOnSale.value ? (activeProduct.value?.salePrice ?? activeProduct.value?.price) : (activeProduct.value?.price ?? 0)
+);
 
 const gallery = computed<string[]>(() => {
   const p = product.value;
@@ -451,9 +459,21 @@ const incrementQuantity = () => {
 
 const isOutOfStock = computed(() => activeProduct.value?.stock === 0);
 const discountPercent = computed(() => {
+  if (isOnSale.value) {
+    const ap = activeProduct.value;
+    if (!ap?.price || ap.price <= 0 || !ap.salePrice) return 0;
+    if (ap.salePrice >= ap.price) return 0;
+    return Math.round(((ap.price - ap.salePrice) / ap.price) * 100);
+  }
   const p = activeProduct.value;
   if (!p?.comparePrice || p.comparePrice <= p.price) return 0;
   return Math.round(((p.comparePrice - p.price) / p.comparePrice) * 100);
+});
+const strikePrice = computed(() => {
+  if (isOnSale.value) return activeProduct.value?.price ?? null;
+  const ap = activeProduct.value;
+  if (ap?.comparePrice && ap.comparePrice > ap.price) return ap.comparePrice;
+  return null;
 });
 
 const isFavorite = computed(() =>
@@ -512,7 +532,7 @@ const seo = useSeo({
           "@type": "Offer",
           url: abs(`/products/${p.slug || p.id}`),
           priceCurrency: "BDT",
-          price: activeProduct.value?.price ?? p.price,
+          price: effectivePrice.value,
           availability: activeProduct.value?.stock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
           itemCondition: "https://schema.org/NewCondition",
         },

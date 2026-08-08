@@ -330,6 +330,13 @@
             Shop
           </NuxtLink>
           <NuxtLink
+            to="/sale"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            active-class="text-red-700 bg-red-50"
+          >
+            Sale
+          </NuxtLink>
+          <NuxtLink
             to="/categories"
             class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
             active-class="text-violet-700 bg-violet-50"

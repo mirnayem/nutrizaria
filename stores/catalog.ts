@@ -127,6 +127,22 @@ export const useCatalogStore = defineStore("catalog", {
       return summary;
     },
     featuredProducts: (state) => state.products.slice(0, 4),
+    saleProducts: (state) => {
+      const now = Date.now();
+      return state.products.filter((p) => {
+        // Whole product sale window gates every sale on the product, including
+        // variant-level sale prices (the window is set product-wide).
+        if (p.saleStartAt && new Date(p.saleStartAt).getTime() > now) return false;
+        if (p.saleEndAt && new Date(p.saleEndAt).getTime() < now) return false;
+        // Product-level sale price.
+        if (p.salePrice && p.salePrice > 0 && p.salePrice < p.price) return true;
+        // Variant-level sale price (at least one active variant on sale).
+        const variants = p.variants || [];
+        return variants.some(
+          (v) => v.isActive !== false && v.salePrice && v.salePrice > 0 && v.salePrice < v.price,
+        );
+      });
+    },
   },
   actions: {
     async hydrate() {
@@ -176,6 +192,9 @@ export const useCatalogStore = defineStore("catalog", {
                 isFeatured: p.isFeatured,
                 stock: p.stock,
                 comparePrice: p.comparePrice,
+                salePrice: p.salePrice,
+                saleStartAt: p.saleStartAt,
+                saleEndAt: p.saleEndAt,
                 images: p.images ? p.images.map((u: string) => mapUrl(u)) : p.images,
                 sku: p.sku,
                 variants: p.variants?.map((v: any) => ({
@@ -185,6 +204,7 @@ export const useCatalogStore = defineStore("catalog", {
                   unit: v.unit,
                   price: v.price,
                   comparePrice: v.comparePrice,
+                  salePrice: v.salePrice,
                   stock: v.stock,
                   sku: v.sku,
                   image: v.image ? mapUrl(v.image) : v.image,

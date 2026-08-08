@@ -25,7 +25,7 @@ const selectedItem = computed<CartItem>(() => {
     id: v ? `${props.product.id}-${v.id}` : props.product.id,
     productId: props.product.id,
     name: props.product.name,
-    price: displayPrice.value,
+    price: effectivePrice.value,
     image: v?.image || props.product.image,
     quantity: 1,
     unit: displayUnit.value,
@@ -72,6 +72,21 @@ const displayUnit = computed(() => activeVariant.value?.unit ?? props.product.un
 const displayComparePrice = computed(() =>
   activeVariant.value?.comparePrice ?? props.product.comparePrice
 );
+const displaySalePrice = computed(() => {
+  const variantSale = hasVariants.value ? activeVariant.value?.salePrice : undefined;
+  return variantSale ?? props.product.salePrice ?? null;
+});
+const isOnSale = computed(() => {
+  const sale = displaySalePrice.value;
+  if (sale == null || sale <= 0 || sale >= displayPrice.value) return false;
+  const now = Date.now();
+  if (props.product.saleStartAt && new Date(props.product.saleStartAt).getTime() > now) return false;
+  if (props.product.saleEndAt && new Date(props.product.saleEndAt).getTime() < now) return false;
+  return true;
+});
+const effectivePrice = computed(() =>
+  isOnSale.value ? (displaySalePrice.value as number) : displayPrice.value
+);
 const displayStock = computed(() =>
   hasVariants.value
     ? (activeVariant.value?.stock ?? 0)
@@ -79,10 +94,20 @@ const displayStock = computed(() =>
 );
 const isOutOfStock = computed(() => displayStock.value === 0);
 const discountPercent = computed(() => {
+  if (isOnSale.value) {
+    const sale = displaySalePrice.value as number;
+    if (displayPrice.value <= 0 || sale >= displayPrice.value) return 0;
+    return Math.round(((displayPrice.value - sale) / displayPrice.value) * 100);
+  }
   const { comparePrice } = props.product;
   const price = displayPrice.value;
   if (!comparePrice || comparePrice <= price) return 0;
   return Math.round(((comparePrice - price) / comparePrice) * 100);
+});
+const strikePrice = computed(() => {
+  if (isOnSale.value) return displayPrice.value;
+  if (displayComparePrice.value > effectivePrice.value) return displayComparePrice.value;
+  return null;
 });
 
 const handleQuickAdd = () => {
@@ -213,13 +238,14 @@ const openModal = () => (isModalOpen.value = true);
 
       <div class="mt-auto pt-2">
         <p class="text-base font-bold text-slate-900">
-          {{ currencySymbol }}{{ displayPrice.toFixed(0) }}
+          <span v-if="isOnSale" class="mr-1.5 text-[10px] font-semibold text-red-600">SALE</span>
+          {{ currencySymbol }}{{ effectivePrice.toFixed(0) }}
         </p>
         <p
-          v-if="displayComparePrice > displayPrice"
+          v-if="strikePrice !== null"
           class="text-[11px] font-medium text-slate-400 line-through"
         >
-          {{ currencySymbol }}{{ displayComparePrice.toFixed(0) }}
+          {{ currencySymbol }}{{ strikePrice.toFixed(0) }}
         </p>
       </div>
 
