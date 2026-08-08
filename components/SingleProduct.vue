@@ -68,7 +68,13 @@ const activeVariant = computed(() => selectedVariant.value || null);
 const variantSizeLabel = (v: any) =>
   v && v.weight > 0 && v.unit ? `${v.weight}${v.unit}` : v.label || "";
 const displayPrice = computed(() => activeVariant.value?.price ?? props.product.price);
-const displayUnit = computed(() => activeVariant.value?.unit ?? props.product.unit);
+const displayUnit = computed(() =>
+  activeVariant.value
+    ? activeVariant.value.unit
+    : props.product.weight && props.product.unit
+      ? `${props.product.weight}${props.product.unit}`
+      : props.product.unit
+);
 const displayComparePrice = computed(() =>
   activeVariant.value?.comparePrice ?? props.product.comparePrice
 );
@@ -146,6 +152,16 @@ const openModal = () => (isModalOpen.value = true);
         class="absolute left-2 top-2 rounded bg-red-600 px-1.5 py-0.5 text-[10px] font-bold text-white"
       >
         {{ discountPercent }}% OFF
+      </span>
+
+      <span
+        v-if="product.isFeatured"
+        class="absolute bottom-2 left-2 flex items-center gap-1 rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-2.5">
+          <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+        </svg>
+        Featured
       </span>
 
       <div
@@ -272,6 +288,14 @@ const openModal = () => (isModalOpen.value = true);
         >
           {{ variantSizeLabel(v) }}
         </button>
+      </div>
+
+      <div v-else-if="displayUnit" class="mt-2 flex flex-wrap gap-1">
+        <span
+          class="rounded border border-slate-300 px-2 py-0.5 text-[10px] font-medium text-slate-600"
+        >
+          {{ displayUnit }}
+        </span>
       </div>
     </div>
 

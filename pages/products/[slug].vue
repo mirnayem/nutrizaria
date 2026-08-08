@@ -168,7 +168,7 @@
               <span v-if="strikePrice !== null" class="pb-1 text-lg font-medium text-slate-400 line-through">
                 {{ currencySymbol }}{{ strikePrice.toFixed(0) }}
               </span>
-              <span v-if="!selectedVariant" class="text-sm text-slate-500">{{ product.unit }}</span>
+              <span v-if="!selectedVariant" class="text-sm text-slate-500">{{ displayUnit }}</span>
             </div>
           </div>
 
@@ -425,6 +425,13 @@ const isOnSale = computed(() => {
 const effectivePrice = computed(() =>
   isOnSale.value ? (activeProduct.value?.salePrice ?? activeProduct.value?.price) : (activeProduct.value?.price ?? 0)
 );
+
+const displayUnit = computed(() => {
+  const ap = activeProduct.value;
+  if (!ap) return '';
+  if (selectedVariant.value) return selectedVariant.value.unit;
+  return ap.weight && ap.unit ? `${ap.weight}${ap.unit}` : ap.unit || '';
+});
 
 const gallery = computed<string[]>(() => {
   const p = product.value;

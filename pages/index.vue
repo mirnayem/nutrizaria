@@ -23,7 +23,7 @@ const productBreakpoints = {
 
 const catalog = useCatalogStore();
 await catalog.hydrate();
-const { products, categories } = storeToRefs(catalog);
+const { products, categories, featuredProducts, bestSellingProducts } = storeToRefs(catalog);
 
 useSeo({
   title: "NutriZaria - Authentic Pure Food Resources",
@@ -56,13 +56,8 @@ const groupedProducts = computed(() => {
     .filter((group) => group.items.length);
 });
 
-const bestSelling = computed(() => {
-  const all = products.value ?? [];
-  return all
-    .filter((p) => p.isFeatured)
-    .sort((a, b) => (b.comparePrice ?? 0) - (a.comparePrice ?? 0))
-    .slice(0, 10);
-});
+const featuredItems = computed(() => featuredProducts.value.slice(0, 10));
+const bestSellingItems = computed(() => bestSellingProducts.value.slice(0, 10));
 
 const saleProducts = computed(() => catalog.saleProducts.slice(0, 10));
 
@@ -118,7 +113,8 @@ const categoryBreakpoints = {
 <template>
   <div class="flex">
     <!-- Sidebar -->
-    <CategorySidebar class="hidden lg:block" />
+    <SkeletonSidebar v-if="isCatalogLoading" class="hidden lg:block" />
+    <CategorySidebar v-else class="hidden lg:block" />
 
     <!-- Main Content -->
     <main class="min-w-0 flex-1 space-y-8 p-4 sm:p-6">
@@ -228,33 +224,72 @@ const categoryBreakpoints = {
 
       <!-- Loading Skeleton -->
       <template v-if="isCatalogLoading">
+        <!-- Featured / Sale row -->
         <section
-          v-for="i in 2"
+          v-for="i in 3"
           :key="i"
           class="space-y-4 rounded-xl border border-slate-100 bg-white px-4 py-5 shadow-sm"
         >
           <div class="flex items-center justify-between">
-            <div class="h-5 w-48 animate-pulse rounded-full bg-slate-200"></div>
+            <div class="h-6 w-48 animate-pulse rounded-full bg-slate-200"></div>
             <div class="h-4 w-20 animate-pulse rounded-full bg-slate-200"></div>
           </div>
           <div class="flex gap-3 overflow-hidden">
-            <div
+            <SkeletonProductCard
               v-for="j in 5"
               :key="j"
-              class="h-64 w-44 shrink-0 animate-pulse rounded-xl bg-slate-100"
-            ></div>
+              class="w-44 shrink-0"
+            />
+          </div>
+        </section>
+
+        <!-- Explore Categories -->
+        <section class="space-y-4 rounded-xl border border-slate-100 bg-white px-4 py-5 shadow-sm">
+          <div class="h-6 w-48 animate-pulse rounded-full bg-slate-200"></div>
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+            <div v-for="i in 8" :key="i" class="animate-pulse">
+              <div class="aspect-square rounded-xl bg-slate-100"></div>
+              <div class="mx-auto mt-2 h-3 w-16 rounded-full bg-slate-200"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Category product rows -->
+        <section
+          v-for="i in 2"
+          :key="`cat-${i}`"
+          class="space-y-4 rounded-xl border border-slate-100 bg-white px-4 py-5 shadow-sm"
+        >
+          <div class="flex items-center justify-between">
+            <div class="h-6 w-40 animate-pulse rounded-full bg-slate-200"></div>
+            <div class="h-4 w-16 animate-pulse rounded-full bg-slate-200"></div>
+          </div>
+          <div class="flex gap-3 overflow-hidden">
+            <SkeletonProductCard
+              v-for="j in 5"
+              :key="j"
+              class="w-44 shrink-0"
+            />
           </div>
         </section>
       </template>
 
-      <!-- Best Selling Items -->
+      <!-- Best Selling Products -->
       <section
-        v-if="bestSelling.length"
+        v-if="bestSellingItems.length"
         class="space-y-4 rounded-xl border border-slate-100 bg-white px-4 py-5 shadow-sm"
       >
-        <h2 class="text-lg font-bold text-slate-900 sm:text-xl">
-          <span class="mr-1">🔥</span> Best Selling Items
-        </h2>
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900 sm:text-xl">
+            <span class="mr-1">🔥</span> Best Selling Products
+          </h2>
+          <NuxtLink
+            to="/shop"
+            class="hidden text-sm font-medium text-violet-600 transition hover:text-violet-700 sm:inline-block"
+          >
+            See All
+          </NuxtLink>
+        </div>
         <ClientOnly>
           <Swiper
             :modules="productModules"
@@ -264,7 +299,50 @@ const categoryBreakpoints = {
             class="!pb-6 product-swiper"
           >
             <SwiperSlide
-              v-for="product in bestSelling"
+              v-for="product in bestSellingItems"
+              :key="product.id"
+            >
+              <SingleProduct :product="product" />
+            </SwiperSlide>
+          </Swiper>
+          <template #fallback>
+            <div class="flex gap-3 overflow-hidden">
+              <div
+                v-for="j in 5"
+                :key="j"
+                class="h-64 w-44 shrink-0 animate-pulse rounded-xl bg-slate-100"
+              ></div>
+            </div>
+          </template>
+        </ClientOnly>
+      </section>
+
+      <!-- Featured Products -->
+      <section
+        v-if="featuredItems.length"
+        class="space-y-4 rounded-xl border border-amber-100 bg-amber-50/40 px-4 py-5 shadow-sm"
+      >
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-bold text-slate-900 sm:text-xl">
+            <span class="mr-1 text-amber-500">★</span> Featured Products
+          </h2>
+          <NuxtLink
+            to="/featured"
+            class="hidden text-sm font-medium text-amber-600 transition hover:text-amber-700 sm:inline-block"
+          >
+            See All
+          </NuxtLink>
+        </div>
+        <ClientOnly>
+          <Swiper
+            :modules="productModules"
+            :breakpoints="productBreakpoints"
+            :space-between="12"
+            :pagination="{ clickable: true }"
+            class="!pb-6 product-swiper"
+          >
+            <SwiperSlide
+              v-for="product in featuredItems"
               :key="product.id"
             >
               <SingleProduct :product="product" />

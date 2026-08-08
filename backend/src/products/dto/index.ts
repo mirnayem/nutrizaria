@@ -157,6 +157,12 @@ export class CreateProductDto {
   @Min(0)
   salePrice?: number;
 
+  @ApiPropertyOptional({ description: 'Weight of the product, e.g. 250 for "250g" combined with unit "g".' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  weight?: number;
+
   @ApiPropertyOptional({ description: 'Sale start date-time (ISO 8601). Product is on sale from this moment.' })
   @IsOptional()
   @IsDateString()
@@ -263,6 +269,12 @@ export class UpdateProductDto {
   @IsNumber()
   @Min(0)
   salePrice?: number;
+
+  @ApiPropertyOptional({ description: 'Weight of the product, e.g. 250 for "250g" combined with unit "g".' })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  weight?: number;
 
   @ApiPropertyOptional({ description: 'Sale start date-time (ISO 8601). Product is on sale from this moment.' })
   @IsOptional()

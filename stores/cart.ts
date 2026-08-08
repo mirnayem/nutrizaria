@@ -57,7 +57,9 @@ export const useCartStore = defineStore('cart', {
         image: variantId ? (item as any)._variant?.image || item.image : item.image,
         price,
         quantity: qty,
-        unit: variantId ? (item as any)._variant?.unit || item.unit : item.unit,
+        unit: variantId
+          ? (item as any)._variant?.unit || item.unit
+          : ((item as any).weight && item.unit ? `${(item as any).weight}${item.unit}` : item.unit),
         variantLabel,
       };
       

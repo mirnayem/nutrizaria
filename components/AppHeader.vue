@@ -249,78 +249,6 @@
       <div
         class="mx-auto flex w-full max-w-[1600px] items-center gap-1 px-4 py-1.5"
       >
-        <div class="relative" ref="categoriesRef">
-          <button
-            type="button"
-            class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-slate-800 transition hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-            @click="toggleCategories()"
-            :aria-expanded="isCategoriesOpen"
-            aria-haspopup="true"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="size-4 text-violet-600"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
-            Shop by category
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke-width="2"
-              stroke="currentColor"
-              class="size-3 text-slate-400"
-              :class="isCategoriesOpen ? 'rotate-180' : ''"
-              aria-hidden="true"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="m6 9 6 6 6-6"
-              />
-            </svg>
-          </button>
-          <div
-            v-if="isCategoriesOpen"
-            class="absolute left-0 top-full z-50 mt-1 w-64 rounded-xl border border-slate-200 bg-white py-2 shadow-xl"
-          >
-            <NuxtLink
-              v-for="category in featuredCategories"
-              :key="category.id"
-              :to="`/categories/${category.slug}`"
-              class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 transition hover:bg-violet-50 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-              @click="isCategoriesOpen = false"
-            >
-              <img
-                :src="resolve(category.image)"
-                :alt="category.name"
-                width="32"
-                height="32"
-                class="h-8 w-8 rounded-lg object-cover"
-                loading="lazy"
-              />
-              <span class="font-medium">{{ category.name }}</span>
-            </NuxtLink>
-            <NuxtLink
-              to="/shop"
-              class="mt-1 flex items-center justify-between border-t border-slate-100 px-4 py-2.5 text-sm font-semibold text-violet-600 transition hover:bg-violet-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-              @click="isCategoriesOpen = false"
-            >
-              View all categories
-            </NuxtLink>
-          </div>
-        </div>
-
         <div class="hidden items-center gap-1 lg:flex">
           <NuxtLink
             to="/shop"
@@ -330,18 +258,18 @@
             Shop
           </NuxtLink>
           <NuxtLink
+            to="/featured"
+            class="rounded-lg px-3 py-2 text-sm font-medium text-amber-600 transition hover:bg-amber-50 hover:text-amber-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            active-class="text-amber-700 bg-amber-50"
+          >
+            Featured
+          </NuxtLink>
+          <NuxtLink
             to="/sale"
             class="rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-50 hover:text-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
             active-class="text-red-700 bg-red-50"
           >
             Sale
-          </NuxtLink>
-          <NuxtLink
-            to="/categories"
-            class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-violet-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
-            active-class="text-violet-700 bg-violet-50"
-          >
-            Categories
           </NuxtLink>
           <NuxtLink
             to="/blog"
@@ -385,7 +313,6 @@ import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useCartStore } from "~/stores/cart";
 import { useFavoriteStore } from "~/stores/favorite";
-import { useCatalogStore } from "~/stores/catalog";
 import { useUIStore } from "~/stores/ui";
 import { useUserStore } from "~/stores/user";
 import { useClickOutside } from "~/composables/useClickOutside";
@@ -394,18 +321,15 @@ const { resolve } = useImageUrl();
 
 const cartStore = useCartStore();
 const favoriteStore = useFavoriteStore();
-const catalogStore = useCatalogStore();
 const userStore = useUserStore();
 const uiStore = useUIStore();
 const route = useRoute();
 const router = useRouter();
-catalogStore.hydrate();
 
 const headerSearch = ref("");
 
 const { items: favoriteItems } = storeToRefs(favoriteStore);
 const { totalItems: cartTotalItems } = storeToRefs(cartStore);
-const { categories } = storeToRefs(catalogStore);
 
 if (typeof window !== "undefined") {
   favoriteStore.loadFavorites();
@@ -441,27 +365,14 @@ const profileLinks = computed(() => [
   { label: "Settings", to: "/profile?tab=settings", icon: Cog6ToothIcon },
 ]);
 
-const featuredCategories = computed(() => categories.value.slice(0, 8));
-
 const submitSearch = () => {
   const term = headerSearch.value.trim();
   if (!term) return;
   router.push(`/search/${encodeURIComponent(term)}`);
 };
 
-const isCategoriesOpen = ref(false);
-const categoriesRef = ref<HTMLElement | null>(null);
-
 const isProfileOpen = ref(false);
 const profileRef = ref<HTMLElement | null>(null);
-
-const toggleCategories = (value?: boolean) => {
-  if (typeof value === "boolean") {
-    isCategoriesOpen.value = value;
-    return;
-  }
-  isCategoriesOpen.value = !isCategoriesOpen.value;
-};
 
 const toggleProfile = (value?: boolean) => {
   if (typeof value === "boolean") {
@@ -477,10 +388,6 @@ const handleLogout = () => {
   router.push("/");
 };
 
-useClickOutside(categoriesRef, () => {
-  isCategoriesOpen.value = false;
-});
-
 useClickOutside(profileRef, () => {
   isProfileOpen.value = false;
 });
@@ -488,7 +395,6 @@ useClickOutside(profileRef, () => {
 watch(
   () => route.fullPath,
   () => {
-    isCategoriesOpen.value = false;
     isProfileOpen.value = false;
   },
 );

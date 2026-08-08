@@ -6,6 +6,15 @@
         <p class="text-sm text-slate-500">{{ meta.total ?? products.length }} products total</p>
       </div>
       <div class="flex gap-2">
+        <select
+          v-model="featuredFilter"
+          class="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
+          aria-label="Filter by featured status"
+        >
+          <option value="">All products</option>
+          <option value="featured">Featured ★</option>
+          <option value="not-featured">Not featured</option>
+        </select>
         <input
           v-model="search"
           type="search"
@@ -23,6 +32,8 @@
       <button @click="confirmBulkDelete" class="text-sm font-medium text-red-600 hover:text-red-700">Delete Selected</button>
       <button @click="bulkActivate" class="text-sm font-medium text-emerald-600 hover:text-emerald-700">Activate</button>
       <button @click="bulkDeactivate" class="text-sm font-medium text-amber-600 hover:text-amber-700">Deactivate</button>
+      <button @click="bulkUpdateFeatured(true)" class="text-sm font-medium text-amber-500 hover:text-amber-600">★ Feature</button>
+      <button @click="bulkUpdateFeatured(false)" class="text-sm font-medium text-slate-500 hover:text-slate-700">Unfeature</button>
       <button @click="selectedIds = []" class="text-sm text-slate-500 hover:text-slate-700">Clear</button>
     </div>
 
@@ -51,6 +62,7 @@
               <th class="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Category</th>
               <th class="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Price</th>
               <th class="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Stock</th>
+              <th class="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Featured</th>
               <th class="px-4 py-3 text-left text-xs font-medium uppercase text-slate-500">Status</th>
               <th class="px-4 py-3 text-right text-xs font-medium uppercase text-slate-500">Actions</th>
             </tr>
@@ -64,6 +76,7 @@
                   <div>
                     <p class="text-sm font-medium text-slate-900">
                       {{ product.name }}
+                      <span v-if="product.isFeatured" class="ml-1 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">★ Featured</span>
                       <span v-if="product.variants?.length > 0" class="ml-1 rounded bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-violet-700">Variant</span>
                     </p>
                     <p class="text-xs text-slate-500">{{ product.brand?.name }}{{ product.brand?.name && product.unit ? ' • ' : '' }}{{ product.unit }}</p>
@@ -73,6 +86,21 @@
               <td class="px-4 py-3 text-sm text-slate-600 capitalize">{{ product.category?.name || product.category }}</td>
               <td class="px-4 py-3 text-sm font-medium text-slate-900">{{ currencySymbol }}{{ product.price }}</td>
               <td class="px-4 py-3 text-sm text-slate-600">{{ product.stock }}</td>
+              <td class="px-4 py-3">
+                <button
+                  type="button"
+                  :title="product.isFeatured ? 'Remove from featured' : 'Mark as featured'"
+                  class="inline-flex size-8 items-center justify-center rounded-lg border transition"
+                  :class="product.isFeatured
+                    ? 'border-amber-300 bg-amber-50 text-amber-500 hover:bg-amber-100'
+                    : 'border-slate-200 bg-white text-slate-300 hover:border-amber-300 hover:text-amber-400'"
+                  @click="toggleFeatured(product)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
+                    <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005Z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+              </td>
               <td class="px-4 py-3">
                 <span class="rounded-full px-2 py-0.5 text-xs font-medium" :class="product.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'">
                   {{ product.isActive ? 'Active' : 'Inactive' }}
@@ -89,7 +117,7 @@
               </td>
             </tr>
             <tr v-if="filteredProducts.length === 0 && !loadingProducts">
-              <td colspan="7" class="px-4 py-8 text-center text-sm text-slate-500">No products found</td>
+              <td colspan="8" class="px-4 py-8 text-center text-sm text-slate-500">No products found</td>
             </tr>
           </tbody>
         </table>
@@ -108,12 +136,17 @@
       <form @submit.prevent="saveProduct" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
-          <input v-model="form.name" type="text" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          <input v-model="form.name" @input="onNameInput" type="text" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Slug</label>
-          <input v-model="form.slug" type="text" placeholder="auto-generated from name" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
-          <p class="mt-1 text-xs text-slate-500">Used in the product URL. Leave empty to auto-generate.</p>
+          <div class="flex gap-2">
+            <input v-model="form.slug" type="text" placeholder="auto-generated from name" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+            <button type="button" @click="generateSlug" title="Regenerate from name" class="shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:border-violet-400 hover:text-violet-600">
+              Regenerate
+            </button>
+          </div>
+          <p class="mt-1 text-xs text-slate-500">Used in the product URL. Auto-generated from the name, or edit it manually.</p>
         </div>
         <div>
           <label class="block text-sm font-medium text-slate-700 mb-1">Product Type</label>
@@ -185,9 +218,15 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Sale Price <span class="font-normal text-slate-400">(optional)</span></label>
             <input v-model.number="form.salePrice" type="number" min="0" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" placeholder="e.g., 350" />
           </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Unit</label>
-            <input v-model="form.unit" type="text" required class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Weight</label>
+              <input v-model.number="form.weight" type="number" min="0" step="0.01" placeholder="e.g., 250" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Unit</label>
+              <input v-model="form.unit" type="text" required placeholder="e.g., g, ml" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-violet-500" />
+            </div>
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
@@ -222,6 +261,12 @@
             <label class="flex items-center gap-2 cursor-pointer">
               <input v-model="form.isActive" type="checkbox" class="rounded border-slate-300" />
               <span class="text-sm text-slate-700">Active</span>
+            </label>
+          </div>
+          <div class="flex items-end pb-2">
+            <label class="flex items-center gap-2 cursor-pointer" title="Featured products are highlighted on the storefront">
+              <input v-model="form.isFeatured" type="checkbox" class="rounded border-amber-400 text-amber-500 focus:ring-amber-500" />
+              <span class="text-sm text-slate-700">Featured <span class="text-amber-500">★</span></span>
             </label>
           </div>
         </div>
@@ -395,6 +440,7 @@ const products = ref<any[]>([]);
 const categories = ref<any[]>([]);
 const brands = ref<any[]>([]);
 const search = ref('');
+const featuredFilter = ref('');
 const selectedIds = ref<string[]>([]);
 const showModal = ref(false);
 const editingProduct = ref<any>(null);
@@ -412,6 +458,7 @@ const form = reactive({
   slug: '',
   brandSlug: '',
   price: 0,
+  weight: null as number | null,
   unit: '',
   categorySlug: '',
   image: '',
@@ -419,6 +466,7 @@ const form = reactive({
   description: '',
   stock: 100,
   isActive: true,
+  isFeatured: false,
   salePrice: null as number | null,
   saleStartAt: '',
   saleEndAt: '',
@@ -435,19 +483,22 @@ const confirmModal = reactive({
 
 const slugify = (str: string): string =>
   String(str || '')
+    .normalize('NFKD')
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
+    .replace(/&/g, ' and ')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/[\s_]+/g, '-')
     .replace(/-+/g, '-')
     .replace(/^-+|-+$/g, '') || 'product';
 
-watch(
-  () => form.name,
-  (name) => {
-    if (!form.slug.trim()) form.slug = slugify(name);
-  }
-);
+const generateSlug = () => {
+  form.slug = slugify(form.name);
+};
+
+const onNameInput = () => {
+  form.slug = slugify(form.name);
+};
 
 const parentCategories = computed(() => categories.value.filter((c: any) => !c.parentId));
 
@@ -506,6 +557,7 @@ const editProduct = (product: any) => {
   form.slug = product.slug || '';
   form.brandSlug = product.brand?.slug || '';
   form.price = product.price;
+  form.weight = product.weight ?? null;
   form.unit = product.unit;
   const catSlug = product.category?.slug || product.category;
   const cat = categories.value.find((c: any) => c.slug === catSlug);
@@ -522,6 +574,7 @@ const editProduct = (product: any) => {
   form.description = product.description || '';
   form.stock = product.stock ?? 100;
   form.isActive = product.isActive ?? true;
+  form.isFeatured = product.isFeatured ?? false;
   form.salePrice = product.salePrice ?? null;
   form.saleStartAt = product.saleStartAt ? toLocalInput(String(product.saleStartAt)) : '';
   form.saleEndAt = product.saleEndAt ? toLocalInput(String(product.saleEndAt)) : '';
@@ -570,6 +623,7 @@ const resetForm = () => {
   form.slug = '';
   form.brandSlug = '';
   form.price = 0;
+  form.weight = null;
   form.unit = '';
   form.categorySlug = '';
   form.image = '';
@@ -577,6 +631,7 @@ const resetForm = () => {
   form.description = '';
   form.stock = 100;
   form.isActive = true;
+  form.isFeatured = false;
   form.salePrice = null;
   form.saleStartAt = '';
   form.saleEndAt = '';
@@ -650,6 +705,7 @@ const saveProduct = async () => {
       }));
 
     const payload: any = JSON.parse(JSON.stringify({ ...form }));
+    if (!payload.slug?.trim()) payload.slug = slugify(form.name);
     // Convert datetime-local values (YYYY-MM-DDTHH:mm) to full ISO-8601
     // DateTimes that Prisma can store. Empty strings become null/undefined.
     payload.saleStartAt = form.saleStartAt ? new Date(form.saleStartAt).toISOString() : null;
@@ -786,6 +842,36 @@ const bulkDeactivate = async () => {
   }
 };
 
+const toggleFeatured = async (product: any) => {
+  const next = !product.isFeatured;
+  try {
+    await $fetch(`${apiBase}/admin/products/${product.id}`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${token.value}` },
+      body: { isFeatured: next },
+    });
+    product.isFeatured = next;
+  } catch (e) {
+    console.error('Failed to toggle featured', e);
+  }
+};
+
+const bulkUpdateFeatured = async (isFeatured: boolean) => {
+  try {
+    for (const id of selectedIds.value) {
+      await $fetch(`${apiBase}/admin/products/${id}`, {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token.value}` },
+        body: { isFeatured },
+      });
+    }
+    selectedIds.value = [];
+    await loadProducts();
+  } catch (e) {
+    console.error('Bulk featured update failed', e);
+  }
+};
+
 const loadProducts = async () => {
   loadingProducts.value = true;
   try {
@@ -793,6 +879,8 @@ const loadProducts = async () => {
     if (activeCursor) params.cursor = activeCursor;
     else params.page = meta.value.page || 1;
     if (search.value.trim()) params.search = search.value.trim();
+    if (featuredFilter.value === 'featured') params.featured = 'true';
+    if (featuredFilter.value === 'not-featured') params.featured = 'false';
 
     const res = await $fetch(`${apiBase}/admin/products`, {
       params,
@@ -835,6 +923,12 @@ const onCursorChange = (cursor: string | null) => {
 };
 
 watch(search, () => {
+  activeCursor = null;
+  meta.value = { ...meta.value, page: 1 };
+  loadProducts();
+});
+
+watch(featuredFilter, () => {
   activeCursor = null;
   meta.value = { ...meta.value, page: 1 };
   loadProducts();

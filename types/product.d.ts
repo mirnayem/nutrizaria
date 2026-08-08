@@ -24,11 +24,13 @@ export interface Product {
   salePrice?: number;
   saleStartAt?: string;
   saleEndAt?: string;
+  weight?: number | null;
   unit: string;
   isActive?: boolean;
   isFeatured?: boolean;
   stock?: number;
   sku?: string;
+  createdAt?: string;
   metaTitle?: string;
   metaDescription?: string;
   variants?: ProductVariant[];

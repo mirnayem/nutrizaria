@@ -110,12 +110,13 @@ export class ProductsService {
   }
 
   async findAllAdmin(query: QueryProductDto) {
-    const { category, brand, search, sort = 'newest' } = query;
+    const { category, brand, search, featured, sort = 'newest' } = query;
     const pagination = parsePagination(query, 20);
 
     const where: any = {};
     if (category) where.category = { slug: category };
     if (brand) where.brand = { slug: brand };
+    if (featured !== undefined) where.isFeatured = featured === 'true';
     if (search) {
       where.OR = [
         { name: { contains: search, mode: 'insensitive' } },
@@ -299,11 +300,19 @@ export class ProductsService {
     existing: {
       price: number;
       unit: string;
+      weight: number | null;
       image: string;
       images: string[];
       stock: number;
     } | null,
-  ): { price: number; unit: string; image: string; images: string[]; stock: number } {
+  ): {
+    price: number;
+    unit: string;
+    weight: number | null;
+    image: string;
+    images: string[];
+    stock: number;
+  } {
     const hasVariants = Array.isArray(variants) && variants.length > 0;
     const activeVariants = hasVariants ? variants.filter((v) => v.isActive !== false) : [];
 
@@ -312,6 +321,7 @@ export class ProductsService {
     const base = {
       price: existing?.price ?? 0,
       unit: existing?.unit ?? '',
+      weight: existing?.weight ?? null,
       image: existing?.image ?? '',
       images: existing?.images ?? [],
       stock: existing?.stock ?? 0,
@@ -319,6 +329,7 @@ export class ProductsService {
 
     if (has(input.price)) base.price = input.price;
     if (has(input.unit)) base.unit = input.unit;
+    if (has(input.weight)) base.weight = input.weight;
     if (has(input.image)) base.image = input.image;
     if (Array.isArray(input.images) && input.images.length > 0) base.images = input.images;
     if (has(input.stock)) base.stock = input.stock;
@@ -329,6 +340,7 @@ export class ProductsService {
       if (cheapest) {
         if (!has(input.price)) base.price = cheapest.price;
         if (!has(input.unit)) base.unit = cheapest.unit;
+        if (!has(input.weight)) base.weight = cheapest.weight ?? null;
         if (!has(input.stock)) {
           base.stock = activeVariants.reduce((sum, v) => sum + (v.stock ?? 0), 0);
         }

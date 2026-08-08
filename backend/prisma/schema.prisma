@@ -183,6 +183,7 @@ model Product {
   salePrice       Float?
   saleStartAt     DateTime?
   saleEndAt       DateTime?
+  weight          Float?
   unit            String
   image           String
   images          String[]

@@ -126,7 +126,32 @@ export const useCatalogStore = defineStore("catalog", {
       );
       return summary;
     },
-    featuredProducts: (state) => state.products.slice(0, 4),
+    featuredProducts: (state) =>
+      state.products
+        .filter((p) => p.isFeatured === true)
+        .sort((a, b) => Number(b.isFeatured) - Number(a.isFeatured)),
+    bestSellingProducts: (state) => {
+      const salesMap = state.orders.reduce<Record<string, number>>((acc, order) => {
+        for (const item of order.items) {
+          const key = String(item.productId ?? item.id);
+          acc[key] = (acc[key] ?? 0) + (item.quantity ?? 1);
+        }
+        return acc;
+      }, {});
+      const withSales = state.products
+        .map((p) => ({ product: p, sold: salesMap[String(p.id)] ?? 0 }))
+        .sort((a, b) => b.sold - a.sold);
+      // Prefer products that have actual sales; fall back to featured or newest
+      // when the store has no order history yet.
+      const sold = withSales.filter((entry) => entry.sold > 0);
+      if (sold.length > 0) return sold.map((entry) => entry.product);
+      return withSales
+        .sort((a, b) =>
+          Number(b.product.isFeatured) - Number(a.product.isFeatured) ||
+          String(b.product.createdAt ?? "").localeCompare(String(a.product.createdAt ?? ""))
+        )
+        .map((entry) => entry.product);
+    },
     saleProducts: (state) => {
       const now = Date.now();
       return state.products.filter((p) => {
@@ -187,10 +212,12 @@ export const useCatalogStore = defineStore("catalog", {
                 description: p.description,
                 benefits: p.benefits || [],
                 price: p.price,
+                weight: p.weight ?? null,
                 unit: p.unit,
                 isActive: p.isActive,
                 isFeatured: p.isFeatured,
                 stock: p.stock,
+                createdAt: p.createdAt,
                 comparePrice: p.comparePrice,
                 salePrice: p.salePrice,
                 saleStartAt: p.saleStartAt,

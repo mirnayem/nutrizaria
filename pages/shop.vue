@@ -454,13 +454,13 @@ watch([selectedCategory, sortOption, priceMin, priceMax, inStockOnly], () => {
             :products="filteredProducts"
             :paginate="true"
             :page-size="12"
-            :columns="3"
+            :columns="4"
           />
           <div
             v-else-if="isCatalogLoading"
             aria-label="Loading products"
           >
-            <SkeletonProductGrid :count="6" :columns="3" />
+            <SkeletonProductGrid :count="8" :columns="4" />
           </div>
           <div
             v-else

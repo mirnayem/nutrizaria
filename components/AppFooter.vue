@@ -160,7 +160,7 @@ const isAdmin = computed(() => {
 
 const shopLinks = [
   { label: 'All products', to: '/shop' },
-  { label: 'Categories', to: '/categories' },
+  { label: 'Featured', to: '/featured' },
   { label: 'Favorites', to: '/favorite' },
   { label: 'New arrivals', to: '/shop?sort=new' },
 ];
